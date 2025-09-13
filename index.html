@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Golem Egg</title>
-    <link rel="stylesheet" href="style.css?v=1.6.0">
-</head>
+    </head>
 <body>
 
     <div class="game-container">
@@ -58,76 +57,27 @@
         <div id="click-effect-container"></div>
     </div>
 
-    <div id="shop-modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="close-shop-button" class="close-button">&times;</span>
-            <h2>Upgrades</h2>
-            <div class="upgrade-item">
-                <h3>Crystal Chisel</h3>
-                <p>Increases Crystal Dust per tap.</p>
-                <p>Level: <span id="chisel-level">1</span></p>
-                <p>Effect: +<span id="chisel-effect">1</span> Dust/Tap</p>
-                <button id="buy-chisel-button">Upgrade (Cost: <span id="chisel-cost">100</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Mining Drone</h3>
-                <p>Automatically generates Dust per second.</p>
-                <p>Level: <span id="drone-level">0</span></p>
-                <p>Effect: +<span id="drone-effect">0</span> Dust/Sec</p>
-                <button id="buy-drone-button">Upgrade (Cost: <span id="drone-cost">250</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Drone Battery</h3>
-                <p>Increases drone offline mining time.</p>
-                <p>Level: <span id="battery-level">1</span></p>
-                <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
-                <button id="buy-battery-button">Upgrade (Cost: <span id="battery-cost">1K</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Max Energy</h3>
-                <p>Increases your maximum Tap Energy.</p>
-                <p>Level: <span id="max-energy-level">1</span></p>
-                <p>Capacity: <span id="max-energy-capacity">2000</span></p>
-                <button id="buy-max-energy-button">Upgrade (Cost: <span id="max-energy-cost">500</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Energy Regen</h3>
-                <p>Increases Tap Energy regeneration rate.</p>
-                <p>Level: <span id="energy-regen-level">1</span></p>
-                <p>Effect: +<span id="energy-regen-effect">1</span>/sec</p>
-                <button id="buy-energy-regen-button">Upgrade (Cost: <span id="energy-regen-cost">1K</span>)</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="login-reward-modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="close-reward-button" class="close-button">&times;</span>
-            <h2>Daily Login!</h2>
-            <p>Your streak is <strong id="reward-streak">1</strong> day(s)!</p>
-            <p>You received <strong id="reward-amount">100</strong> Crystal Dust!</p>
-        </div>
-    </div>
-
-    <div id="calendar-modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="close-calendar-button" class="close-button">&times;</span>
-            <h2>Attendance Streak</h2>
-            <p>Your current streak is <strong id="calendar-streak-label">0</strong> days!</p>
-            <div id="streak-grid" class="streak-grid">
-            </div>
-        </div>
-    </div>
-    
-    <div id="cheat-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Cheat Detected</h2>
-            <p>Your game data appears to be corrupted or modified.</p>
-            <p>Please contact game support if you believe this is a mistake.</p>
-        </div>
-    </div>
+    <div id="shop-modal" class="modal hidden"> </div>
+    <div id="login-reward-modal" class="modal hidden"> </div>
+    <div id="calendar-modal" class="modal hidden"> </div>
+    <div id="cheat-modal" class="modal hidden"> </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=1.6.0"></script>
+
+    <script>
+        // Create a unique version number based on the current time
+        const version = new Date().getTime(); 
+
+        // Create a <link> tag for the CSS file
+        const cssLink = document.createElement('link');
+        cssLink.rel = 'stylesheet';
+        cssLink.href = `style.css?v=${version}`;
+        document.head.appendChild(cssLink);
+
+        // Create a <script> tag for the JS file
+        const scriptTag = document.createElement('script');
+        scriptTag.src = `script.js?v=${version}`;
+        document.body.appendChild(scriptTag);
+    </script>
 </body>
 </html>

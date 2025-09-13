@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
 
-        for (let i = 1; i <= 14; i++) {
+        for (let i = 1; i <= 28; i++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'streak-day';
             dayCell.innerText = i;

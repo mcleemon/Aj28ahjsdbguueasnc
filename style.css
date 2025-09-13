@@ -17,6 +17,7 @@ body {
     margin: 0;
     overflow: hidden;
     -webkit-user-select: none;
+    -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
@@ -80,27 +81,21 @@ body {
     width: 100%;
 }
 
-/* THE FIX IS HERE */
-#click-effect-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* This makes the container 'click-through' */
-}
-
 .egg-image {
     width: 180px;
     height: 220px;
     background-color: #8A2BE2;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     cursor: pointer;
+    -webkit-transition: -webkit-transform 0.1s ease;
+    transition: -webkit-transform 0.1s ease;
     transition: transform 0.1s ease;
+    transition: transform 0.1s ease, -webkit-transform 0.1s ease;
     position: relative;
     overflow: hidden;
 }
 .egg-image:active {
+    -webkit-transform: scale(0.95);
     transform: scale(0.95);
 }
 
@@ -192,7 +187,6 @@ body {
     font-size: 24px;
     font-weight: bold;
     color: white;
-    /* This is NOT click-through, so you can see it */
     pointer-events: auto; 
     -webkit-animation: float-up 1s ease-out forwards;
     animation: float-up 1s ease-out forwards;
@@ -202,8 +196,8 @@ body {
     100% { opacity: 0; -webkit-transform: translateY(-80px); transform: translateY(-80px); }
 }
 @keyframes float-up {
-    0% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
-    100% { opacity: 0; -webkit-transform: translateY(-80px); transform: translateY(-80px); }
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-80px); }
 }
 .click-effect.critical {
     color: #ffd700;

@@ -218,3 +218,9 @@ body {
     background-color: #a01c1c;
     border: 2px solid #ff0000;
 }
+.click-effect.critical {
+    color: #ffd700; /* A nice gold color */
+    font-size: 32px; /* Bigger font size */
+    font-weight: 900; /* Extra bold */
+    text-shadow: 0 0 5px #ffc400; /* A subtle glow */
+}

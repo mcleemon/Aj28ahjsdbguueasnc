@@ -53,18 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         checksum: null,
         lastSavedTimestamp: Date.now(),
         batteryLevel: 1,
-        batteryCapacity: 3600, // Base capacity is 1 hour (3600 seconds)
+        batteryCapacity: 3600,
         batteryBaseCost: 1000,
     };
 
-    // Defines the free upgrade path for the battery capacity in seconds
-    const batteryLevels = [
-        3600,  // Level 1: 1 Hour
-        7200,  // Level 2: 2 Hours
-        14400, // Level 3: 4 Hours
-        21600  // Level 4: 6 Hours (Max free level)
-    ];
-
+    const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     // --- HELPER FUNCTIONS ---
@@ -261,13 +254,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
         if (gameState.hatchProgress >= gameState.hatchGoal) return;
-        gameState.hatchProgress += gameState.dustPerTap;
-        gameState.dust += gameState.dustPerTap;
-        tg.HapticFeedback.impactOccurred('light');
+
+        let dustEarned = gameState.dustPerTap;
+        let isCritical = false;
+
+        // Critical Tap Logic (10% chance)
+        if (Math.random() < 0.10) { 
+            isCritical = true;
+            dustEarned *= 2;
+        }
+
+        gameState.hatchProgress += dustEarned;
+        gameState.dust += dustEarned;
+        
+        if (isCritical) {
+            tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
         updateUI();
+
         const effect = document.createElement('div');
         effect.className = 'click-effect';
-        effect.innerText = `+${formatNumber(gameState.dustPerTap)}`;
+        effect.innerText = `+${formatNumber(dustEarned)}`;
+        
+        if (isCritical) {
+            effect.classList.add('critical');
+        }
+        
         effect.style.left = `${Math.random() * 60 + 20}%`;
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);

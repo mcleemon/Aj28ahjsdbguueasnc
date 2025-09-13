@@ -62,9 +62,31 @@ body {
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     cursor: pointer;
     transition: transform 0.1s ease;
+    position: relative;
+    overflow: hidden;
 }
 .egg-image:active {
     transform: scale(0.95);
+}
+
+.egg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+}
+.egg-cracked-1 {
+    border: 3px solid rgba(0, 0, 0, 0.4);
+}
+.egg-cracked-2 {
+    border: 6px solid rgba(0, 0, 0, 0.4);
+}
+.egg-cracked-3 {
+    border: 9px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
 }
 
 .progress-container {
@@ -106,7 +128,6 @@ body {
     cursor: pointer;
 }
 
-/* Modal Styles */
 .modal {
     position: fixed;
     left: 0;
@@ -148,12 +169,15 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
-
+.upgrade-item button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
 .upgrade-item + .upgrade-item {
     margin-top: 20px;
 }
 
-/* Floating Click Effect */
 .click-effect {
     position: absolute;
     font-size: 24px;
@@ -162,16 +186,14 @@ body {
     pointer-events: none;
     animation: float-up 1s ease-out forwards;
 }
-
 @keyframes float-up {
     0% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-80px); }
 }
 
-/* Streak Calendar Styles */
 .streak-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 days a week */
+    grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     margin-top: 15px;
 }
@@ -181,13 +203,17 @@ body {
     align-items: center;
     height: 35px;
     border-radius: 5px;
-    background-color: #444; /* Default for future days */
+    background-color: #444;
     font-weight: bold;
 }
 .streak-day.completed {
-    background-color: var(--checked-in-color); /* Green for past days */
+    background-color: var(--checked-in-color);
 }
 .streak-day.current {
-    border: 2px solid var(--tg-theme-text-color); /* Outline for today */
+    border: 2px solid var(--tg-theme-text-color);
     background-color: var(--checked-in-color);
+}
+#cheat-modal .modal-content {
+    background-color: #a01c1c;
+    border: 2px solid #ff0000;
 }

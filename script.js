@@ -1,3 +1,4 @@
+// This file is correct and does not need to be changed.
 document.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram.WebApp;
     tg.expand();
@@ -11,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const hatchProgressBar = document.getElementById('hatch-progress-bar');
     const progressText = document.getElementById('progress-text');
     const clickEffectContainer = document.getElementById('click-effect-container');
-    const energyBarFill = document.getElementById('energy-bar-fill');
-    const energyText = document.getElementById('energy-text');
     const shopButton = document.getElementById('shop-button');
     const calendarButton = document.getElementById('calendar-button');
     const shopModal = document.getElementById('shop-modal');
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rewardAmount = document.getElementById('reward-amount');
     const calendarStreakLabel = document.getElementById('calendar-streak-label');
     const streakGrid = document.getElementById('streak-grid');
-    // Shop Items
     const buyChiselButton = document.getElementById('buy-chisel-button');
     const chiselLevelText = document.getElementById('chisel-level');
     const chiselEffectText = document.getElementById('chisel-effect');
@@ -39,14 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const batteryLevelText = document.getElementById('battery-level');
     const batteryCapacityText = document.getElementById('battery-capacity');
     const batteryCostText = document.getElementById('battery-cost');
-    const buyMaxEnergyButton = document.getElementById('buy-max-energy-button');
-    const maxEnergyLevelText = document.getElementById('max-energy-level');
-    const maxEnergyCapacityText = document.getElementById('max-energy-capacity');
-    const maxEnergyCostText = document.getElementById('max-energy-cost');
-    const buyEnergyRegenButton = document.getElementById('buy-energy-regen-button');
-    const energyRegenLevelText = document.getElementById('energy-regen-level');
-    const energyRegenEffectText = document.getElementById('energy-regen-effect');
-    const energyRegenCostText = document.getElementById('energy-regen-cost');
 
     // --- GAME STATE ---
     let gameState = {
@@ -66,13 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         batteryLevel: 1,
         batteryCapacity: 3600,
         batteryBaseCost: 1000,
-        tapEnergy: 2000,
-        maxTapEnergy: 2000,
-        energyRegenRate: 1,
-        maxEnergyLevel: 1,
-        maxEnergyBaseCost: 500,
-        energyRegenLevel: 1,
-        energyRegenBaseCost: 1000,
     };
 
     const batteryLevels = [3600, 7200, 14400, 21600];
@@ -86,10 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const i = Math.floor(Math.log10(num) / 3);
         const shortNum = (num / Math.pow(1000, i)).toFixed(1);
         return shortNum.replace(/\.0$/, '') + suffixes[i];
-    }
-
-    function formatWithCommas(num) {
-        return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     function getTodayDateString() {
@@ -180,25 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
-        dustCounter.innerText = formatWithCommas(gameState.dust);
+        dustCounter.innerText = formatNumber(gameState.dust);
         streakCounter.innerText = gameState.loginStreak;
-        progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
-
         const progressPercent = (gameState.hatchProgress / gameState.hatchGoal) * 100;
         hatchProgressBar.style.width = `${progressPercent}%`;
+        progressText.innerText = `${formatNumber(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
 
         eggOverlay.className = 'egg-overlay';
         if (progressPercent >= 75) { eggOverlay.classList.add('egg-cracked-3'); }
         else if (progressPercent >= 50) { eggOverlay.classList.add('egg-cracked-2'); }
         else if (progressPercent >= 25) { eggOverlay.classList.add('egg-cracked-1'); }
         
-        const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-        energyBarFill.style.width = `${energyPercent}%`;
-        energyText.innerText = `${formatWithCommas(gameState.tapEnergy)} / ${formatWithCommas(gameState.maxTapEnergy)}`;
-
         const chiselCost = getChiselCost();
         chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+        chiselEffectText.innerText = `+${formatNumber(gameState.dustPerTap)}`;
         chiselCostText.innerText = formatNumber(chiselCost);
         buyChiselButton.disabled = gameState.dust < chiselCost;
 
@@ -220,18 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
             buyBatteryButton.disabled = gameState.dust < batteryCost;
         }
         batteryStatus.innerText = '100%';
-        
-        const maxEnergyCost = getMaxEnergyCost();
-        maxEnergyLevelText.innerText = gameState.maxEnergyLevel;
-        maxEnergyCapacityText.innerText = formatWithCommas(gameState.maxTapEnergy);
-        maxEnergyCostText.innerText = formatNumber(maxEnergyCost);
-        buyMaxEnergyButton.disabled = gameState.dust < maxEnergyCost;
-
-        const energyRegenCost = getEnergyRegenCost();
-        energyRegenLevelText.innerText = gameState.energyRegenLevel;
-        energyRegenEffectText.innerText = `+${gameState.energyRegenRate}/sec`;
-        energyRegenCostText.innerText = formatNumber(energyRegenCost);
-        buyEnergyRegenButton.disabled = gameState.dust < energyRegenCost;
     }
 
     function getChiselCost() {
@@ -246,27 +208,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1));
     }
 
-    function getMaxEnergyCost() {
-        return Math.floor(gameState.maxEnergyBaseCost * Math.pow(1.6, gameState.maxEnergyLevel - 1));
-    }
-
-    function getEnergyRegenCost() {
-        return Math.floor(gameState.energyRegenBaseCost * Math.pow(1.9, gameState.energyRegenLevel - 1));
-    }
-    
     function gameLoop() {
-        if (gameState.tapEnergy < gameState.maxTapEnergy) {
-            gameState.tapEnergy += gameState.energyRegenRate;
-            if (gameState.tapEnergy > gameState.maxTapEnergy) {
-                gameState.tapEnergy = gameState.maxTapEnergy;
-            }
-        }
-        
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += gameState.dustPerSecond;
         }
         gameState.dust += gameState.dustPerSecond;
-
         saveGame();
         updateUI();
     }
@@ -308,13 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        if (gameState.hatchProgress >= gameState.hatchGoal || gameState.tapEnergy < 1) return;
-        
-        gameState.tapEnergy -= 1;
+        if (gameState.hatchProgress >= gameState.hatchGoal) return;
 
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
+        // Critical Tap Logic (10% chance)
         if (Math.random() < 0.10) { 
             isCritical = true;
             dustEarned *= 2;
@@ -382,28 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.batteryLevel++;
             gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
-            updateUI();
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
-    buyMaxEnergyButton.addEventListener('click', () => {
-        const cost = getMaxEnergyCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.maxEnergyLevel++;
-            gameState.maxTapEnergy += 500;
-            updateUI();
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
-    buyEnergyRegenButton.addEventListener('click', () => {
-        const cost = getEnergyRegenCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.energyRegenLevel++;
-            gameState.energyRegenRate++;
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }

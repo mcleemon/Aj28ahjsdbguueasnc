@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         droneBaseCost: 250,
         lastLoginDate: null,
         loginStreak: 0,
-        checksum: null
+        checksum: null,
+        lastSavedTimestamp: Date.now()
     };
 
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
@@ -84,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSave) {
                 localStorage.setItem('golemEggGameState_previous', currentSave);
             }
+            gameState.lastSavedTimestamp = Date.now();
             gameState.checksum = generateChecksum(gameState);
             localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
         } catch (error) {
@@ -97,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tryLoadingState = (stateKey) => {
                 const savedJSON = localStorage.getItem(stateKey);
                 if (!savedJSON) return false;
-                isNew = false; // A save file exists, so not a new player
+                isNew = false;
                 const savedState = JSON.parse(savedJSON);
                 const expectedChecksum = generateChecksum(savedState);
                 if (savedState.checksum === expectedChecksum) {
@@ -107,10 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             };
 
-            if (tryLoadingState('golemEggGameState')) { return false; }
+            if (tryLoadingState('golemEggGameState')) {
+                calculateOfflineProgress();
+                return false;
+            }
             
             console.warn("Main save file corrupt or tampered. Trying backup.");
-            if (tryLoadingState('golemEggGameState_previous')) { return false; }
+            if (tryLoadingState('golemEggGameState_previous')) {
+                calculateOfflineProgress();
+                return false;
+            }
 
             if (localStorage.getItem('golemEggGameState')) {
                 console.error("Both save files are corrupt or have been tampered with.");
@@ -119,7 +127,25 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Critical error during game load:", error);
         }
-        return isNew; // Will be true if no valid save was found
+        return isNew;
+    }
+
+    function calculateOfflineProgress() {
+        const now = Date.now();
+        const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+        
+        if (timePassedInSeconds > 1) {
+            const offlineSecondsCapped = Math.min(timePassedInSeconds, 7200);
+            const dustEarnedOffline = offlineSecondsCapped * gameState.dustPerSecond;
+
+            if (dustEarnedOffline > 0) {
+                gameState.dust += dustEarnedOffline;
+                if (gameState.hatchProgress < gameState.hatchGoal) {
+                    gameState.hatchProgress += dustEarnedOffline;
+                }
+                alert(`Welcome back!\n\nYour drones collected ${formatNumber(dustEarnedOffline)} Crystal Dust while you were away.`);
+            }
+        }
     }
 
     function updateUI() {
@@ -248,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZE GAME ---
     const isNewPlayer = loadGame();
     if (isNewPlayer) {
-        saveGame(); // Perform the first save for a new player
+        saveGame();
     }
     handleDailyLogin();
     updateUI();

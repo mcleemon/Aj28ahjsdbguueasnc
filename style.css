@@ -168,7 +168,7 @@ body {
     100% { opacity: 0; transform: translateY(-80px); }
 }
 
-/* NEW: Streak Calendar Styles */
+/* Streak Calendar Styles */
 .streak-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr); /* 7 days a week */

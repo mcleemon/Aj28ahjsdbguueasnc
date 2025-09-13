@@ -2,27 +2,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- DOM ELEMENTS ---
+    // --- DOM ELEMENTS (ALL OF THEM) ---
     const dustCounter = document.getElementById('dust-counter');
     const streakCounter = document.getElementById('streak-counter');
     const golemEgg = document.getElementById('golem-egg');
-    // ... (other game elements)
+    const hatchProgressBar = document.getElementById('hatch-progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const clickEffectContainer = document.getElementById('click-effect-container');
 
     // Buttons
     const shopButton = document.getElementById('shop-button');
     const calendarButton = document.getElementById('calendar-button');
 
-    // Modals & Modal Content
+    // Modals
     const shopModal = document.getElementById('shop-modal');
     const loginRewardModal = document.getElementById('login-reward-modal');
     const calendarModal = document.getElementById('calendar-modal');
+    const closeShopButton = document.getElementById('close-shop-button');
     const closeRewardButton = document.getElementById('close-reward-button');
+    const closeCalendarButton = document.getElementById('close-calendar-button');
+    
+    // Reward Modal Content
     const rewardStreak = document.getElementById('reward-streak');
     const rewardAmount = document.getElementById('reward-amount');
-    const closeCalendarButton = document.getElementById('close-calendar-button');
+
+    // Calendar Modal Content
     const calendarStreakLabel = document.getElementById('calendar-streak-label');
     const streakGrid = document.getElementById('streak-grid');
-    // ... (shop item elements are the same)
+
+    // Shop Item: Chisel
+    const buyChiselButton = document.getElementById('buy-chisel-button');
+    const chiselLevelText = document.getElementById('chisel-level');
+    const chiselEffectText = document.getElementById('chisel-effect');
+    const chiselCostText = document.getElementById('chisel-cost');
+
+    // Shop Item: Drone
+    const buyDroneButton = document.getElementById('buy-drone-button');
+    const droneLevelText = document.getElementById('drone-level');
+    const droneEffectText = document.getElementById('drone-effect');
+    const droneCostText = document.getElementById('drone-cost');
 
     // --- GAME STATE ---
     let gameState = {
@@ -35,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dustPerSecond: 0,
         droneLevel: 0,
         droneBaseCost: 250,
-        lastLoginDate: null, // Still need this to check for new days
+        lastLoginDate: null,
         loginStreak: 0,
     };
 
@@ -55,88 +73,143 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         dustCounter.innerText = Math.floor(gameState.dust);
         streakCounter.innerText = gameState.loginStreak;
-        // ... (rest of UI update logic for progress bar and shop is the same)
-    }
+        
+        const progressPercent = (gameState.hatchProgress / gameState.hatchGoal) * 100;
+        hatchProgressBar.style.width = `${progressPercent}%`;
+        progressText.innerText = `${Math.floor(gameState.hatchProgress)} / ${gameState.hatchGoal}`;
 
-    // Helper to get date as YYYY-MM-DD
+        chiselLevelText.innerText = gameState.chiselLevel;
+        chiselEffectText.innerText = gameState.dustPerTap;
+        chiselCostText.innerText = getChiselCost();
+        
+        droneLevelText.innerText = gameState.droneLevel;
+        droneEffectText.innerText = gameState.dustPerSecond;
+        droneCostText.innerText = getDroneCost();
+    }
+    
+    function getChiselCost() {
+        return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1));
+    }
+    
+    function getDroneCost() {
+        return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel));
+    }
+    
+    function autoMine() {
+        if (gameState.hatchProgress < gameState.hatchGoal) {
+             gameState.hatchProgress += gameState.dustPerSecond;
+        }
+        gameState.dust += gameState.dustPerSecond;
+        updateUI();
+    }
+    
     function getTodayDateString() {
         const d = new Date();
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
     function handleDailyLogin() {
         const today = getTodayDateString();
-        const lastLogin = gameState.lastLoginDate;
-
-        if (lastLogin === today) return; // Already logged in today
+        if (gameState.lastLoginDate === today) return;
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = getTodayDateString.call(yesterday);
 
-        if (lastLogin === yesterdayStr) {
-            gameState.loginStreak++; // Streak continues
+        if (gameState.lastLoginDate === yesterdayStr) {
+            gameState.loginStreak++;
         } else {
-            gameState.loginStreak = 1; // Streak broken or first login
+            gameState.loginStreak = 1;
         }
 
         const reward = 100 * gameState.loginStreak;
         gameState.dust += reward;
         gameState.lastLoginDate = today;
 
-        // Show reward modal
         rewardStreak.innerText = gameState.loginStreak;
         rewardAmount.innerText = reward;
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
-        
-        updateUI();
-        saveGame();
     }
     
-    // NEW SIMPLIFIED CALENDAR RENDER
     function renderStreakCalendar() {
-        streakGrid.innerHTML = ''; // Clear previous grid
+        streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
 
-        // Lets show 14 days for example
         for (let i = 1; i <= 14; i++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'streak-day';
             dayCell.innerText = i;
-
             if (i < gameState.loginStreak) {
-                // Days in the past that were completed
                 dayCell.classList.add('completed');
             } else if (i === gameState.loginStreak) {
-                // Today's streak day
                 dayCell.classList.add('current');
             }
-            // Future days have the default style
-            
             streakGrid.appendChild(dayCell);
         }
     }
 
-    // --- (Other functions like getChiselCost, autoMine, etc. are here and unchanged) ---
     // --- EVENT LISTENERS ---
-    
+
+    golemEgg.addEventListener('click', () => {
+        if (gameState.hatchProgress < gameState.hatchGoal) {
+            gameState.hatchProgress += gameState.dustPerTap;
+        }
+        gameState.dust += gameState.dustPerTap;
+        
+        tg.HapticFeedback.impactOccurred('light');
+        updateUI();
+
+        const effect = document.createElement('div');
+        effect.className = 'click-effect';
+        effect.innerText = `+${gameState.dustPerTap}`;
+        effect.style.left = `${Math.random() * 60 + 20}%`; 
+        clickEffectContainer.appendChild(effect);
+        setTimeout(() => { effect.remove(); }, 1000);
+    });
+
+    shopButton.addEventListener('click', () => shopModal.classList.remove('hidden'));
+    closeShopButton.addEventListener('click', () => shopModal.classList.add('hidden'));
     calendarButton.addEventListener('click', () => {
-        renderStreakCalendar(); // Call the new function
+        renderStreakCalendar();
         calendarModal.classList.remove('hidden');
     });
-    
-    // ... (rest of event listeners are the same)
     closeRewardButton.addEventListener('click', () => loginRewardModal.classList.add('hidden'));
     closeCalendarButton.addEventListener('click', () => calendarModal.classList.add('hidden'));
 
+    buyChiselButton.addEventListener('click', () => {
+        const cost = getChiselCost();
+        if (gameState.dust >= cost) {
+            gameState.dust -= cost;
+            gameState.chiselLevel++;
+            gameState.dustPerTap++;
+            updateUI();
+            saveGame();
+            tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            tg.HapticFeedback.notificationOccurred('error');
+        }
+    });
+    
+    buyDroneButton.addEventListener('click', () => {
+        const cost = getDroneCost();
+        if (gameState.dust >= cost) {
+            gameState.dust -= cost;
+            gameState.droneLevel++;
+            gameState.dustPerSecond++;
+            updateUI();
+            saveGame();
+            tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            tg.HapticFeedback.notificationOccurred('error');
+        }
+    });
 
     // --- INITIALIZE GAME ---
     loadGame();
     handleDailyLogin();
     updateUI();
-    // ... (setInterval loops are the same)
+    
+    setInterval(autoMine, 1000); 
+    setInterval(saveGame, 5000);
 });

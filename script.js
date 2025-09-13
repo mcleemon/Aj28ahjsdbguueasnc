@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- DOM ELEMENTS ---
+    // --- DOM ELEMENTS (ALL OF THEM) ---
     const dustCounter = document.getElementById('dust-counter');
     const streakCounter = document.getElementById('streak-counter');
     const golemEgg = document.getElementById('golem-egg');
@@ -95,11 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel));
     }
     
-    function autoMine() {
+    // NEW --> This is now our main game loop for saving and auto-mining
+    function gameLoop() {
+        // Auto Mine
         if (gameState.hatchProgress < gameState.hatchGoal) {
              gameState.hatchProgress += gameState.dustPerSecond;
         }
         gameState.dust += gameState.dustPerSecond;
+        
+        // Save Game
+        saveGame();
+        
+        // Update UI
         updateUI();
     }
     
@@ -136,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
 
-        for (let i = 1; i <= 28; i++) { // Changed to 28 days
+        for (let i = 1; i <= 28; i++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'streak-day';
             dayCell.innerText = i;
@@ -166,8 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
         effect.style.left = `${Math.random() * 60 + 20}%`; 
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);
+        // Note: We don't need to save here anymore, the main loop handles it.
     });
 
+    // ... (modal open/close listeners are the same) ...
     shopButton.addEventListener('click', () => shopModal.classList.remove('hidden'));
     closeShopButton.addEventListener('click', () => shopModal.classList.add('hidden'));
     calendarButton.addEventListener('click', () => {
@@ -177,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeRewardButton.addEventListener('click', () => loginRewardModal.classList.add('hidden'));
     closeCalendarButton.addEventListener('click', () => calendarModal.classList.add('hidden'));
 
+    // ... (buy button listeners are the same, they don't need to call saveGame()) ...
     buyChiselButton.addEventListener('click', () => {
         const cost = getChiselCost();
         if (gameState.dust >= cost) {
@@ -184,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.chiselLevel++;
             gameState.dustPerTap++;
             updateUI();
-            saveGame();
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.notificationOccurred('error');
@@ -198,29 +207,18 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.droneLevel++;
             gameState.dustPerSecond++;
             updateUI();
-            saveGame();
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.notificationOccurred('error');
         }
     });
-
-    // NEW --- SAVE ON CLOSE ---
-    // This event fires when the Mini App is about to be closed or minimized.
-    tg.onEvent('viewportChanged', (event) => {
-        if (!event.isStateStable || !tg.isExpanded) {
-            // isStateStable is true when the transition is finished.
-            // !isExpanded means the app is closing or shrinking.
-            saveGame();
-        }
-    });
+    
 
     // --- INITIALIZE GAME ---
     loadGame();
     handleDailyLogin();
     updateUI();
     
-    setInterval(autoMine, 1000); 
-    // We can keep this 5-second save as a backup.
-    setInterval(saveGame, 5000);
+    // Start the main game loop
+    setInterval(gameLoop, 1000); // Runs every second
 });

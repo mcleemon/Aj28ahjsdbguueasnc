@@ -92,10 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadGame() {
+        let isNew = true;
         try {
             const tryLoadingState = (stateKey) => {
                 const savedJSON = localStorage.getItem(stateKey);
                 if (!savedJSON) return false;
+                isNew = false; // A save file exists, so not a new player
                 const savedState = JSON.parse(savedJSON);
                 const expectedChecksum = generateChecksum(savedState);
                 if (savedState.checksum === expectedChecksum) {
@@ -105,10 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             };
 
-            if (tryLoadingState('golemEggGameState')) { return; }
+            if (tryLoadingState('golemEggGameState')) { return false; }
             
             console.warn("Main save file corrupt or tampered. Trying backup.");
-            if (tryLoadingState('golemEggGameState_previous')) { return; }
+            if (tryLoadingState('golemEggGameState_previous')) { return false; }
 
             if (localStorage.getItem('golemEggGameState')) {
                 console.error("Both save files are corrupt or have been tampered with.");
@@ -117,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Critical error during game load:", error);
         }
+        return isNew; // Will be true if no valid save was found
     }
 
     function updateUI() {
@@ -243,7 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- INITIALIZE GAME ---
-    loadGame();
+    const isNewPlayer = loadGame();
+    if (isNewPlayer) {
+        saveGame(); // Perform the first save for a new player
+    }
     handleDailyLogin();
     updateUI();
     setInterval(gameLoop, 1000);

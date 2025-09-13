@@ -18,12 +18,13 @@ body {
     user-select: none;
 }
 
+/* New CSS Grid Layout */
 .game-container {
     width: 100%;
     max-width: 400px;
     height: 100%;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto; /* Header, Main Content (stretches), Footer */
     padding: 15px;
     box-sizing: border-box;
     position: relative;
@@ -166,6 +167,8 @@ body {
     max-width: 350px;
     position: relative;
     text-align: center;
+    max-height: 80vh; /* Make shop scrollable */
+    overflow-y: auto; /* Make shop scrollable */
 }
 .close-button {
     position: absolute;

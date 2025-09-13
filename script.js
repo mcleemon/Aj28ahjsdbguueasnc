@@ -138,13 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculateOfflineProgress();
                 return false;
             }
-            
             console.warn("Main save file corrupt or tampered. Trying backup.");
             if (tryLoadingState('golemEggGameState_previous')) {
                 calculateOfflineProgress();
                 return false;
             }
-
             if (localStorage.getItem('golemEggGameState')) {
                 console.error("Both save files are corrupt or have been tampered with.");
                 cheatModal.classList.remove('hidden');
@@ -157,11 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculateOfflineProgress() {
         const now = Date.now();
         const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-        
         if (timePassedInSeconds > 1) {
             const offlineSecondsCapped = Math.min(timePassedInSeconds, gameState.batteryCapacity);
             const dustEarnedOffline = offlineSecondsCapped * gameState.dustPerSecond;
-
             if (dustEarnedOffline > 0) {
                 gameState.dust += dustEarnedOffline;
                 if (gameState.hatchProgress < gameState.hatchGoal) {
@@ -171,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
     function updateUI() {
         dustCounter.innerText = formatWithCommas(gameState.dust);
         streakCounter.innerText = gameState.loginStreak;
@@ -252,9 +247,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateUI();
     }
+    
+    function handleDailyLogin() {
+        const today = getTodayDateString();
+        if (gameState.lastLoginDate === today) return;
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = getTodayDateString.call(yesterday);
+        if (gameState.lastLoginDate === yesterdayStr) {
+            gameState.loginStreak++;
+        } else {
+            gameState.loginStreak = 1;
+        }
+        const reward = 100 * gameState.loginStreak;
+        gameState.dust += reward;
+        gameState.lastLoginDate = today;
+        rewardStreak.innerText = gameState.loginStreak;
+        rewardAmount.innerText = reward;
+        loginRewardModal.classList.remove('hidden');
+        tg.HapticFeedback.notificationOccurred('success');
+    }
 
-    function handleDailyLogin() { /* ... (same as before) ... */ }
-    function renderStreakCalendar() { /* ... (same as before) ... */ }
+    function renderStreakCalendar() {
+        streakGrid.innerHTML = '';
+        calendarStreakLabel.innerText = gameState.loginStreak;
+        for (let i = 1; i <= 28; i++) {
+            const dayCell = document.createElement('div');
+            dayCell.className = 'streak-day';
+            dayCell.innerText = i;
+            if (i < gameState.loginStreak) { dayCell.classList.add('completed'); }
+            else if (i === gameState.loginStreak) { dayCell.classList.add('current'); }
+            streakGrid.appendChild(dayCell);
+        }
+    }
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', (event) => {
@@ -279,10 +304,9 @@ document.addEventListener('DOMContentLoaded', () => {
         effect.innerText = `+${formatNumber(dustEarned)}`;
         if (isCritical) effect.classList.add('critical');
         
-        const rect = golemEgg.getBoundingClientRect();
-        // Position effect at the click location relative to the page
-        effect.style.left = `${event.clientX}px`;
-        effect.style.top = `${event.clientY}px`;
+        const rect = clickEffectContainer.getBoundingClientRect();
+        effect.style.left = `${event.clientX - rect.left}px`;
+        effect.style.top = `${event.clientY - rect.top}px`;
 
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);
@@ -357,6 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleDailyLogin();
     updateUI();
     
-    setInterval(gameLoop, 1000);
-    setInterval(saveGame, 3000);
+    // Decoupled game loop and save interval
+    setInterval(gameLoop, 1000); // Main loop for logic and UI
+    setInterval(saveGame, 3000); // Save progress less frequently
 });

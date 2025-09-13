@@ -2,8 +2,8 @@
     --tg-theme-bg-color: #222;
     --tg-theme-text-color: #eee;
     --progress-bar-color: #6a5acd;
-    --checked-in-color: #3e8e41; /* A nice green */
-    --energy-bar-color: #ffc400; /* Gold for energy */
+    --checked-in-color: #3e8e41;
+    --energy-bar-color: #ffc400;
 }
 
 body {
@@ -16,9 +16,9 @@ body {
     height: 100vh;
     margin: 0;
     overflow: hidden;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none;   /* IE 10+ */
-    user-select: none;        /* Standard */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .game-container {
@@ -78,6 +78,16 @@ body {
     align-items: center;
     position: relative;
     width: 100%;
+}
+
+/* THE FIX IS HERE */
+#click-effect-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* This makes the container 'click-through' */
 }
 
 .egg-image {
@@ -182,7 +192,8 @@ body {
     font-size: 24px;
     font-weight: bold;
     color: white;
-    pointer-events: none;
+    /* This is NOT click-through, so you can see it */
+    pointer-events: auto; 
     -webkit-animation: float-up 1s ease-out forwards;
     animation: float-up 1s ease-out forwards;
 }

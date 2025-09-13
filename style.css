@@ -140,3 +140,24 @@ body {
 .upgrade-item + .upgrade-item {
     margin-top: 20px;
 }
+
+/* NEW --> Floating Click Effect */
+.click-effect {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    pointer-events: none; /* So it doesn't interfere with clicks */
+    animation: float-up 1s ease-out forwards;
+}
+
+@keyframes float-up {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-80px);
+    }
+}

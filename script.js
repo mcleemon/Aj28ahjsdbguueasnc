@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const golemEgg = document.getElementById('golem-egg');
     const hatchProgressBar = document.getElementById('hatch-progress-bar');
     const progressText = document.getElementById('progress-text');
+    const clickEffectContainer = document.getElementById('click-effect-container'); // Get the container
     
     // Shop Elements
     const shopButton = document.getElementById('shop-button');
@@ -85,10 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     }
 
-
     // --- EVENT LISTENERS ---
 
     golemEgg.addEventListener('click', () => {
+        // Old logic
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += gameState.dustPerTap;
         }
@@ -96,6 +97,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         tg.HapticFeedback.impactOccurred('light');
         updateUI();
+
+        // NEW --> Floating Number Effect
+        const effect = document.createElement('div');
+        effect.className = 'click-effect';
+        effect.innerText = `+${gameState.dustPerTap}`;
+        effect.style.left = `${Math.random() * 60 + 20}%`; 
+        clickEffectContainer.appendChild(effect);
+        setTimeout(() => {
+            effect.remove();
+        }, 1000);
     });
 
     shopButton.addEventListener('click', () => shopModal.classList.remove('hidden'));

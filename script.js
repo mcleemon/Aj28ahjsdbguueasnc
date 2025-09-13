@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- DOM ELEMENTS (ALL OF THEM) ---
+    // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const streakCounter = document.getElementById('streak-counter');
     const golemEgg = document.getElementById('golem-egg');
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
 
-        for (let i = 1; i <= 28; i++) {
+        for (let i = 1; i <= 28; i++) { // Changed to 28 days
             const dayCell = document.createElement('div');
             dayCell.className = 'streak-day';
             dayCell.innerText = i;
@@ -205,11 +205,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // NEW --- SAVE ON CLOSE ---
+    // This event fires when the Mini App is about to be closed or minimized.
+    tg.onEvent('viewportChanged', (event) => {
+        if (!event.isStateStable || !tg.isExpanded) {
+            // isStateStable is true when the transition is finished.
+            // !isExpanded means the app is closing or shrinking.
+            saveGame();
+        }
+    });
+
     // --- INITIALIZE GAME ---
     loadGame();
     handleDailyLogin();
     updateUI();
     
     setInterval(autoMine, 1000); 
+    // We can keep this 5-second save as a backup.
     setInterval(saveGame, 5000);
 });

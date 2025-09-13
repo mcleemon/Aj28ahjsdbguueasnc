@@ -3,6 +3,7 @@
     --tg-theme-text-color: #eee;
     --progress-bar-color: #6a5acd;
     --checked-in-color: #3e8e41; /* A nice green */
+    --energy-bar-color: #ffc400; /* Gold for energy */
 }
 
 body {
@@ -15,7 +16,9 @@ body {
     height: 100vh;
     margin: 0;
     overflow: hidden;
-    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;   /* IE 10+ */
+    user-select: none;        /* Standard */
 }
 
 .game-container {
@@ -25,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 15px;
     box-sizing: border-box;
 }
 
@@ -34,9 +37,9 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 5px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 .stat {
     text-align: center;
@@ -45,6 +48,27 @@ body {
     display: block;
     font-size: 12px;
     opacity: 0.8;
+}
+
+.progress-container {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.progress-bar-outline {
+    width: 100%;
+    height: 20px;
+    background-color: #444;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.progress-bar-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--progress-bar-color);
+    border-radius: 10px;
+    transition: width 0.2s linear;
 }
 
 .egg-container {
@@ -79,36 +103,18 @@ body {
     border-radius: inherit;
     pointer-events: none;
 }
-.egg-cracked-1 {
-    border: 3px solid rgba(0, 0, 0, 0.4);
-}
-.egg-cracked-2 {
-    border: 6px solid rgba(0, 0, 0, 0.4);
-}
-.egg-cracked-3 {
-    border: 9px solid rgba(0, 0, 0, 0.4);
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-}
+.egg-cracked-1 { border: 3px solid rgba(0, 0, 0, 0.4); }
+.egg-cracked-2 { border: 6px solid rgba(0, 0, 0, 0.4); }
+.egg-cracked-3 { border: 9px solid rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
 
-.progress-container {
+.energy-container {
     width: 100%;
     text-align: center;
-    margin-top: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
 }
-.progress-bar-outline {
-    width: 100%;
-    height: 20px;
-    background-color: #444;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-.progress-bar-fill {
-    width: 0%;
-    height: 100%;
-    background-color: var(--progress-bar-color);
-    border-radius: 10px;
-    transition: width 0.2s linear;
+.energy-bar .progress-bar-fill {
+    background-color: var(--energy-bar-color);
 }
 
 .button-bar {
@@ -116,7 +122,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
-    margin-top: 20px;
+    margin-top: auto;
 }
 .button-bar button {
     padding: 15px;
@@ -141,9 +147,7 @@ body {
     align-items: center;
     z-index: 100;
 }
-.modal.hidden {
-    display: none;
-}
+.modal.hidden { display: none; }
 .modal-content {
     background-color: #333;
     padding: 20px;
@@ -170,14 +174,8 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
-.upgrade-item button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-.upgrade-item + .upgrade-item {
-    margin-top: 20px;
-}
+.upgrade-item button:disabled { background-color: #555; cursor: not-allowed; opacity: 0.6; }
+.upgrade-item + .upgrade-item { margin-top: 20px; }
 
 .click-effect {
     position: absolute;
@@ -185,19 +183,22 @@ body {
     font-weight: bold;
     color: white;
     pointer-events: none;
+    -webkit-animation: float-up 1s ease-out forwards;
     animation: float-up 1s ease-out forwards;
 }
-@keyframes float-up {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-80px); }
+@-webkit-keyframes float-up {
+    0% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+    100% { opacity: 0; -webkit-transform: translateY(-80px); transform: translateY(-80px); }
 }
-
-/* THE FIX IS HERE --> This style was missing */
+@keyframes float-up {
+    0% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+    100% { opacity: 0; -webkit-transform: translateY(-80px); transform: translateY(-80px); }
+}
 .click-effect.critical {
-    color: #ffd700; /* A nice gold color */
-    font-size: 32px; /* Bigger font size */
-    font-weight: 900; /* Extra bold */
-    text-shadow: 0 0 5px #ffc400; /* A subtle glow */
+    color: #ffd700;
+    font-size: 32px;
+    font-weight: 900;
+    text-shadow: 0 0 5px #ffc400;
 }
 
 .streak-grid {
@@ -215,14 +216,6 @@ body {
     background-color: #444;
     font-weight: bold;
 }
-.streak-day.completed {
-    background-color: var(--checked-in-color);
-}
-.streak-day.current {
-    border: 2px solid var(--tg-theme-text-color);
-    background-color: var(--checked-in-color);
-}
-#cheat-modal .modal-content {
-    background-color: #a01c1c;
-    border: 2px solid #ff0000;
-}
+.streak-day.completed { background-color: var(--checked-in-color); }
+.streak-day.current { border: 2px solid var(--tg-theme-text-color); background-color: var(--checked-in-color); }
+#cheat-modal .modal-content { background-color: #a01c1c; border: 2px solid #ff0000; }

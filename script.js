@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hatchGoal: 10000,
         chiselLevel: 1,
         chiselBaseCost: 100,
-        // Drone State
         dustPerSecond: 0,
         droneLevel: 0,
         droneBaseCost: 250,
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.chiselLevel++;
             gameState.dustPerTap++;
             updateUI();
-            saveGame(); // FIX --> Save the game after purchase
+            saveGame();
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.notificationOccurred('error');
@@ -123,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.droneLevel++;
             gameState.dustPerSecond++;
             updateUI();
-            saveGame(); // FIX --> Save the game after purchase
+            saveGame();
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.notificationOccurred('error');

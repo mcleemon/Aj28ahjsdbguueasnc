@@ -56,7 +56,7 @@ body {
 }
 
 .egg-image {
-    width: 180px; /* Slightly smaller to fit UI */
+    width: 180px;
     height: 220px;
     background-color: #8A2BE2;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
@@ -168,34 +168,26 @@ body {
     100% { opacity: 0; transform: translateY(-80px); }
 }
 
-/* Calendar Styles */
-.calendar-grid {
+/* NEW: Streak Calendar Styles */
+.streak-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr); /* 7 days a week */
     gap: 5px;
-    margin-top: 10px;
+    margin-top: 15px;
 }
-.day-name, .day-cell {
+.streak-day {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 35px;
     border-radius: 5px;
-}
-.day-name {
+    background-color: #444; /* Default for future days */
     font-weight: bold;
-    font-size: 12px;
 }
-.day-cell {
-    background-color: #444;
+.streak-day.completed {
+    background-color: var(--checked-in-color); /* Green for past days */
 }
-.day-cell.checked-in {
+.streak-day.current {
+    border: 2px solid var(--tg-theme-text-color); /* Outline for today */
     background-color: var(--checked-in-color);
-    font-weight: bold;
-}
-.day-cell.current-day {
-    border: 2px solid var(--tg-theme-text-color);
-}
-.day-cell.empty {
-    background-color: transparent;
 }

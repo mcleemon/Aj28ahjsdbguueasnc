@@ -26,7 +26,12 @@
         </div>
         
         <div class="progress-container">
+            <span class="label">Hatch Progress</span>
+            <div class="progress-bar-outline">
+                <div id="hatch-progress-bar" class="progress-bar-fill"></div>
             </div>
+            <span id="progress-text">0 / 10000</span>
+        </div>
 
         <div class="button-bar">
             <button id="shop-button">🛒 Shop</button>
@@ -35,31 +40,43 @@
     </div>
 
     <div id="shop-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-shop-button" class="close-button">&times;</span>
+            <h2>Upgrades</h2>
+            
+            <div class="upgrade-item">
+                <h3>Crystal Chisel</h3>
+                <p>Increases Crystal Dust per tap.</p>
+                <p>Level: <span id="chisel-level">1</span></p>
+                <p>Effect: +<span id="chisel-effect">1</span> Dust/Tap</p>
+                <button id="buy-chisel-button">Upgrade (Cost: <span id="chisel-cost">100</span>)</button>
+            </div>
+
+            <div class="upgrade-item">
+                <h3>Mining Drone</h3>
+                <p>Automatically generates Dust per second.</p>
+                <p>Level: <span id="drone-level">0</span></p>
+                <p>Effect: +<span id="drone-effect">0</span> Dust/Sec</p>
+                <button id="buy-drone-button">Buy (Cost: <span id="drone-cost">250</span>)</button>
+            </div>
         </div>
+    </div>
     
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-reward-button" class="close-button">&times;</span>
             <h2>Daily Login!</h2>
-            <p>Your streak is <span id="reward-streak">1</span> day(s)!</p>
-            <p>You received <span id="reward-amount">100</span> Crystal Dust!</p>
+            <p>Your streak is <strong id="reward-streak">1</strong> day(s)!</p>
+            <p>You received <strong id="reward-amount">100</strong> Crystal Dust!</p>
         </div>
     </div>
 
     <div id="calendar-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-calendar-button" class="close-button">&times;</span>
-            <h2 id="calendar-month-year">September 2025</h2>
-            <div class="calendar-grid">
-                <div class="day-name">Sun</div>
-                <div class="day-name">Mon</div>
-                <div class="day-name">Tue</div>
-                <div class="day-name">Wed</div>
-                <div class="day-name">Thu</div>
-                <div class="day-name">Fri</div>
-                <div class="day-name">Sat</div>
-            </div>
-            <div id="calendar-days" class="calendar-grid">
+            <h2>Attendance Streak</h2>
+            <p>Your current streak is <strong id="calendar-streak-label">0</strong> days!</p>
+            <div id="streak-grid" class="streak-grid">
                 </div>
         </div>
     </div>

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const streakCounter = document.getElementById('streak-counter');
+    const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const eggOverlay = document.getElementById('egg-overlay');
     const hatchProgressBar = document.getElementById('hatch-progress-bar');
@@ -31,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const droneLevelText = document.getElementById('drone-level');
     const droneEffectText = document.getElementById('drone-effect');
     const droneCostText = document.getElementById('drone-cost');
+    const buyBatteryButton = document.getElementById('buy-battery-button');
+    const batteryLevelText = document.getElementById('battery-level');
+    const batteryCapacityText = document.getElementById('battery-capacity');
+    const batteryCostText = document.getElementById('battery-cost');
 
     // --- GAME STATE ---
     let gameState = {
@@ -46,8 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
         lastLoginDate: null,
         loginStreak: 0,
         checksum: null,
-        lastSavedTimestamp: Date.now()
+        lastSavedTimestamp: Date.now(),
+        batteryLevel: 1,
+        batteryCapacity: 3600, // Base capacity is 1 hour (3600 seconds)
+        batteryBaseCost: 1000,
     };
+
+    // Defines the free upgrade path for the battery capacity in seconds
+    const batteryLevels = [
+        3600,  // Level 1: 1 Hour
+        7200,  // Level 2: 2 Hours
+        14400, // Level 3: 4 Hours
+        21600  // Level 4: 6 Hours (Max free level)
+    ];
 
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
@@ -135,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
         
         if (timePassedInSeconds > 1) {
-            const offlineSecondsCapped = Math.min(timePassedInSeconds, 7200);
+            const offlineSecondsCapped = Math.min(timePassedInSeconds, gameState.batteryCapacity);
             const dustEarnedOffline = offlineSecondsCapped * gameState.dustPerSecond;
 
             if (dustEarnedOffline > 0) {
@@ -143,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (gameState.hatchProgress < gameState.hatchGoal) {
                     gameState.hatchProgress += dustEarnedOffline;
                 }
-                alert(`Welcome back!\n\nYour drones collected ${formatNumber(dustEarnedOffline)} Crystal Dust while you were away.`);
+                alert(`Welcome back!\n\nYour drone mined for ${Math.floor(offlineSecondsCapped / 60)} minutes and collected ${formatNumber(dustEarnedOffline)} Crystal Dust.`);
             }
         }
     }
@@ -171,6 +187,19 @@ document.addEventListener('DOMContentLoaded', () => {
         droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
         droneCostText.innerText = formatNumber(droneCost);
         buyDroneButton.disabled = gameState.dust < droneCost;
+
+        const batteryCapacityHours = gameState.batteryCapacity / 3600;
+        batteryLevelText.innerText = gameState.batteryLevel;
+        batteryCapacityText.innerText = `${Number(batteryCapacityHours.toFixed(1))} Hours`;
+        if (gameState.batteryLevel >= batteryLevels.length) {
+            buyBatteryButton.innerText = "Max Level";
+            buyBatteryButton.disabled = true;
+        } else {
+            const batteryCost = getBatteryCost();
+            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(batteryCost)})`;
+            buyBatteryButton.disabled = gameState.dust < batteryCost;
+        }
+        batteryStatus.innerText = '100%';
     }
 
     function getChiselCost() {
@@ -179,6 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getDroneCost() {
         return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel));
+    }
+    
+    function getBatteryCost() {
+        return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1));
     }
 
     function gameLoop() {
@@ -266,6 +299,18 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.droneLevel++;
             gameState.dustPerSecond++;
+            updateUI();
+            tg.HapticFeedback.notificationOccurred('success');
+        }
+    });
+
+    buyBatteryButton.addEventListener('click', () => {
+        if (gameState.batteryLevel >= batteryLevels.length) { return; }
+        const cost = getBatteryCost();
+        if (gameState.dust >= cost) {
+            gameState.dust -= cost;
+            gameState.batteryLevel++;
+            gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }

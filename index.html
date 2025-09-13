@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0, user-scalable=no">
     <title>Golem Egg</title>
-    <link rel="stylesheet" href="style.css?v=1.0.8">
+    <link rel="stylesheet" href="style.css?v=1.1.0">
 </head>
 <body>
-
     <div class="game-container">
         <div class="stats-container">
             <div class="stat">
@@ -18,15 +17,17 @@
                 <span class="label">🔥 Streak</span>
                 <span id="streak-counter">0</span>
             </div>
+            <div class="stat">
+                <span class="label">🔋 Drone Battery</span>
+                <span id="battery-status">100%</span>
+            </div>
         </div>
-
         <div class="egg-container">
             <div id="golem-egg" class="egg-image">
                 <div id="egg-overlay" class="egg-overlay"></div>
             </div>
             <div id="click-effect-container"></div>
         </div>
-        
         <div class="progress-container">
             <span class="label">Hatch Progress</span>
             <div class="progress-bar-outline">
@@ -34,18 +35,15 @@
             </div>
             <span id="progress-text">0 / 10000</span>
         </div>
-
         <div class="button-bar">
             <button id="shop-button">🛒 Shop</button>
             <button id="calendar-button">📅 Calendar</button>
         </div>
     </div>
-
     <div id="shop-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-shop-button" class="close-button">&times;</span>
             <h2>Upgrades</h2>
-            
             <div class="upgrade-item">
                 <h3>Crystal Chisel</h3>
                 <p>Increases Crystal Dust per tap.</p>
@@ -53,7 +51,6 @@
                 <p>Effect: +<span id="chisel-effect">1</span> Dust/Tap</p>
                 <button id="buy-chisel-button">Upgrade (Cost: <span id="chisel-cost">100</span>)</button>
             </div>
-
             <div class="upgrade-item">
                 <h3>Mining Drone</h3>
                 <p>Automatically generates Dust per second.</p>
@@ -61,9 +58,15 @@
                 <p>Effect: +<span id="drone-effect">0</span> Dust/Sec</p>
                 <button id="buy-drone-button">Buy (Cost: <span id="drone-cost">250</span>)</button>
             </div>
+            <div class="upgrade-item">
+                <h3>Drone Battery</h3>
+                <p>Increases how long the drone can mine while you're offline.</p>
+                <p>Level: <span id="battery-level">1</span></p>
+                <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
+                <button id="buy-battery-button">Upgrade (Cost: <span id="battery-cost">1000</span>)</button>
+            </div>
         </div>
     </div>
-    
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-reward-button" class="close-button">&times;</span>
@@ -72,17 +75,15 @@
             <p>You received <strong id="reward-amount">100</strong> Crystal Dust!</p>
         </div>
     </div>
-
     <div id="calendar-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-calendar-button" class="close-button">&times;</span>
             <h2>Attendance Streak</h2>
             <p>Your current streak is <strong id="calendar-streak-label">0</strong> days!</p>
             <div id="streak-grid" class="streak-grid">
-                </div>
+            </div>
         </div>
     </div>
-    
     <div id="cheat-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Cheat Detected</h2>
@@ -90,8 +91,7 @@
             <p>Please contact game support if you believe this is a mistake.</p>
         </div>
     </div>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=1.0.8"></script>
+    <script src="script.js?v=1.1.0"></script>
 </body>
 </html>

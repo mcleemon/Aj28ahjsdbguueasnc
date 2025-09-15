@@ -3,6 +3,10 @@
     --tg-theme-text-color: #eee;
     --progress-bar-color: #6a5acd;
     --checked-in-color: #3e8e41;
+    --geode-common-color: #ffffff; /* White */
+    --geode-uncommon-color: #1eff00; /* Green */
+    --geode-rare-color: #0070dd;   /* Blue */
+    --geode-epic-color: #a335ee;   /* Purple */
 }
 
 body {
@@ -66,7 +70,7 @@ body {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
-    /* overflow: hidden;  <-- REMOVED TO FIX FLOAT NUMBER BUG */
+    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
 }
 .egg-image:active {
@@ -146,7 +150,6 @@ body {
     max-width: 350px;
     position: relative;
     text-align: center;
-    /* FIX: Added to make shop scrollable */
     max-height: 80vh;
     overflow-y: auto;
 }
@@ -208,7 +211,31 @@ body {
 .streak-day.current { border: 2px solid var(--tg-theme-text-color); background-color: var(--checked-in-color); }
 #cheat-modal .modal-content { background-color: #a01c1c; border: 2px solid #ff0000; }
 
-#geode-reward-modal .modal-content {
-    background-color: #4a235a;
-    border: 2px solid #8e44ad;
+/* NEW: Styles for Geode floating notifications */
+.geode-effect {
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: float-up-geode 2s ease-out forwards;
+    text-shadow: 0 0 5px black;
+}
+.geode-effect.common { color: var(--geode-common-color); }
+.geode-effect.uncommon { color: var(--geode-uncommon-color); }
+.geode-effect.rare { color: var(--geode-rare-color); }
+.geode-effect.epic {
+    color: var(--geode-epic-color);
+    font-size: 24px;
+    font-weight: 900;
+}
+
+@keyframes float-up-geode {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(1.2);
+    }
 }

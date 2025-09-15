@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
-    const streakCounter = document.getElementById('streak-counter');
+    const geodeCounter = document.getElementById('geode-counter'); // Changed from streakCounter
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const eggOverlay = document.getElementById('egg-overlay');
@@ -17,17 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginRewardModal = document.getElementById('login-reward-modal');
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
-    const geodeRewardModal = document.getElementById('geode-reward-modal');
+    // geodeRewardModal is no longer needed
     const closeShopButton = document.getElementById('close-shop-button');
     const closeRewardButton = document.getElementById('close-reward-button');
     const closeCalendarButton = document.getElementById('close-calendar-button');
-    const closeGeodeButton = document.getElementById('close-geode-button');
     const rewardStreak = document.getElementById('reward-streak');
     const rewardAmount = document.getElementById('reward-amount');
     const calendarStreakLabel = document.getElementById('calendar-streak-label');
     const streakGrid = document.getElementById('streak-grid');
-    const geodeRarityText = document.getElementById('geode-rarity');
-    const geodeRewardText = document.getElementById('geode-reward');
     const buyChiselButton = document.getElementById('buy-chisel-button');
     const chiselLevelText = document.getElementById('chisel-level');
     const chiselEffectText = document.getElementById('chisel-effect');
@@ -157,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function updateUI() {
         dustCounter.innerText = formatWithCommas(gameState.dust);
-        streakCounter.innerText = gameState.loginStreak;
+        geodeCounter.innerText = gameState.geodesFoundToday; // Changed from streakCounter
         progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
         const progressPercent = Math.min(100, (gameState.hatchProgress / gameState.hatchGoal) * 100);
         hatchProgressBar.style.width = `${progressPercent}%`;
@@ -212,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = getTodayDateString();
         if (gameState.lastLoginDate === today) return;
 
-        gameState.geodesFoundToday = 0;
+        gameState.geodesFoundToday = 0; // Reset daily geode counter
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -256,23 +253,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
+        let rarityClass = '';
+        let rewardText = '';
         
-        if (prizeRoll < 0.01) {
+        if (prizeRoll < 0.01) { // Epic
             rarity = "EPIC GEODE!";
+            rarityClass = 'epic';
             reward = gameState.dustPerTap * 1000;
-            geodeRewardText.innerText = `You found a Gem Shard! (For now, take ${formatNumber(reward)} dust!)`;
-        } else if (prizeRoll < 0.05) {
+            rewardText = `+ 1 Gem Shard! (🎁 ${formatNumber(reward)})`;
+        } else if (prizeRoll < 0.05) { // Rare
             rarity = "Rare Geode!";
+            rarityClass = 'rare';
             reward = gameState.dustPerTap * 40;
-            geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
-        } else if (prizeRoll < 0.20) {
+            rewardText = `+ ${formatNumber(reward)} Dust!`;
+        } else if (prizeRoll < 0.20) { // Uncommon
             rarity = "Uncommon Geode!";
+            rarityClass = 'uncommon';
             reward = gameState.dustPerTap * 10;
-            geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
-        } else {
+            rewardText = `+ ${formatNumber(reward)} Dust!`;
+        } else { // Common
             rarity = "Common Geode";
+            rarityClass = 'common';
             reward = gameState.dustPerTap * 3;
-            geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
+            rewardText = `+ ${formatNumber(reward)} Dust!`;
         }
         
         gameState.dust += reward;
@@ -280,8 +283,14 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.hatchProgress += reward;
         }
         
-        geodeRarityText.innerText = rarity;
-        geodeRewardModal.classList.remove('hidden');
+        // Create the floating geode notification
+        const geodeEffect = document.createElement('div');
+        geodeEffect.className = `geode-effect ${rarityClass}`;
+        geodeEffect.innerHTML = `${rarity}<br>${rewardText}`;
+        geodeEffect.style.left = `${Math.random() * 40 + 30}%`;
+        clickEffectContainer.appendChild(geodeEffect);
+        setTimeout(() => { geodeEffect.remove(); }, 2000);
+        
         tg.HapticFeedback.notificationOccurred('success');
     }
 
@@ -328,7 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeRewardButton.addEventListener('click', () => loginRewardModal.classList.add('hidden'));
     closeCalendarButton.addEventListener('click', () => calendarModal.classList.add('hidden'));
-    closeGeodeButton.addEventListener('click', () => geodeRewardModal.classList.add('hidden'));
     
     buyChiselButton.addEventListener('click', () => {
         const cost = getChiselCost();

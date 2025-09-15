@@ -66,7 +66,7 @@ body {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
-    /* overflow: hidden;  <-- THIS LINE WAS THE PROBLEM, IT IS NOW REMOVED */
+    /* overflow: hidden;  <-- THIS LINE IS REMOVED TO FIX THE BUG */
     -webkit-tap-highlight-color: transparent;
 }
 .egg-image:active {
@@ -147,8 +147,8 @@ body {
     position: relative;
     text-align: center;
     /* NEW: These lines make the modal scrollable */
-    max-height: 80vh; /* No taller than 80% of the screen height */
-    overflow-y: auto; /* Add a scrollbar if content is too tall */
+    max-height: 80vh;
+    overflow-y: auto;
 }
 .close-button {
     position: absolute;

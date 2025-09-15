@@ -212,8 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = getTodayDateString();
         if (gameState.lastLoginDate === today) return;
 
-        // Reset daily geode counter on a new day
-        gameState.geodesFoundToday = 0;
+        gameState.geodesFoundToday = 0; // Reset daily geode counter
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -261,14 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (prizeRoll < 0.01) { // Epic (1%)
             rarity = "EPIC GEODE!";
-            // For now, we'll give a huge dust bonus instead of a Gem Shard
-            reward = gameState.dustPerTap * 1000; 
-            geodeRewardText.innerText = `You found a future Gem Shard! (For now, take ${formatNumber(reward)} dust!)`;
-        } else if (prizeRoll < 0.05) { // Rare (4%)
+            reward = gameState.dustPerTap * 1000; // Placeholder large dust reward
+            geodeRewardText.innerText = `You found a Gem Shard! (For now, take ${formatNumber(reward)} dust!)`;
+        } else if (prizeRoll < 0.05) { // Rare (4% + 1% = 5%)
             rarity = "Rare Geode!";
             reward = gameState.dustPerTap * 40;
             geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
-        } else if (prizeRoll < 0.20) { // Uncommon (15%)
+        } else if (prizeRoll < 0.20) { // Uncommon (15% + 5% = 20%)
             rarity = "Uncommon Geode!";
             reward = gameState.dustPerTap * 10;
             geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
@@ -279,6 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         gameState.dust += reward;
+        if (gameState.hatchProgress < gameState.hatchGoal) {
+            gameState.hatchProgress += reward;
+        }
+        
         geodeRarityText.innerText = rarity;
         geodeRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
@@ -286,11 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        // Check for Geode Event first
         if (Math.random() < getGeodeChance()) {
             handleGeodeEvent();
         } else {
-            // Normal Tap
             let dustEarned = gameState.dustPerTap;
             let isCritical = false;
             if (Math.random() < 0.10) { 

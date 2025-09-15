@@ -66,7 +66,7 @@ body {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden;  <-- THIS LINE WAS THE PROBLEM, IT IS NOW REMOVED */
     -webkit-tap-highlight-color: transparent;
 }
 .egg-image:active {
@@ -146,6 +146,9 @@ body {
     max-width: 350px;
     position: relative;
     text-align: center;
+    /* NEW: These lines make the modal scrollable */
+    max-height: 80vh; /* No taller than 80% of the screen height */
+    overflow-y: auto; /* Add a scrollbar if content is too tall */
 }
 .close-button {
     position: absolute;
@@ -205,8 +208,7 @@ body {
 .streak-day.current { border: 2px solid var(--tg-theme-text-color); background-color: var(--checked-in-color); }
 #cheat-modal .modal-content { background-color: #a01c1c; border: 2px solid #ff0000; }
 
-/* NEW: Style for the Geode pop-up */
 #geode-reward-modal .modal-content {
-    background-color: #4a235a; /* A deep purple */
+    background-color: #4a235a;
     border: 2px solid #8e44ad;
 }

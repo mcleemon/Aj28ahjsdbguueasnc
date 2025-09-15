@@ -3,13 +3,15 @@
     --tg-theme-text-color: #eee;
     --progress-bar-color: #6a5acd;
     --checked-in-color: #3e8e41;
-    --energy-bar-color: #ffc400;
 }
 
 body {
     background-color: var(--tg-theme-bg-color);
     color: var(--tg-theme-text-color);
     font-family: 'Helvetica Neue', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
     margin: 0;
     overflow: hidden;
@@ -18,30 +20,15 @@ body {
     user-select: none;
 }
 
-/* New CSS Grid Layout */
 .game-container {
     width: 100%;
     max-width: 400px;
     height: 100%;
-    display: grid;
-    grid-template-rows: auto 1fr auto; /* Header, Main Content (stretches), Footer */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 15px;
     box-sizing: border-box;
-    position: relative;
-}
-
-.header {
-    width: 100%;
-}
-.main-content {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-.footer {
-    width: 100%;
 }
 
 .stats-container {
@@ -49,17 +36,60 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 5px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
-.stat { text-align: center; }
-.label { display: block; font-size: 12px; opacity: 0.8; }
+.stat {
+    text-align: center;
+}
+.label {
+    display: block;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.egg-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+.egg-image {
+    width: 180px;
+    height: 220px;
+    background-color: #8A2BE2;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+.egg-image:active {
+    transform: scale(0.95);
+}
+
+.egg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+}
+.egg-cracked-1 { border: 3px solid rgba(0, 0, 0, 0.4); }
+.egg-cracked-2 { border: 6px solid rgba(0, 0, 0, 0.4); }
+.egg-cracked-3 { border: 9px solid rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
 
 .progress-container {
     width: 100%;
     text-align: center;
-    margin-bottom: 10px;
+    margin-top: 15px;
 }
 .progress-bar-outline {
     width: 100%;
@@ -77,71 +107,22 @@ body {
     transition: width 0.2s linear;
 }
 
-.egg-image {
-    width: 180px;
-    height: 220px;
-    background-color: #8A2BE2;
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-    position: relative;
-    overflow: hidden;
-}
-.egg-image:active {
-    transform: scale(0.95);
-}
-
-.egg-overlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%;
-    height: 100%; border-radius: inherit;
-    pointer-events: none;
-}
-.egg-cracked-1 { border: 3px solid rgba(0, 0, 0, 0.4); }
-.egg-cracked-2 { border: 6px solid rgba(0, 0, 0, 0.4); }
-.egg-cracked-3 { border: 9px solid rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
-
-.energy-container {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 15px;
-}
-.energy-bar .progress-bar-fill {
-    background-color: var(--energy-bar-color);
-}
-
 .button-bar {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
+    margin-top: 20px;
 }
 .button-bar button {
-    padding: 15px; font-size: 18px; font-weight: bold;
-    background-color: #444; color: #fff; border: none;
-    border-radius: 10px; cursor: pointer;
-}
-
-#click-effect-container {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-.click-effect {
-    position: absolute;
-    font-size: 24px; font-weight: bold; color: white;
-    pointer-events: auto;
-    animation: float-up 1s ease-out forwards;
-}
-@keyframes float-up {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-80px); }
-}
-.click-effect.critical {
-    color: #ffd700; font-size: 32px; font-weight: 900;
-    text-shadow: 0 0 5px #ffc400;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #444;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 .modal {
@@ -156,9 +137,7 @@ body {
     align-items: center;
     z-index: 100;
 }
-.modal.hidden {
-    display: none;
-}
+.modal.hidden { display: none; }
 .modal-content {
     background-color: #333;
     padding: 20px;
@@ -167,8 +146,6 @@ body {
     max-width: 350px;
     position: relative;
     text-align: center;
-    max-height: 80vh; /* Make shop scrollable */
-    overflow-y: auto; /* Make shop scrollable */
 }
 .close-button {
     position: absolute;
@@ -187,13 +164,26 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
-.upgrade-item button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.6;
+.upgrade-item button:disabled { background-color: #555; cursor: not-allowed; opacity: 0.6; }
+.upgrade-item + .upgrade-item { margin-top: 20px; }
+
+.click-effect {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    pointer-events: none;
+    animation: float-up 1s ease-out forwards;
 }
-.upgrade-item + .upgrade-item {
-    margin-top: 20px;
+@keyframes float-up {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-80px); }
+}
+.click-effect.critical {
+    color: #ffd700;
+    font-size: 32px;
+    font-weight: 900;
+    text-shadow: 0 0 5px #ffc400;
 }
 
 .streak-grid {
@@ -211,14 +201,12 @@ body {
     background-color: #444;
     font-weight: bold;
 }
-.streak-day.completed {
-    background-color: var(--checked-in-color);
-}
-.streak-day.current {
-    border: 2px solid var(--tg-theme-text-color);
-    background-color: var(--checked-in-color);
-}
-#cheat-modal .modal-content {
-    background-color: #a01c1c;
-    border: 2px solid #ff0000;
+.streak-day.completed { background-color: var(--checked-in-color); }
+.streak-day.current { border: 2px solid var(--tg-theme-text-color); background-color: var(--checked-in-color); }
+#cheat-modal .modal-content { background-color: #a01c1c; border: 2px solid #ff0000; }
+
+/* NEW: Style for the Geode pop-up */
+#geode-reward-modal .modal-content {
+    background-color: #4a235a; /* A deep purple */
+    border: 2px solid #8e44ad;
 }

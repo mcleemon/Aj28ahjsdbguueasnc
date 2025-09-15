@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = getTodayDateString();
         if (gameState.lastLoginDate === today) return;
 
-        gameState.geodesFoundToday = 0; // Reset daily geode counter
+        gameState.geodesFoundToday = 0;
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -243,13 +243,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- GEODE EVENT LOGIC ---
     function getGeodeChance() {
         const count = gameState.geodesFoundToday;
-        if (count < 10) return 0.03;  // 3%
-        if (count < 20) return 0.015; // 1.5%
-        if (count < 30) return 0.005; // 0.5%
-        return 0.001; // 0.1%
+        if (count < 10) return 0.03;
+        if (count < 20) return 0.015;
+        if (count < 30) return 0.005;
+        return 0.001;
     }
     
     function handleGeodeEvent() {
@@ -258,19 +257,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let reward = 0;
         let rarity = '';
         
-        if (prizeRoll < 0.01) { // Epic (1%)
+        if (prizeRoll < 0.01) {
             rarity = "EPIC GEODE!";
-            reward = gameState.dustPerTap * 1000; // Placeholder large dust reward
+            reward = gameState.dustPerTap * 1000;
             geodeRewardText.innerText = `You found a Gem Shard! (For now, take ${formatNumber(reward)} dust!)`;
-        } else if (prizeRoll < 0.05) { // Rare (4% + 1% = 5%)
+        } else if (prizeRoll < 0.05) {
             rarity = "Rare Geode!";
             reward = gameState.dustPerTap * 40;
             geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
-        } else if (prizeRoll < 0.20) { // Uncommon (15% + 5% = 20%)
+        } else if (prizeRoll < 0.20) {
             rarity = "Uncommon Geode!";
             reward = gameState.dustPerTap * 10;
             geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;
-        } else { // Common (80%)
+        } else {
             rarity = "Common Geode";
             reward = gameState.dustPerTap * 3;
             geodeRewardText.innerText = `You found ${formatNumber(reward)} Crystal Dust!`;

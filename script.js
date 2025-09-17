@@ -181,25 +181,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
         batteryStatus.innerText = `${Math.floor(batteryPercent)}%`;
 
+        chiselLevelText.innerText = gameState.chiselLevel;
+        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
         } else {
             const chiselCost = getChiselCost();
-            chiselLevelText.innerText = gameState.chiselLevel;
-            chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
             buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(chiselCost)})`;
             buyChiselButton.disabled = gameState.dust < chiselCost;
         }
 
+        droneLevelText.innerText = gameState.droneLevel;
+        droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
 
         if (gameState.droneLevel >= 10) {
             buyDroneButton.innerText = "Max Level";
             buyDroneButton.disabled = true;
         } else {
             const droneCost = getDroneCost();
-            droneLevelText.innerText = gameState.droneLevel;
-            droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
             buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(droneCost)})`;
             buyDroneButton.disabled = gameState.dust < droneCost;
         }

@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const expectedChecksum = generateChecksum(savedState);
                 if (savedState.checksum === expectedChecksum) {
                     gameState = Object.assign(gameState, savedState);
+                    gameState.isFrenzyMode = false;
                     return true;
                 }
                 return false;

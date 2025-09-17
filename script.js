@@ -151,11 +151,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculateOfflineProgress() {
         const now = Date.now();
         const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-        
+
         if (timePassedInSeconds > 0) {
             const batteryDrain = Math.min(gameState.currentBattery, timePassedInSeconds);
             gameState.currentBattery -= batteryDrain;
-            
+
             const dustEarnedOffline = batteryDrain * gameState.dustPerSecond;
 
             if (dustEarnedOffline > 0) {
@@ -177,22 +177,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (progressPercent >= 75) { eggOverlay.classList.add('egg-cracked-3'); }
         else if (progressPercent >= 50) { eggOverlay.classList.add('egg-cracked-2'); }
         else if (progressPercent >= 25) { eggOverlay.classList.add('egg-cracked-1'); }
-        
+
         const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
         batteryStatus.innerText = `${Math.floor(batteryPercent)}%`;
 
-        const chiselCost = getChiselCost();
-        chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
-        chiselCostText.innerText = formatNumber(chiselCost);
-        buyChiselButton.disabled = gameState.dust < chiselCost;
-        
-        const droneCost = getDroneCost();
-        droneLevelText.innerText = gameState.droneLevel;
-        droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
-        droneCostText.innerText = formatNumber(droneCost);
-        buyDroneButton.disabled = gameState.dust < droneCost;
-        
+        if (gameState.chiselLevel >= 20) {
+            buyChiselButton.innerText = "Max Level";
+            buyChiselButton.disabled = true;
+        } else {
+            const chiselCost = getChiselCost();
+            chiselLevelText.innerText = gameState.chiselLevel;
+            chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(chiselCost)})`;
+            buyChiselButton.disabled = gameState.dust < chiselCost;
+        }
+
+
+        if (gameState.droneLevel >= 10) {
+            buyDroneButton.innerText = "Max Level";
+            buyDroneButton.disabled = true;
+        } else {
+            const droneCost = getDroneCost();
+            droneLevelText.innerText = gameState.droneLevel;
+            droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
+            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(droneCost)})`;
+            buyDroneButton.disabled = gameState.dust < droneCost;
+        }
+
         const batteryCapacityHours = gameState.batteryCapacity / 3600;
         batteryLevelText.innerText = gameState.batteryLevel;
         batteryCapacityText.innerText = `${Number(batteryCapacityHours.toFixed(1))} Hours`;
@@ -225,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             eggOverlay.classList.add('frenzy-ready');
         }
     }
-    
+
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
@@ -235,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.dustPerSecond > 0 && gameState.currentBattery > 0) {
             gameState.currentBattery -= 1;
         }
-        
+
         let dustFromDrones = 0;
         if (gameState.currentBattery > 0) {
             dustFromDrones = gameState.dustPerSecond;
@@ -277,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
-    
+
     function renderStreakCalendar() {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
@@ -298,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (count < 30) return 0.005;
         return 0.001;
     }
-    
+
     function handleGeodeEvent() {
         // This function is missing from the provided script, so I will add it back
         // based on our last stable version.
@@ -350,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         frenzyTimerContainer.classList.remove('hidden');
         frenzyTimer.innerText = `${timeLeft}s`;
-        
+
         tg.HapticFeedback.notificationOccurred('success');
 
         frenzyInterval = setInterval(() => {
@@ -389,23 +400,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 return;
             }
-            if (Math.random() < 0.10) { 
+            if (Math.random() < 0.10) {
                 isCritical = true;
                 dustEarned *= 2;
             }
         }
-        
+
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += dustEarned;
         }
         gameState.dust += dustEarned;
-        
+
         if (isCritical) {
             tg.HapticFeedback.notificationOccurred('warning');
         } else {
             tg.HapticFeedback.impactOccurred('light');
         }
-        
+
         const effect = document.createElement('div');
         effect.className = 'click-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
@@ -418,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateUI();
     });
-    
+
     shopButton.addEventListener('click', () => shopModal.classList.remove('hidden'));
     closeShopButton.addEventListener('click', () => shopModal.classList.add('hidden'));
     calendarButton.addEventListener('click', () => {
@@ -427,8 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeRewardButton.addEventListener('click', () => loginRewardModal.classList.add('hidden'));
     closeCalendarButton.addEventListener('click', () => calendarModal.classList.add('hidden'));
-    
+
     buyChiselButton.addEventListener('click', () => {
+        if (gameState.chiselLevel >= 20) return;
         const cost = getChiselCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
@@ -439,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     buyDroneButton.addEventListener('click', () => {
+        if (gameState.droneLevel >= 10) return;
         const cost = getDroneCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
@@ -476,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tg.HapticFeedback.notificationOccurred('error');
         }
     });
-    
+
     // --- INITIALIZE GAME ---
     const isNewPlayer = loadGame();
     if (isNewPlayer) {
@@ -484,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     handleDailyLogin();
     updateUI();
-    
+
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
 });

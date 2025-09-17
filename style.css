@@ -141,7 +141,7 @@ body {
     align-items: center;
     z-index: 100;
 }
-.modal.hidden { display: none; }
+.hidden { display: none; }
 .modal-content {
     background-color: #333;
     padding: 20px;

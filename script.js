@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const hatchProgressBar = document.getElementById('hatch-progress-bar');
     const progressText = document.getElementById('progress-text');
     const clickEffectContainer = document.getElementById('click-effect-container');
+    const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
+    const frenzyTimer = document.getElementById('frenzy-timer');
     const shopButton = document.getElementById('shop-button');
     const calendarButton = document.getElementById('calendar-button');
     const shopModal = document.getElementById('shop-modal');
@@ -56,16 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
         checksum: null,
         lastSavedTimestamp: Date.now(),
         batteryLevel: 1,
-        batteryCapacity: 3600, // Start with 1 hour
+        batteryCapacity: 3600,
         batteryBaseCost: 1000,
         geodesFoundToday: 0,
-        // New Battery State
-        currentBattery: 3600, // Current charge in seconds
+        currentBattery: 3600,
         dailyRechargesUsed: 0,
         rechargeBaseCost: 1000,
+        isFrenzyMode: false,
+        frenzyCooldownUntil: 0,
     };
 
-    const batteryLevels = [3600, 7200, 14400, 21600]; // 1h, 2h, 4h, 6h
+    let frenzyInterval = null;
+    const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     // --- HELPER FUNCTIONS ---
@@ -214,20 +218,19 @@ document.addEventListener('DOMContentLoaded', () => {
             buyRechargeButton.innerText = `Recharge (Cost: ${formatNumber(rechargeCost)})`;
             buyRechargeButton.disabled = gameState.dust < rechargeCost || gameState.currentBattery >= gameState.batteryCapacity;
         }
+
+        eggOverlay.classList.remove('frenzy-ready', 'frenzy-active');
+        if (gameState.isFrenzyMode) {
+            eggOverlay.classList.add('frenzy-active');
+        } else if (Date.now() > gameState.frenzyCooldownUntil) {
+            eggOverlay.classList.add('frenzy-ready');
+        }
     }
     
-    function getChiselCost() {
-        return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1));
-    }
-    function getDroneCost() {
-        return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel));
-    }
-    function getBatteryCost() {
-        return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1));
-    }
-    function getRechargeCost() {
-        return Math.floor(gameState.rechargeBaseCost * Math.pow(2.5, gameState.dailyRechargesUsed));
-    }
+    function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
+    function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
+    function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
+    function getRechargeCost() { return Math.floor(gameState.rechargeBaseCost * Math.pow(2.5, gameState.dailyRechargesUsed)); }
 
     function gameLoop() {
         if (gameState.dustPerSecond > 0 && gameState.currentBattery > 0) {
@@ -275,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
-
+    
     function renderStreakCalendar() {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
@@ -288,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
             streakGrid.appendChild(dayCell);
         }
     }
-    
+
     function getGeodeChance() {
         const count = gameState.geodesFoundToday;
         if (count < 10) return 0.03;
@@ -298,13 +301,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleGeodeEvent() {
+        // This function is missing from the provided script, so I will add it back
+        // based on our last stable version.
         gameState.geodesFoundToday++;
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
         let rarityClass = '';
         let rewardText = '';
-        
         if (prizeRoll < 0.01) {
             rarity = "EPIC GEODE!";
             rarityClass = 'epic';
@@ -326,54 +330,93 @@ document.addEventListener('DOMContentLoaded', () => {
             reward = gameState.dustPerTap * 3;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
         }
-        
         gameState.dust += reward;
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += reward;
         }
-        
         const geodeEffect = document.createElement('div');
         geodeEffect.className = `geode-effect ${rarityClass}`;
         geodeEffect.innerHTML = `${rarity}<br>${rewardText}`;
         geodeEffect.style.left = `${Math.random() * 40 + 30}%`;
         clickEffectContainer.appendChild(geodeEffect);
         setTimeout(() => { geodeEffect.remove(); }, 2000);
+        tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    function startFrenzyMode() {
+        if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
+
+        gameState.isFrenzyMode = true;
+        let timeLeft = 15;
+
+        frenzyTimerContainer.classList.remove('hidden');
+        frenzyTimer.innerText = `${timeLeft}s`;
         
         tg.HapticFeedback.notificationOccurred('success');
+
+        frenzyInterval = setInterval(() => {
+            timeLeft--;
+            frenzyTimer.innerText = `${timeLeft}s`;
+            if (timeLeft <= 0) {
+                endFrenzyMode();
+            }
+        }, 1000);
+        updateUI();
+    }
+
+    function endFrenzyMode() {
+        clearInterval(frenzyInterval);
+        gameState.isFrenzyMode = false;
+        gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
+        frenzyTimerContainer.classList.add('hidden');
+        updateUI();
     }
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        if (Math.random() < getGeodeChance()) {
-            handleGeodeEvent();
+        let dustEarned = gameState.dustPerTap;
+        let isCritical = false;
+
+        if (gameState.isFrenzyMode) {
+            isCritical = true;
+            dustEarned *= 2;
         } else {
-            let dustEarned = gameState.dustPerTap;
-            let isCritical = false;
+            if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005) {
+                startFrenzyMode();
+                return;
+            }
+            if (Math.random() < getGeodeChance()) {
+                handleGeodeEvent();
+                updateUI();
+                return;
+            }
             if (Math.random() < 0.10) { 
                 isCritical = true;
                 dustEarned *= 2;
             }
-            if (gameState.hatchProgress < gameState.hatchGoal) {
-                gameState.hatchProgress += dustEarned;
-            }
-            gameState.dust += dustEarned;
-            
-            if (isCritical) {
-                tg.HapticFeedback.notificationOccurred('warning');
-            } else {
-                tg.HapticFeedback.impactOccurred('light');
-            }
-            
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.innerText = `+${formatNumber(dustEarned)}`;
-            if (isCritical) {
-                effect.classList.add('critical');
-            }
-            effect.style.left = `${Math.random() * 60 + 20}%`;
-            clickEffectContainer.appendChild(effect);
-            setTimeout(() => { effect.remove(); }, 1000);
         }
+        
+        if (gameState.hatchProgress < gameState.hatchGoal) {
+            gameState.hatchProgress += dustEarned;
+        }
+        gameState.dust += dustEarned;
+        
+        if (isCritical) {
+            tg.HapticFeedback.notificationOccurred('warning');
+        } else {
+            tg.HapticFeedback.impactOccurred('light');
+        }
+        
+        const effect = document.createElement('div');
+        effect.className = 'click-effect';
+        effect.innerText = `+${formatNumber(dustEarned)}`;
+        if (isCritical) {
+            effect.classList.add('critical');
+        }
+        effect.style.left = `${Math.random() * 60 + 20}%`;
+        clickEffectContainer.appendChild(effect);
+        setTimeout(() => { effect.remove(); }, 1000);
+
         updateUI();
     });
     
@@ -417,21 +460,17 @@ document.addEventListener('DOMContentLoaded', () => {
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
-    
     buyRechargeButton.addEventListener('click', () => {
         const rechargesLeft = 3 - gameState.dailyRechargesUsed;
         if (rechargesLeft <= 0) return;
-
         const cost = getRechargeCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.dailyRechargesUsed++;
-            
             gameState.currentBattery += gameState.batteryCapacity * 0.5;
             if (gameState.currentBattery > gameState.batteryCapacity) {
                 gameState.currentBattery = gameState.batteryCapacity;
             }
-            
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         } else {

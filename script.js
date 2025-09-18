@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         frenzyCooldownUntil: 0,
         tapEnergy: 2000,
         maxTapEnergy: 2000,
-        tapEnergyRegenRate: 1, // Energy per second
+        energyRechargeUntilTimestamp: 0, // Energy per second
         energyLevel: 1,
         energyBaseCost: 5000
     };
@@ -107,6 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
         return btoa(stringToHash);
+    }
+    function formatTime(totalSeconds) {
+        if (totalSeconds < 0) totalSeconds = 0;
+        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        return `${minutes}:${seconds}`;
     }
 
     // --- CORE FUNCTIONS ---
@@ -247,10 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
             eggOverlay.classList.add('frenzy-ready');
         }
 
-        const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-        energyBarFill.style.width = `${energyPercent}%`;
-        energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
-        
+        if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
+            const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
+            const totalCooldownSeconds = 3600;
+            const elapsedSeconds = totalCooldownSeconds - remainingSeconds;
+
+            const energyPercent = (elapsedSeconds / totalCooldownSeconds) * 100;
+            energyBarFill.style.width = `${energyPercent}%`;
+            energyText.innerText = `${formatTime(remainingSeconds)} / ${gameState.maxTapEnergy}`;
+        } else {
+            const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
+            energyBarFill.style.width = `${energyPercent}%`;
+            energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
+        }
+
         energyLevelText.innerText = gameState.energyLevel;
         energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
         if (gameState.energyLevel >= 10) {
@@ -290,11 +306,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        if (gameState.tapEnergy < gameState.maxTapEnergy) {
-            gameState.tapEnergy += gameState.tapEnergyRegenRate;
-            if (gameState.tapEnergy > gameState.maxTapEnergy) {
-                gameState.tapEnergy = gameState.maxTapEnergy;
-            }
+        if (gameState.energyRechargeUntilTimestamp > 0 && Date.now() >= gameState.energyRechargeUntilTimestamp) {
+            gameState.tapEnergy = gameState.maxTapEnergy; // Fully recharge
+            gameState.energyRechargeUntilTimestamp = 0; // Reset the timer
         }
         updateUI();
     }
@@ -424,6 +438,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return; // Stop the function if there's no energy
         }
         gameState.tapEnergy--; // Use 1 energy per tap
+        if (gameState.tapEnergy === 0) {
+            const ONE_HOUR_IN_MS = 3600 * 1000;
+            gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
+        }
+
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 

@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyRechargeButton = document.getElementById('buy-recharge-button');
     const rechargeCountText = document.getElementById('recharge-count');
     const rechargeCostText = document.getElementById('recharge-cost');
+    const energyBarFill = document.getElementById('energy-bar-fill');
+    const energyText = document.getElementById('energy-text');
+    const buyEnergyButton = document.getElementById('buy-energy-button');
+    const energyLevelText = document.getElementById('energy-level');
+    const energyEffectText = document.getElementById('energy-effect');
 
     // --- GAME STATE ---
     let gameState = {
@@ -65,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         rechargeBaseCost: 1000,
         isFrenzyMode: false,
         frenzyCooldownUntil: 0,
+        tapEnergy: 2000,
+        maxTapEnergy: 2000,
+        tapEnergyRegenRate: 1, // Energy per second
+        energyLevel: 1,
+        energyBaseCost: 5000
     };
 
     let frenzyInterval = null;
@@ -236,12 +246,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (Date.now() > gameState.frenzyCooldownUntil) {
             eggOverlay.classList.add('frenzy-ready');
         }
+
+        const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
+        energyBarFill.style.width = `${energyPercent}%`;
+        energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
+        
+        energyLevelText.innerText = gameState.energyLevel;
+        energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
+        if (gameState.energyLevel >= 10) {
+            buyEnergyButton.innerText = "Max Level";
+            buyEnergyButton.disabled = true;
+        } else {
+            const energyCost = getEnergyCost();
+            buyEnergyButton.innerText = `Upgrade (Cost: ${formatNumber(energyCost)})`;
+            buyEnergyButton.disabled = gameState.dust < energyCost;
+        }
     }
 
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
     function getRechargeCost() { return Math.floor(gameState.rechargeBaseCost * Math.pow(2.5, gameState.dailyRechargesUsed)); }
+    function getEnergyCost() {
+        return Math.floor(gameState.energyBaseCost * Math.pow(2.0, gameState.energyLevel - 1));
+    }
 
     function gameLoop() {
         if (gameState.dustPerSecond > 0 && gameState.currentBattery > 0) {
@@ -260,6 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (gameState.hatchProgress > gameState.hatchGoal) {
                     gameState.hatchProgress = gameState.hatchGoal;
                 }
+            }
+        }
+        if (gameState.tapEnergy < gameState.maxTapEnergy) {
+            gameState.tapEnergy += gameState.tapEnergyRegenRate;
+            if (gameState.tapEnergy > gameState.maxTapEnergy) {
+                gameState.tapEnergy = gameState.maxTapEnergy;
             }
         }
         updateUI();
@@ -385,6 +419,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
+        if (gameState.tapEnergy < 1) {
+            tg.HapticFeedback.impactOccurred('light'); // A little feedback for an empty tap
+            return; // Stop the function if there's no energy
+        }
+        gameState.tapEnergy--; // Use 1 energy per tap
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
@@ -488,6 +527,18 @@ document.addEventListener('DOMContentLoaded', () => {
             tg.HapticFeedback.notificationOccurred('success');
         } else {
             tg.HapticFeedback.notificationOccurred('error');
+
+        }
+    });
+    buyEnergyButton.addEventListener('click', () => {
+        if (gameState.energyLevel >= 10) return; // Let's set a max level of 10 for now
+        const cost = getEnergyCost();
+        if (gameState.dust >= cost) {
+            gameState.dust -= cost;
+            gameState.energyLevel++;
+            gameState.maxTapEnergy = 2000 + ((gameState.energyLevel - 1) * 500); // e.g., +500 max energy per level
+            updateUI();
+            tg.HapticFeedback.notificationOccurred('success');
         }
     });
 

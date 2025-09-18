@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Golem Egg</title>
     <link rel="stylesheet" href="style.css?v=2.6.0">
 </head>
+
 <body>
 
     <div class="game-container">
@@ -35,7 +37,15 @@
             <div class="progress-container">
                 <span class="label">Hatch Progress</span>
                 <span id="progress-text">0 / 10000</span>
-            </div>    
+            </div>
+        </div>
+
+        <div class="energy-container">
+            <span class="label">⚡ Tap Energy</span>
+            <div class="progress-bar-outline">
+                <div id="energy-bar-fill" class="progress-bar-fill energy-bar"></div>
+            </div>
+            <span id="energy-text">2000 / 2000</span>
         </div>
 
         <div class="button-bar">
@@ -75,9 +85,16 @@
                 <p>Recharges Left Today: <span id="recharge-count">3</span></p>
                 <button id="buy-recharge-button">Recharge (Cost: <span id="recharge-cost">1000</span>)</button>
             </div>
+            <div class="upgrade-item">
+                <h3>⚡ Energy Core</h3>
+                <p>Increases your maximum tap energy.</p>
+                <p>Level: <span id="energy-level">1</span></p>
+                <p>Effect: <span id="energy-effect">+2000 Max</span></p>
+                <button id="buy-energy-button">Upgrade (Cost: <span id="energy-cost">5K</span>)</button>
+            </div>
         </div>
     </div>
-    
+
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-reward-button" class="close-button">&times;</span>
@@ -96,7 +113,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="cheat-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Cheat Detected</h2>
@@ -108,4 +125,5 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js?v=2.6.0"></script>
 </body>
+
 </html>

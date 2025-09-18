@@ -97,6 +97,16 @@ body {
     margin-top: 10px;
 }
 
+.energy-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.progress-bar-fill.energy-bar {
+    background-color: #00bfff;
+}
+
 .button-bar {
     display: grid;
     grid-template-columns: 1fr 1fr;

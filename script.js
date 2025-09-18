@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const clickEffectContainer = document.getElementById('click-effect-container');
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
     const frenzyTimer = document.getElementById('frenzy-timer');
-    const shopButton = document.getElementById('shop-button');
+    const upgradeButton = document.getElementById('upgrade-button');
     const calendarButton = document.getElementById('calendar-button');
-    const shopModal = document.getElementById('shop-modal');
+    const upgradeModal = document.getElementById('upgrade-modal');
     const loginRewardModal = document.getElementById('login-reward-modal');
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
-    const closeShopButton = document.getElementById('close-shop-button');
+    const closeUpgradeButton = document.getElementById('close-upgrade-button');
     const closeRewardButton = document.getElementById('close-reward-button');
     const closeCalendarButton = document.getElementById('close-calendar-button');
     const rewardStreak = document.getElementById('reward-streak');
@@ -489,8 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     });
 
-    shopButton.addEventListener('click', () => shopModal.classList.remove('hidden'));
-    closeShopButton.addEventListener('click', () => shopModal.classList.add('hidden'));
+    upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
+    closeUpgradeButton.addEventListener('click', () => upgradeModal.classList.add('hidden'));
     calendarButton.addEventListener('click', () => {
         renderStreakCalendar();
         calendarModal.classList.remove('hidden');

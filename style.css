@@ -109,7 +109,7 @@ body {
 
 .button-bar {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr); /* The new 4-column layout */
     gap: 10px;
     width: 100%;
     margin-top: 20px;
@@ -123,6 +123,12 @@ body {
     border: none;
     border-radius: 10px;
     cursor: pointer;
+}
+
+.button-bar button:disabled {
+    background-color: #555;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .modal {

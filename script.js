@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const energyPercent = (elapsedSeconds / totalCooldownSeconds) * 100;
             energyBarFill.style.width = `${energyPercent}%`;
-            energyText.innerText = `${formatTime(remainingSeconds)} / ${gameState.maxTapEnergy}`;
+            energyText.innerText = `Full in ${formatTime(remainingSeconds)}`;
         } else {
             const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
             energyBarFill.style.width = `${energyPercent}%`;

@@ -112,8 +112,9 @@ body {
     grid-template-columns: repeat(4, 1fr); /* The new 4-column layout */
     gap: 0;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
 }
+
 .button-bar button {
     padding: 15px;
     font-size: 18px;
@@ -271,4 +272,47 @@ body {
 
 .egg-overlay.frenzy-active {
     animation: pulse-active 0.7s infinite ease-in-out;
+}
+
+.multiplier-container {
+    width: 100%;
+    margin-top: 10px;
+}
+#multiplier-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #2c3e50; /* A distinct dark blue */
+    color: #ecf0f1;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#multiplier-button:active {
+    background-color: #34495e;
+}
+
+.temporary-message {
+    position: absolute;
+    bottom: 120px; /* Position it above the button bar */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(231, 76, 60, 0.9); /* A noticeable red */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 110;
+    pointer-events: none;
+    animation: fade-in-out 2.5s ease-in-out forwards;
+}
+
+@keyframes fade-in-out {
+    0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
 }

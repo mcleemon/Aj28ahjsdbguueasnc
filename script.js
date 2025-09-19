@@ -45,9 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyEnergyButton = document.getElementById('buy-energy-button');
     const energyLevelText = document.getElementById('energy-level');
     const energyEffectText = document.getElementById('energy-effect');
+    const multiplierButton = document.getElementById('multiplier-button');
+    const multiplierText = document.getElementById('multiplier-text');
+    const temporaryMessage = document.getElementById('temporary-message');
 
     // --- GAME STATE ---
     let gameState = {
+        tapMultiplier: 1,
         dust: 0,
         dustPerTap: 1,
         hatchProgress: 0,
@@ -185,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
+        multiplierText.innerText = `x${gameState.tapMultiplier}`;
         dustCounter.innerText = formatWithCommas(gameState.dust);
         geodeCounter.innerText = gameState.geodesFoundToday;
         progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
@@ -432,18 +437,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
+    // DELETE the old golemEgg listener and REPLACE it with this:
     golemEgg.addEventListener('click', () => {
-        if (gameState.tapEnergy < 1) {
-            tg.HapticFeedback.impactOccurred('light'); // A little feedback for an empty tap
-            return; // Stop the function if there's no energy
+        // 1. VALIDATE: Check if there's enough energy for the current multiplier
+        if (gameState.tapEnergy < gameState.tapMultiplier) {
+            temporaryMessage.innerText = 'Reduce the multiplier!';
+            temporaryMessage.classList.remove('hidden');
+            setTimeout(() => temporaryMessage.classList.add('hidden'), 2500);
+            tg.HapticFeedback.notificationOccurred('error');
+            return; // Stop right here
         }
-        gameState.tapEnergy--; // Use 1 energy per tap
+
+        // 2. CONSUME: Use energy based on the multiplier
+        gameState.tapEnergy -= gameState.tapMultiplier;
+        if (gameState.tapEnergy < 0) gameState.tapEnergy = 0; // Failsafe
+
+        // If energy just hit zero, start the 1-hour countdown
         if (gameState.tapEnergy === 0) {
             const ONE_HOUR_IN_MS = 3600 * 1000;
             gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
         }
 
-        let dustEarned = gameState.dustPerTap;
+        // 3. CALCULATE REWARD: Apply the multiplier to the base tap value
+        let dustEarned = gameState.dustPerTap * gameState.tapMultiplier;
         let isCritical = false;
 
         if (gameState.isFrenzyMode) {
@@ -559,6 +575,23 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }
+    });
+    multiplierButton.addEventListener('click', () => {
+        switch (gameState.tapMultiplier) {
+            case 1:
+                gameState.tapMultiplier = 10;
+                break;
+            case 10:
+                gameState.tapMultiplier = 50;
+                break;
+            case 50:
+                gameState.tapMultiplier = 1;
+                break;
+            default:
+                gameState.tapMultiplier = 1;
+        }
+        updateUI();
+        tg.HapticFeedback.impactOccurred('light');
     });
 
     // --- INITIALIZE GAME ---

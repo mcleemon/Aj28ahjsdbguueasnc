@@ -307,12 +307,13 @@ body {
     font-weight: bold;
     z-index: 110;
     pointer-events: none;
-    animation: fade-in-out 2.5s ease-in-out forwards;
+    animation: fade-in-fall-out 2.5s ease-in-out forwards;
 }
 
-@keyframes fade-in-out {
-    0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-    20% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    80% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+@keyframes fade-in-fall-out {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    70%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    90%  { opacity: 1; transform: translateX(-50%) translateY(20px); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
 }

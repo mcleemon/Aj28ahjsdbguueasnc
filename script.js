@@ -437,11 +437,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
-    // DELETE the old golemEgg listener and REPLACE it with this:
     golemEgg.addEventListener('click', () => {
-        // 1. VALIDATE: Check if there's enough energy for the current multiplier
         if (gameState.tapEnergy < gameState.tapMultiplier) {
-            temporaryMessage.innerText = 'Reduce the multiplier!';
+            const message = (gameState.tapEnergy === 0)
+                ? 'Insufficient Energy'
+                : 'Reduce the multiplier!';
+
+            temporaryMessage.innerText = message;
             temporaryMessage.classList.remove('hidden');
             setTimeout(() => temporaryMessage.classList.add('hidden'), 2500);
             tg.HapticFeedback.notificationOccurred('error');

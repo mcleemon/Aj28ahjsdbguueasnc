@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
-    const geodeCounter = document.getElementById('geode-counter');
+    const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const eggOverlay = document.getElementById('egg-overlay');
@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         droneBaseCost: 250,
         lastLoginDate: null,
         loginStreak: 0,
+        gemShards: 0,
         checksum: null,
         lastSavedTimestamp: Date.now(),
         batteryLevel: 1,
@@ -81,6 +82,42 @@ document.addEventListener('DOMContentLoaded', () => {
         energyBaseCost: 5000
     };
 
+    // Add this new constant at the top of your script.js
+    const dailyRewards = [
+        // Week 1
+        { type: 'dust', amount: 500 },
+        { type: 'dust', amount: 750 },
+        { type: 'dust', amount: 1000 },
+        { type: 'dust', amount: 1250 },
+        { type: 'dust', amount: 1500 },
+        { type: 'dust', amount: 2000 },
+        { type: 'gem_shard', amount: 1, label: '1 Gem Shard' }, // Milestone Day 7
+        // Week 2
+        { type: 'dust', amount: 2500 },
+        { type: 'dust', amount: 2750 },
+        { type: 'dust', amount: 3000 },
+        { type: 'dust', amount: 3250 },
+        { type: 'dust', amount: 3500 },
+        { type: 'dust', amount: 4000 },
+        { type: 'gem_shard', amount: 2, label: '2 Gem Shards' }, // Milestone Day 14
+        // Week 3
+        { type: 'dust', amount: 4500 },
+        { type: 'dust', amount: 4750 },
+        { type: 'dust', amount: 5000 },
+        { type: 'dust', amount: 5250 },
+        { type: 'dust', amount: 5500 },
+        { type: 'dust', amount: 6000 },
+        { type: 'gem_shard', amount: 3, label: '3 Gem Shards' }, // Milestone Day 21
+        // Week 4
+        { type: 'dust', amount: 7000 },
+        { type: 'dust', amount: 7500 },
+        { type: 'dust', amount: 8000 },
+        { type: 'dust', amount: 9000 },
+        { type: 'dust', amount: 10000 },
+        { type: 'recharge', amount: 1, label: '1 Drone Recharge' },
+        { type: 'gem_shard', amount: 5, label: '5 Gem Shards' }, // BIG Milestone Day 28
+    ];
+
     let frenzyInterval = null;
     const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
@@ -97,8 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatWithCommas(num) {
         return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-    function getTodayDateString() {
-        const d = new Date();
+    function formatDate(date) {
+        // If no date is provided, use the current date as a default
+        const d = date || new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
     function generateChecksum(state) {
@@ -191,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         multiplierText.innerText = `x${gameState.tapMultiplier}`;
         dustCounter.innerText = formatWithCommas(gameState.dust);
-        geodeCounter.innerText = gameState.geodesFoundToday;
+        gemShardsCounter.innerText = gameState.gemShards;
         progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
         const progressPercent = Math.min(100, (gameState.hatchProgress / gameState.hatchGoal) * 100);
         eggOverlay.className = 'egg-overlay';
@@ -319,26 +357,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleDailyLogin() {
-        const today = getTodayDateString();
+        const today = formatDate();
         if (gameState.lastLoginDate === today) return;
 
+        // Reset daily limits
         gameState.geodesFoundToday = 0;
         gameState.dailyRechargesUsed = 0;
         gameState.currentBattery = gameState.batteryCapacity;
 
+        // Check for streak
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = getTodayDateString.call(yesterday);
+        const yesterdayStr = formatDate(yesterday);
         if (gameState.lastLoginDate === yesterdayStr) {
             gameState.loginStreak++;
         } else {
             gameState.loginStreak = 1;
         }
-        const reward = 100 * gameState.loginStreak;
-        gameState.dust += reward;
         gameState.lastLoginDate = today;
+
+        // --- NEW REWARD LOGIC ---
+        // Use modulo to loop through the 28-day reward track
+        const rewardIndex = (gameState.loginStreak - 1) % dailyRewards.length;
+        const rewardInfo = dailyRewards[rewardIndex];
+
+        let rewardText = '';
+
+        // Grant the reward based on its type
+        switch (rewardInfo.type) {
+            case 'dust':
+                gameState.dust += rewardInfo.amount;
+                rewardText = `${formatNumber(rewardInfo.amount)} Crystal Dust!`;
+                break;
+            case 'gem_shard':
+                gameState.gemShards += rewardInfo.amount; // <<< ADD THIS LINE
+                rewardText = `${rewardInfo.label}!`;
+                break;
+            case 'recharge':
+                // Give a free recharge by reducing the "used" count (can go negative)
+                gameState.dailyRechargesUsed -= rewardInfo.amount;
+                rewardText = `${rewardInfo.label}!`;
+                break;
+        }
+
+        // Update and show the reward modal
         rewardStreak.innerText = gameState.loginStreak;
-        rewardAmount.innerText = reward;
+        rewardAmount.innerHTML = rewardText; // Use .innerHTML to allow bolding if needed
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
@@ -365,8 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleGeodeEvent() {
-        // This function is missing from the provided script, so I will add it back
-        // based on our last stable version.
         gameState.geodesFoundToday++;
         const prizeRoll = Math.random();
         let reward = 0;

@@ -11,18 +11,30 @@
 <body>
 
     <div class="game-container">
-        <div class="stats-container">
-            <div class="stat">
-                <span class="label">💎 Crystal Dust</span>
-                <span id="dust-counter">0</span>
+        <div class="header-container">
+            <div class="player-bar">
+                <div class="player-info">
+                    <div class="avatar-frame"></div>
+                    <div class="player-details">
+                        <span id="player-name">Test-User</span>
+                        <span id="player-level">Lv. 1</span>
+                    </div>
+                </div>
+                <button id="settings-button" disabled>⚙️</button>
             </div>
-            <div class="stat">
-                <span class="label">☄️ Geodes Found</span>
-                <span id="geode-counter">0</span>
-            </div>
-            <div class="stat">
-                <span class="label">🔋 Drone Battery</span>
-                <span id="battery-status">100%</span>
+            <div class="stats-container">
+                <div class="stat">
+                    <span class="label">💎 Crystal Dust</span>
+                    <span id="dust-counter">0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">💠 Gem Shards</span>
+                    <span id="gem-shards-counter">0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">🔋 Drone Battery</span>
+                    <span id="battery-status">100%</span>
+                </div>
             </div>
         </div>
 
@@ -48,9 +60,7 @@
             <span id="energy-text">2000 / 2000</span>
         </div>
 
-        <div class="multiplier-container">
-            <button id="multiplier-button">Multiplier: <span id="multiplier-text">x1</span></button>
-        </div>
+        <button id="multiplier-button">Multiplier: <span id="multiplier-text">x1</span></button>
 
         <div class="button-bar">
             <button id="upgrade-button">⏫ Upgrade</button>

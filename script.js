@@ -263,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (energyBar) {
             let energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
 
-            // This logic is now separate to avoid breaking the button
             if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
                 const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
                 energyPercent = ((3600 - remainingSeconds) / 3600) * 100;
@@ -610,14 +609,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const effect = document.createElement('div');
         effect.className = 'click-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
-        if (isCritical) {
-            effect.classList.add('critical');
-        }
-        effect.style.left = `${Math.random() * 60 + 20}%`;
-        effect.style.top = '50%';
+
+        const rect = golemEgg.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        effect.style.left = `${x}px`;
+        effect.style.top = `${y}px`;
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);
-
         updateUI();
     });
 

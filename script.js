@@ -124,6 +124,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     // --- HELPER FUNCTIONS ---
+    function createParticle() {
+        if (document.hidden) return; // Performance saver: don't run if tab isn't visible
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${Math.random() * 3 + 3}s`;
+        particle.style.animationDelay = `${Math.random() * 4}s`;
+        particleContainer.appendChild(particle);
+        setTimeout(() => { particle.remove(); }, 7000); // Clean up the particle after it has faded
+    }
     function formatNumber(num) {
         num = Math.floor(num);
         if (num < 1000) return num.toString();
@@ -467,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rarityClass = 'epic';
             reward = baseReward * 500;
             rewardText = `+ 1 Gem Shard! (🎁 ${formatNumber(reward)})`;
-            gameState.gemShards++
+            gameState.gemShards++;
         } else if (prizeRoll < 0.05) { // Rare Geode!
             rarity = "Rare Geode!";
             rarityClass = 'rare';

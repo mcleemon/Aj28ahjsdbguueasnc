@@ -11,9 +11,9 @@
 
 body {
     background-color: var(--tg-theme-bg-color);
-    background-image: url('https://i.ibb.co/M5M49TPR/123.png');
-    background-size: cover; /* This makes the image cover the whole screen */
-    background-position: center; /* This centers the image */
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/Background.png?raw=true');
+    background-size: cover;      /* Keep this */
+    background-position: center; /* Keep this */
     color: var(--tg-theme-text-color);
     font-family: 'Helvetica Neue', sans-serif;
     display: flex;

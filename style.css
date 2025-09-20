@@ -197,6 +197,7 @@ body {
     border-radius: 12px;
     transition: background-color 0.2s;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .button-bar button:hover,
@@ -456,11 +457,6 @@ body {
     z-index: 110;
     pointer-events: none;
     animation: fade-in-fall-out 2.5s ease-in-out forwards;
-}
-
-button:focus {
-    outline: none; /* Removes the default blue outline on focus */
-    box-shadow: none; /* Ensures no other outline/shadow appears */
 }
 
 @keyframes fade-in-fall-out {

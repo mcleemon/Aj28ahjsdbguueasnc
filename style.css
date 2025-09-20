@@ -11,6 +11,9 @@
 
 body {
     background-color: var(--tg-theme-bg-color);
+    background-image: url('https://i.ibb.co/M5M49TPR/123.png');
+    background-size: cover; /* This makes the image cover the whole screen */
+    background-position: center; /* This centers the image */
     color: var(--tg-theme-text-color);
     font-family: 'Helvetica Neue', sans-serif;
     display: flex;
@@ -22,6 +25,12 @@ body {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+button, button:focus, button:active {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    box-shadow: none;
 }
 
 .game-container {
@@ -192,7 +201,6 @@ body {
     border-radius: 25px;
     transition: all 0.2s ease;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .button-bar button:hover, .button-bar button:active {

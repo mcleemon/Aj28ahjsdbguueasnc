@@ -177,32 +177,32 @@ body {
 .button-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 10px; /* Increased the gap slightly */
     width: 100%;
-    padding: 8px;
     margin-top: auto;
-    background: var(--surface-glass);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button-bar button {
-    background: transparent;
-    border: none;
+    background: rgba(44, 44, 46, 0.8); /* Semi-transparent dark background */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
     color: var(--tg-theme-text-color);
-    padding: 10px 5px;
+    padding: 12px 5px; /* Adjusted padding */
     font-size: 14px;
-    font-weight: 500;
-    border-radius: 12px;
-    transition: background-color 0.2s;
+    font-weight: 600; /* Slightly bolder */
+    border-radius: 25px; /* This creates the pill shape */
+    transition: all 0.2s ease;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
 
-.button-bar button:hover,
+.button-bar button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* A subtle glow on hover */
+}
+
 .button-bar button:active {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--accent-color); /* The yellow color on press */
+    color: #000;
+    transform: scale(0.96); /* Adds a nice press-down effect */
 }
 
 .button-bar button:disabled {

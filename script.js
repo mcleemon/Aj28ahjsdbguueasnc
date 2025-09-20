@@ -262,16 +262,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const energyBar = multiplierButton.querySelector('.energy-bar-fill');
         if (energyBar) {
             let energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-            let currentText = `Multiplier: x${gameState.tapMultiplier}`;
 
+            // This logic is now separate to avoid breaking the button
             if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
                 const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
                 energyPercent = ((3600 - remainingSeconds) / 3600) * 100;
-                currentText = `Full in ${formatTime(remainingSeconds)}`;
+                multiplierText.innerText = `Full in ${formatTime(remainingSeconds)}`;
+            } else {
+                multiplierText.innerText = `Multiplier: x${gameState.tapMultiplier}`;
             }
             energyBar.style.width = `${energyPercent}%`;
-            // This correctly updates only the text content without breaking the button's structure
-            multiplierButton.innerText = currentText;
         }
 
         // Update crack overlay
@@ -529,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000);
         updateUI();
+        gameState.isFrenzyMode = false;
     }
 
     function endFrenzyMode() {
@@ -613,6 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
             effect.classList.add('critical');
         }
         effect.style.left = `${Math.random() * 60 + 20}%`;
+        effect.style.top = '50%';
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);
 

@@ -252,15 +252,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const energyBar = multiplierButton.querySelector('.energy-bar-fill');
         if (energyBar) {
             let energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-            let barText = `Multiplier: <span id="multiplier-text">x${gameState.tapMultiplier}</span>`;
+            let currentText = `Multiplier: x${gameState.tapMultiplier}`;
 
             if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
                 const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
                 energyPercent = ((3600 - remainingSeconds) / 3600) * 100;
-                barText = `Full in ${formatTime(remainingSeconds)}`;
+                currentText = `Full in ${formatTime(remainingSeconds)}`;
             }
             energyBar.style.width = `${energyPercent}%`;
-            multiplierButton.innerHTML = barText;
+            // This correctly updates only the text content without breaking the button's structure
+            multiplierButton.innerText = currentText;
         }
 
         // Update crack overlay
@@ -432,8 +433,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayCell = document.createElement('div');
             dayCell.className = 'streak-day';
             dayCell.innerText = i;
-            if (i < gameState.loginStreak) { dayCell.classList.add('completed'); }
-            else if (i === gameState.loginStreak) { dayCell.classList.add('current'); }
+            const visualDay = ((gameState.loginStreak - 1) % 28) + 1;
+            if (i < visualDay) {
+                dayCell.classList.add('completed');
+            } else if (i === visualDay) {
+                dayCell.classList.add('current');
+            }
             streakGrid.appendChild(dayCell);
         }
     }
@@ -462,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rarityClass = 'epic';
             reward = baseReward * 500;
             rewardText = `+ 1 Gem Shard! (🎁 ${formatNumber(reward)})`;
-            // We'll add the gem shard logic here later
+            gameState.gemShards++
         } else if (prizeRoll < 0.05) { // Rare Geode!
             rarity = "Rare Geode!";
             rarityClass = 'rare';
@@ -707,11 +712,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ADD THIS LINE to start the particle effects
     setInterval(createParticle, 250);
-
-    // Your existing game loops
-    setInterval(gameLoop, 1000);
-    setInterval(saveGame, 3000);
-
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
 });

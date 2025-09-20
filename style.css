@@ -32,24 +32,24 @@ button, button:focus, button:active {
 .game-container {
     width: 100%;
     max-width: 400px;
-
-    /* --- NEW HEIGHT & ASPECT RATIO LOGIC --- */
-    height: 95vh; /* Set height relative to the viewport height */
-    max-height: 850px; /* A max height for very large monitors */
-    aspect-ratio: 9 / 16; /* This is the key: forces a phone-like shape */
+    height: 95vh;
+    max-height: 850px;
+    aspect-ratio: 9 / 16;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+    
+    /* --- PADDING IS NOW CORRECTLY ADDED BACK --- */
+    padding: 15px;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom));
     box-sizing: border-box;
-    position: relative;
-    overflow: hidden; /* Prevents anything from spilling out */
 
-    /* Optional: Add a subtle border and shadow to complete the "device" look on desktop */
+    position: relative;
+    overflow: hidden;
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 
-    /* --- BACKGROUND PROPERTIES --- */
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/Background.png?raw=true');
     background-size: cover;
     background-position: center;

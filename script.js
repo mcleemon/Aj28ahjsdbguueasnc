@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
-    const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const eggOverlay = document.getElementById('egg-overlay');
@@ -40,8 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyRechargeButton = document.getElementById('buy-recharge-button');
     const rechargeCountText = document.getElementById('recharge-count');
     const rechargeCostText = document.getElementById('recharge-cost');
-    const energyBarFill = document.getElementById('energy-bar-fill');
-    const energyText = document.getElementById('energy-text');
+    const gemShardsCounter = document.getElementById('gem-shards-counter');
+    const particleContainer = document.getElementById('particle-container');
+    const shopButton = document.getElementById('shop-button'); // For future use
+    const friendsButton = document.getElementById('friends-button'); // For future use
     const buyEnergyButton = document.getElementById('buy-energy-button');
     const energyLevelText = document.getElementById('energy-level');
     const energyEffectText = document.getElementById('energy-effect');
@@ -157,6 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${seconds}`;
     }
 
+    function createParticle() {
+        if (document.hidden) return; // Performance saver: don't run if tab isn't visible
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${Math.random() * 3 + 3}s`;
+        particle.style.animationDelay = `${Math.random() * 4}s`;
+        particleContainer.appendChild(particle);
+        setTimeout(() => { particle.remove(); }, 7000); // Clean up the particle after it has faded
+    }
+
     // --- CORE FUNCTIONS ---
     function saveGame() {
         try {
@@ -227,68 +239,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
-        multiplierText.innerText = `x${gameState.tapMultiplier}`;
-        dustCounter.innerText = formatWithCommas(gameState.dust);
-        gemShardsCounter.innerText = gameState.gemShards;
-        progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
-        const progressPercent = Math.min(100, (gameState.hatchProgress / gameState.hatchGoal) * 100);
-        eggOverlay.className = 'egg-overlay';
-        if (progressPercent >= 75) { eggOverlay.classList.add('egg-cracked-3'); }
-        else if (progressPercent >= 50) { eggOverlay.classList.add('egg-cracked-2'); }
-        else if (progressPercent >= 25) { eggOverlay.classList.add('egg-cracked-1'); }
-
+        // Update header
+        dustCounter.innerText = formatNumber(gameState.dust);
+        gemShardsCounter.innerText = formatNumber(gameState.gemShards);
         const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
         batteryStatus.innerText = `${Math.floor(batteryPercent)}%`;
 
-        chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+        // Update egg progress text
+        progressText.innerText = `${formatNumber(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
 
-        if (gameState.chiselLevel >= 20) {
-            buyChiselButton.innerText = "Max Level";
-            buyChiselButton.disabled = true;
-        } else {
-            const chiselCost = getChiselCost();
-            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(chiselCost)})`;
-            buyChiselButton.disabled = gameState.dust < chiselCost;
+        // --- DYNAMIC ENERGY BAR IN MULTIPLIER BUTTON ---
+        const energyBar = multiplierButton.querySelector('.energy-bar-fill');
+        if (energyBar) {
+            let energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
+            let barText = `Multiplier: <span id="multiplier-text">x${gameState.tapMultiplier}</span>`;
+
+            if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
+                const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
+                energyPercent = ((3600 - remainingSeconds) / 3600) * 100;
+                barText = `Full in ${formatTime(remainingSeconds)}`;
+            }
+            energyBar.style.width = `${energyPercent}%`;
+            multiplierButton.innerHTML = barText;
         }
 
-        droneLevelText.innerText = gameState.droneLevel;
-        droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
+        // Update crack overlay
+        const progressPercent = Math.min(100, (gameState.hatchProgress / gameState.hatchGoal) * 100);
+        eggOverlay.className = 'egg-overlay';
+        if (progressPercent >= 75) eggOverlay.classList.add('egg-cracked-3');
+        else if (progressPercent >= 50) eggOverlay.classList.add('egg-cracked-2');
+        else if (progressPercent >= 25) eggOverlay.classList.add('egg-cracked-1');
 
-        if (gameState.droneLevel >= 10) {
-            buyDroneButton.innerText = "Max Level";
-            buyDroneButton.disabled = true;
-        } else {
-            const droneCost = getDroneCost();
-            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(droneCost)})`;
-            buyDroneButton.disabled = gameState.dust < droneCost;
-        }
-
-        const batteryCapacityHours = gameState.batteryCapacity / 3600;
-        batteryLevelText.innerText = gameState.batteryLevel;
-        batteryCapacityText.innerText = `${Number(batteryCapacityHours.toFixed(1))} Hours`;
-        if (gameState.batteryLevel >= batteryLevels.length) {
-            buyBatteryButton.innerText = "Max Level";
-            buyBatteryButton.disabled = true;
-        } else {
-            const batteryCost = getBatteryCost();
-            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(batteryCost)})`;
-            buyBatteryButton.disabled = gameState.dust < batteryCost;
-        }
-
-        const rechargesLeft = 3 - gameState.dailyRechargesUsed;
-        rechargeCountText.innerText = rechargesLeft;
-        const rechargeCost = getRechargeCost();
-        rechargeCostText.innerText = formatNumber(rechargeCost);
-
-        if (rechargesLeft <= 0) {
-            buyRechargeButton.innerText = "No Recharges Left";
-            buyRechargeButton.disabled = true;
-        } else {
-            buyRechargeButton.innerText = `Recharge (Cost: ${formatNumber(rechargeCost)})`;
-            buyRechargeButton.disabled = gameState.dust < rechargeCost || gameState.currentBattery >= gameState.batteryCapacity;
-        }
-
+        // Update frenzy glow
         eggOverlay.classList.remove('frenzy-ready', 'frenzy-active');
         if (gameState.isFrenzyMode) {
             eggOverlay.classList.add('frenzy-active');
@@ -296,29 +278,65 @@ document.addEventListener('DOMContentLoaded', () => {
             eggOverlay.classList.add('frenzy-ready');
         }
 
-        if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
-            const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
-            const totalCooldownSeconds = 3600;
-            const elapsedSeconds = totalCooldownSeconds - remainingSeconds;
-
-            const energyPercent = (elapsedSeconds / totalCooldownSeconds) * 100;
-            energyBarFill.style.width = `${energyPercent}%`;
-            energyText.innerText = `Full in ${formatTime(remainingSeconds)}`;
+        // --- Update Shop Modals ---
+        // Chisel
+        chiselLevelText.innerText = gameState.chiselLevel;
+        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+        if (gameState.chiselLevel >= 20) {
+            buyChiselButton.innerText = "Max Level";
+            buyChiselButton.disabled = true;
         } else {
-            const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-            energyBarFill.style.width = `${energyPercent}%`;
-            energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
+            const cost = getChiselCost();
+            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyChiselButton.disabled = gameState.dust < cost;
         }
 
+        // Drone
+        droneLevelText.innerText = gameState.droneLevel;
+        droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
+        if (gameState.droneLevel >= 10) {
+            buyDroneButton.innerText = "Max Level";
+            buyDroneButton.disabled = true;
+        } else {
+            const cost = getDroneCost();
+            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyDroneButton.disabled = gameState.dust < cost;
+        }
+
+        // Battery
+        batteryLevelText.innerText = gameState.batteryLevel;
+        batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
+        if (gameState.batteryLevel >= batteryLevels.length) {
+            buyBatteryButton.innerText = "Max Level";
+            buyBatteryButton.disabled = true;
+        } else {
+            const cost = getBatteryCost();
+            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyBatteryButton.disabled = gameState.dust < cost;
+        }
+
+        // Recharge
+        const rechargesLeft = 3 - gameState.dailyRechargesUsed;
+        rechargeCountText.innerText = rechargesLeft;
+        if (rechargesLeft <= 0) {
+            buyRechargeButton.innerText = "No Recharges Left";
+            buyRechargeButton.disabled = true;
+        } else {
+            const cost = getRechargeCost();
+            buyRechargeButton.innerText = `Recharge (Cost: ${formatNumber(cost)})`;
+            buyRechargeButton.disabled = gameState.dust < cost || gameState.currentBattery >= gameState.batteryCapacity;
+        }
+
+        // Energy Core
         energyLevelText.innerText = gameState.energyLevel;
         energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
             buyEnergyButton.disabled = true;
         } else {
-            const energyCost = getEnergyCost();
-            buyEnergyButton.innerText = `Upgrade (Cost: ${formatNumber(energyCost)})`;
-            buyEnergyButton.disabled = gameState.dust < energyCost;
+            const cost = getEnergyCost();
+            buyEnergyButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyEnergyButton.disabled = gameState.dust < cost;
         }
     }
 
@@ -435,27 +453,33 @@ document.addEventListener('DOMContentLoaded', () => {
         let rarity = '';
         let rarityClass = '';
         let rewardText = '';
-        if (prizeRoll < 0.01) {
+
+        // This is the key change: Calculate a base reward that includes the multiplier
+        const baseReward = gameState.dustPerTap * gameState.tapMultiplier;
+
+        if (prizeRoll < 0.01) { // EPIC GEODE!
             rarity = "EPIC GEODE!";
             rarityClass = 'epic';
-            reward = gameState.dustPerTap * 1000;
+            reward = baseReward * 500;
             rewardText = `+ 1 Gem Shard! (🎁 ${formatNumber(reward)})`;
-        } else if (prizeRoll < 0.05) {
+            // We'll add the gem shard logic here later
+        } else if (prizeRoll < 0.05) { // Rare Geode!
             rarity = "Rare Geode!";
             rarityClass = 'rare';
-            reward = gameState.dustPerTap * 40;
+            reward = baseReward * 20;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
-        } else if (prizeRoll < 0.20) {
+        } else if (prizeRoll < 0.20) { // Uncommon Geode!
             rarity = "Uncommon Geode!";
             rarityClass = 'uncommon';
-            reward = gameState.dustPerTap * 10;
+            reward = baseReward * 5;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
-        } else {
+        } else { // Common Geode
             rarity = "Common Geode";
             rarityClass = 'common';
-            reward = gameState.dustPerTap * 3;
+            reward = baseReward * 2;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
         }
+
         gameState.dust += reward;
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += reward;
@@ -471,6 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startFrenzyMode() {
         if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
+
+        multiplierButton.disabled = true;
 
         gameState.isFrenzyMode = true;
         let timeLeft = 15;
@@ -492,6 +518,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endFrenzyMode() {
         clearInterval(frenzyInterval);
+
+        multiplierButton.disabled = false;
+
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
         frenzyTimerContainer.classList.add('hidden');
@@ -500,32 +529,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        if (gameState.tapEnergy < gameState.tapMultiplier) {
-            const message = (gameState.tapEnergy === 0)
-                ? 'Insufficient Energy'
-                : 'Reduce the multiplier!';
+        // --- ENERGY LOGIC: Only applies if NOT in Frenzy Mode ---
+        if (!gameState.isFrenzyMode) {
+            // 1. VALIDATE: Check if there's enough energy
+            if (gameState.tapEnergy < gameState.tapMultiplier) {
+                const message = (gameState.tapEnergy === 0)
+                    ? 'Insufficient Energy'
+                    : 'Reduce the multiplier!';
 
-            temporaryMessage.innerText = message;
-            temporaryMessage.classList.remove('hidden');
-            setTimeout(() => temporaryMessage.classList.add('hidden'), 2500);
-            tg.HapticFeedback.notificationOccurred('error');
-            return; // Stop right here
+                temporaryMessage.innerText = message;
+                temporaryMessage.classList.remove('hidden');
+                setTimeout(() => temporaryMessage.classList.add('hidden'), 2500);
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+
+            // 2. CONSUME: Use energy based on the multiplier
+            gameState.tapEnergy -= gameState.tapMultiplier;
+            if (gameState.tapEnergy < 0) gameState.tapEnergy = 0;
+
+            // Start the 1-hour countdown if energy just hit zero
+            if (gameState.tapEnergy === 0) {
+                const ONE_HOUR_IN_MS = 3600 * 1000;
+                gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
+            }
         }
 
-        // 2. CONSUME: Use energy based on the multiplier
-        gameState.tapEnergy -= gameState.tapMultiplier;
-        if (gameState.tapEnergy < 0) gameState.tapEnergy = 0; // Failsafe
-
-        // If energy just hit zero, start the 1-hour countdown
-        if (gameState.tapEnergy === 0) {
-            const ONE_HOUR_IN_MS = 3600 * 1000;
-            gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
-        }
-
-        // 3. CALCULATE REWARD: Apply the multiplier to the base tap value
+        // --- REWARD LOGIC: Applies to ALL taps ---
+        // 3. CALCULATE REWARD: Multiplier is applied first
         let dustEarned = gameState.dustPerTap * gameState.tapMultiplier;
         let isCritical = false;
 
+        // 4. APPLY BONUSES: Frenzy and Criticals apply to the multiplied amount
         if (gameState.isFrenzyMode) {
             isCritical = true;
             dustEarned *= 2;
@@ -535,8 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             if (Math.random() < getGeodeChance()) {
-                handleGeodeEvent();
-                updateUI();
+                handleGeodeEvent(); // Geode event already calls updateUI() and returns
                 return;
             }
             if (Math.random() < 0.10) {
@@ -545,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // 5. UPDATE GAME STATE & VISUALS (This part is unchanged)
         if (gameState.hatchProgress < gameState.hatchGoal) {
             gameState.hatchProgress += dustEarned;
         }
@@ -665,6 +700,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     handleDailyLogin();
     updateUI();
+
+    const energyBarFill = document.createElement('div');
+    energyBarFill.className = 'energy-bar-fill';
+    multiplierButton.prepend(energyBarFill);
+
+    // ADD THIS LINE to start the particle effects
+    setInterval(createParticle, 250);
+
+    // Your existing game loops
+    setInterval(gameLoop, 1000);
+    setInterval(saveGame, 3000);
 
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);

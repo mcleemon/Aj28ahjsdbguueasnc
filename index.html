@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Golem Egg</title>
-    <link rel="stylesheet" href="style.css?v=2.6.9">
+    <link rel="stylesheet" href="style.css?v=2.7.0">
 </head>
 
 <body>
-
     <div class="game-container">
         <div class="header-container">
             <div class="player-bar">
@@ -38,35 +37,29 @@
             </div>
         </div>
 
-        <div class="egg-container">
-            <div id="golem-egg" class="egg-image">
+        <div class="main-content">
+            <div id="particle-container" class="particle-container"></div>
+
+            <div class="egg-container">
+                <div id="golem-egg" class="egg-image"></div>
                 <div id="egg-overlay" class="egg-overlay"></div>
+                <div class="progress-bar-container">
+                    <div id="progress-text" class="progress-text">0 / 10K</div>
+                </div>
             </div>
-            <div id="click-effect-container"></div>
-            <div id="frenzy-timer-container" class="frenzy-timer-container hidden">
-                Frenzy! <span id="frenzy-timer">15s</span>
-            </div>
-            <div class="progress-container">
-                <span class="label">Hatch Progress</span>
-                <span id="progress-text">0 / 10000</span>
-            </div>
-        </div>
 
-        <div class="energy-container">
-            <span class="label">⚡ Tap Energy</span>
-            <div class="progress-bar-outline">
-                <div id="energy-bar-fill" class="progress-bar-fill energy-bar"></div>
-            </div>
-            <span id="energy-text">2000 / 2000</span>
+            <button id="multiplier-button">Multiplier: <span id="multiplier-text">x1</span></button>
         </div>
-
-        <button id="multiplier-button">Multiplier: <span id="multiplier-text">x1</span></button>
+        <div id="click-effect-container" class="click-effect-container"></div>
+        <div id="frenzy-timer-container" class="frenzy-timer-container hidden">
+            <span id="frenzy-timer" class="frenzy-timer">15s</span>
+        </div>
 
         <div class="button-bar">
-            <button id="upgrade-button">⏫ Upgrade</button>
-            <button id="new-shop-button" disabled>🛒 Shop</button>
-            <button id="friends-button" disabled>👥 Friends</button>
-            <button id="calendar-button">📅 Calendar</button>
+            <button id="upgrade-button">Upgrade</button>
+            <button id="shop-button">Shop</button>
+            <button id="friends-button">Friends</button>
+            <button id="calendar-button">Calendar</button>
         </div>
 
         <div id="temporary-message" class="temporary-message hidden"></div>
@@ -141,7 +134,7 @@
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.6.9"></script>
+    <script src="script.js?v=2.7.0"></script>
 </body>
 
 </html>

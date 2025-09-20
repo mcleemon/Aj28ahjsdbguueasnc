@@ -1063,12 +1063,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Start the 1-hour countdown if energy just hit zero
 
+            const ONE_HOUR_IN_MS = 3600 * 1000;
             if (gameState.tapEnergy === 0) {
-
-                const ONE_HOUR_IN_MS = 3600 * 1000;
-
+                // If this tap depleted energy to zero, ALWAYS reset the timer
                 gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
-
+            } else if (gameState.energyRechargeUntilTimestamp === 0) {
+                // Otherwise, if the timer hasn't started yet, start the hidden timer
+                gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
             }
 
         }

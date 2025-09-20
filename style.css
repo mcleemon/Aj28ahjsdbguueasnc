@@ -175,21 +175,31 @@ body {
 .button-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* The new 4-column layout */
-    gap: 0;
+    gap: 5px;
     width: 100%;
-    margin-top: 10px;
+    padding: 8px;
+    margin-top: auto;
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button-bar button {
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    background-color: #444;
-    color: #fff;
+    background: transparent;
     border: none;
+    color: var(--tg-theme-text-color);
+    padding: 10px 5px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: background-color 0.2s;
     cursor: pointer;
-    width: 100%;
+}
+
+.button-bar button:hover,
+.button-bar button:active {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .button-bar button:disabled {

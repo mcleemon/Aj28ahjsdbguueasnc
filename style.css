@@ -32,7 +32,9 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 15px;
+    padding-bottom: calc(15px + env(safe-area-inset-bottom));
     box-sizing: border-box;
+    justify-content: space-between;
 }
 
 .header-container {
@@ -420,11 +422,9 @@ body {
 
 #multiplier-button {
     width: fit-content;
-    /* This makes the button fit its text */
-    margin: 10px auto 0 auto;
-    /* This centers the button */
+    margin: 10px auto;
+    margin-bottom: 20px;
     display: block;
-    /* Required for auto margin to work */
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -456,6 +456,11 @@ body {
     z-index: 110;
     pointer-events: none;
     animation: fade-in-fall-out 2.5s ease-in-out forwards;
+}
+
+button:focus {
+    outline: none; /* Removes the default blue outline on focus */
+    box-shadow: none; /* Ensures no other outline/shadow appears */
 }
 
 @keyframes fade-in-fall-out {

@@ -12,8 +12,8 @@
 body {
     background-color: var(--tg-theme-bg-color);
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/Background.png?raw=true');
-    background-size: cover;      /* Keep this */
-    background-position: center; /* Keep this */
+    background-size: cover;
+    background-position: center;
     color: var(--tg-theme-text-color);
     font-family: 'Helvetica Neue', sans-serif;
     display: flex;
@@ -27,7 +27,9 @@ body {
     user-select: none;
 }
 
-button, button:focus, button:active {
+button,
+button:focus,
+button:active {
     -webkit-tap-highlight-color: transparent;
     outline: none;
     box-shadow: none;
@@ -136,11 +138,13 @@ button, button:focus, button:active {
     position: relative;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+    --glow-blur: 5px;
+    --glow-color: var(--accent-color);
 }
 
-.egg-image:active {
+.egg-image:active:not(.egg-wobble):not(.egg-frenzy) {
     transform: scale(0.95);
-
 }
 
 .egg-overlay {
@@ -186,7 +190,7 @@ button, button:focus, button:active {
 .button-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px; /* Increased the gap slightly */
+    gap: 10px;
     width: 100%;
     margin-top: auto;
 }
@@ -195,7 +199,7 @@ button, button:focus, button:active {
     background: rgba(44, 44, 46, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--tg-theme-text-color);
-    padding: 10px 15px; /* Adjusted for a slimmer look */
+    padding: 10px 15px;
     font-size: 14px;
     font-weight: 600;
     border-radius: 25px;
@@ -203,9 +207,10 @@ button, button:focus, button:active {
     cursor: pointer;
 }
 
-.button-bar button:hover, .button-bar button:active {
+.button-bar button:hover,
+.button-bar button:active {
     background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(0.98); /* A more subtle press effect */
+    transform: scale(0.98);
 }
 
 .button-bar button:disabled {
@@ -358,8 +363,6 @@ button, button:focus, button:active {
     font-weight: 900;
 }
 
-
-
 @keyframes float-up-geode {
     0% {
         opacity: 1;
@@ -447,11 +450,9 @@ button, button:focus, button:active {
 .temporary-message {
     position: absolute;
     bottom: 120px;
-    /* Position it above the button bar */
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(231, 76, 60, 0.9);
-    /* A noticeable red */
     color: white;
     padding: 10px 20px;
     border-radius: 20px;
@@ -460,6 +461,65 @@ button, button:focus, button:active {
     z-index: 110;
     pointer-events: none;
     animation: fade-in-fall-out 2.5s ease-in-out forwards;
+}
+
+/* This is for the single critical tap */
+.egg-wobble {
+    animation: wobble 0.5s ease-in-out;
+}
+
+/* This is for the continuous Frenzy Mode */
+.egg-frenzy {
+    animation: wobble 0.5s ease-in-out infinite;
+}
+
+.egg-glowing {
+    /* The drop-shadow uses the variables we just set */
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
+            drop-shadow(0 0 var(--glow-blur) var(--glow-color));
+
+    animation: pulse 4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        /* At the start and end of the animation, the glow is at its base size */
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
+                drop-shadow(0 0 var(--glow-blur) var(--glow-color));
+    }
+    50% {
+        /* At the halfway point, the glow expands by 6 pixels */
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
+                drop-shadow(0 0 calc(var(--glow-blur) + 6px) var(--glow-color));
+    }
+}
+
+@keyframes wobble {
+
+    0%,
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+
+    15% {
+        transform: translateX(-8px) rotate(-5deg);
+    }
+
+    30% {
+        transform: translateX(6px) rotate(3deg);
+    }
+
+    45% {
+        transform: translateX(-4px) rotate(-2deg);
+    }
+
+    60% {
+        transform: translateX(2px) rotate(1deg);
+    }
+
+    75% {
+        transform: translateX(-1px) rotate(0deg);
+    }
 }
 
 @keyframes fade-in-fall-out {

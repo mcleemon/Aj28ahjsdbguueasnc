@@ -138,9 +138,6 @@ button:active {
     position: relative;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
-    --glow-blur: 5px;
-    --glow-color: var(--accent-color);
 }
 
 .egg-image:active:not(.egg-wobble):not(.egg-frenzy) {
@@ -275,6 +272,14 @@ button:active {
 
 .upgrade-item+.upgrade-item {
     margin-top: 20px;
+}
+
+.next-level-preview {
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.8;
+    margin-top: -8px; /* Pulls it closer to the line above */
+    margin-bottom: 12px;
 }
 
 .click-effect {
@@ -463,63 +468,20 @@ button:active {
     animation: fade-in-fall-out 2.5s ease-in-out forwards;
 }
 
-/* This is for the single critical tap */
 .egg-wobble {
     animation: wobble 0.5s ease-in-out;
 }
-
-/* This is for the continuous Frenzy Mode */
 .egg-frenzy {
     animation: wobble 0.5s ease-in-out infinite;
 }
 
-.egg-glowing {
-    /* The drop-shadow uses the variables we just set */
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
-            drop-shadow(0 0 var(--glow-blur) var(--glow-color));
-
-    animation: pulse 4s infinite ease-in-out;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        /* At the start and end of the animation, the glow is at its base size */
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
-                drop-shadow(0 0 var(--glow-blur) var(--glow-color));
-    }
-    50% {
-        /* At the halfway point, the glow expands by 6 pixels */
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)) 
-                drop-shadow(0 0 calc(var(--glow-blur) + 6px) var(--glow-color));
-    }
-}
-
 @keyframes wobble {
-
-    0%,
-    100% {
-        transform: translateX(0) rotate(0);
-    }
-
-    15% {
-        transform: translateX(-8px) rotate(-5deg);
-    }
-
-    30% {
-        transform: translateX(6px) rotate(3deg);
-    }
-
-    45% {
-        transform: translateX(-4px) rotate(-2deg);
-    }
-
-    60% {
-        transform: translateX(2px) rotate(1deg);
-    }
-
-    75% {
-        transform: translateX(-1px) rotate(0deg);
-    }
+    0%, 100% { transform: translateX(0) rotate(0); }
+    15% { transform: translateX(-8px) rotate(-5deg); }
+    30% { transform: translateX(6px) rotate(3deg); }
+    45% { transform: translateX(-4px) rotate(-2deg); }
+    60% { transform: translateX(2px) rotate(1deg); }
+    75% { transform: translateX(-1px) rotate(0deg); }
 }
 
 @keyframes fade-in-fall-out {

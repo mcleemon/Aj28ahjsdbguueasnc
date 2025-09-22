@@ -30,18 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyChiselButton = document.getElementById('buy-chisel-button');
     const chiselLevelText = document.getElementById('chisel-level');
     const chiselEffectText = document.getElementById('chisel-effect');
-    const chiselCostText = document.getElementById('chisel-cost');
     const buyDroneButton = document.getElementById('buy-drone-button');
     const droneLevelText = document.getElementById('drone-level');
     const droneEffectText = document.getElementById('drone-effect');
-    const droneCostText = document.getElementById('drone-cost');
     const buyBatteryButton = document.getElementById('buy-battery-button');
     const batteryLevelText = document.getElementById('battery-level');
     const batteryCapacityText = document.getElementById('battery-capacity');
-    const batteryCostText = document.getElementById('battery-cost');
     const buyRechargeButton = document.getElementById('buy-recharge-button');
     const rechargeCountText = document.getElementById('recharge-count');
-    const rechargeCostText = document.getElementById('recharge-cost');
     const energyBarFill = document.getElementById('energy-bar-fill');
     const energyText = document.getElementById('energy-text');
     const buyEnergyButton = document.getElementById('buy-energy-button');
@@ -50,10 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const multiplierButton = document.getElementById('multiplier-button');
     const multiplierText = document.getElementById('multiplier-text');
     const temporaryMessage = document.getElementById('temporary-message');
-    const chiselNextEffect = document.getElementById('chisel-next-effect');
-    const droneNextEffect = document.getElementById('drone-next-effect');
-    const batteryNextCapacity = document.getElementById('battery-next-capacity');
-    const energyNextEffect = document.getElementById('energy-next-effect');
+    const offlineProgressModal = document.getElementById('offline-progress-modal');
+    const closeOfflineButton = document.getElementById('close-offline-button');
+    const offlineDustAmount = document.getElementById('offline-dust-amount');
+    const offlineTimePassed = document.getElementById('offline-time-passed');
 
     // --- GAME STATE ---
 
@@ -241,7 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         gameState.hatchProgress = gameState.hatchGoal;
                     }
                 }
-                alert(`Welcome back!\n\nYour drone used ${Math.floor(batteryDrain / 60)} minutes of battery and collected ${formatNumber(dustEarnedOffline)} Crystal Dust.`);
+                offlineDustAmount.innerText = formatNumber(dustEarnedOffline);
+                offlineTimePassed.innerText = `${Math.floor(batteryDrain / 60)} minutes`;
+                offlineProgressModal.classList.remove('hidden');
             }
         }
     }
@@ -402,7 +400,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardInfo = dailyRewards[rewardIndex];
         let rewardText = '';
 
-        // Grant the reward based on its type
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
@@ -413,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 rewardText = `${rewardInfo.label}!`;
                 break;
             case 'recharge':
-                // Give a free recharge by reducing the "used" count (can go negative)
                 gameState.dailyRechargesUsed -= rewardInfo.amount;
                 rewardText = `${rewardInfo.label}!`;
                 break;
@@ -519,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         golemEgg.classList.remove('egg-frenzy');
         multiplierButton.disabled = false;
         gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
+        gameState.frenzyCooldownUntil = Date.now() + 60000;
         frenzyTimerContainer.classList.add('hidden');
         updateUI();
     }
@@ -543,13 +539,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. CONSUME: Use energy based on the multiplier
             gameState.tapEnergy -= gameState.tapMultiplier;
             if (gameState.tapEnergy < 0) gameState.tapEnergy = 0;
-            // Start the 1-hour countdown if energy just hit zero
             const ONE_HOUR_IN_MS = 3600 * 1000;
             if (gameState.tapEnergy === 0) {
-                // If this tap depleted energy to zero, ALWAYS reset the timer
                 gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
             } else if (gameState.energyRechargeUntilTimestamp === 0) {
-                // Otherwise, if the timer hasn't started yet, start the hidden timer
                 gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
             }
         }
@@ -608,14 +601,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
-    closeUpgradeButton.addEventListener('click', () => upgradeModal.classList.add('hidden'));
+    closeUpgradeButton.addEventListener('click', () => {
+        upgradeModal.classList.add('closing');
+        setTimeout(() => {
+            upgradeModal.classList.add('hidden');
+            upgradeModal.classList.remove('closing');
+        }, 300);
+    });
     calendarButton.addEventListener('click', () => {
         renderStreakCalendar();
         calendarModal.classList.remove('hidden');
     });
 
-    closeRewardButton.addEventListener('click', () => loginRewardModal.classList.add('hidden'));
-    closeCalendarButton.addEventListener('click', () => calendarModal.classList.add('hidden'));
+    closeRewardButton.addEventListener('click', () => {
+        loginRewardModal.classList.add('closing');
+        setTimeout(() => {
+            loginRewardModal.classList.add('hidden');
+            loginRewardModal.classList.remove('closing');
+        }, 300);
+    });
+    closeCalendarButton.addEventListener('click', () => {
+        calendarModal.classList.add('closing');
+        setTimeout(() => {
+            calendarModal.classList.add('hidden');
+            calendarModal.classList.remove('closing');
+        }, 300);
+    });
+    closeOfflineButton.addEventListener('click', () => {
+        offlineProgressModal.classList.add('closing');
+        setTimeout(() => {
+            offlineProgressModal.classList.add('hidden');
+            offlineProgressModal.classList.remove('closing');
+        }, 300);
+    });
+
     buyChiselButton.addEventListener('click', () => {
         if (gameState.chiselLevel >= 20) return;
         const cost = getChiselCost();
@@ -688,6 +707,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.tapMultiplier = 10;
                 break;
             case 10:
+                gameState.tapMultiplier = 20;
+                break;
+            case 20:
                 gameState.tapMultiplier = 50;
                 break;
             case 50:
@@ -710,4 +732,30 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
+    // --- FLOATING PARTICLES --- //
+    function spawnParticle() {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+
+        // Random horizontal position (within egg width)
+        particle.style.left = `${Math.random() * 160 + 10}px`;
+
+        // Random size
+        const size = Math.random() * 6 + 4;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+
+        // Random duration
+        particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
+
+        particleContainer.appendChild(particle);
+
+        // Remove after animation
+        setTimeout(() => {
+            particle.remove();
+        }, 4000);
+    }
+
+    // spawn particles continuously
+    setInterval(spawnParticle, 500);
 });

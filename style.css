@@ -136,6 +136,7 @@ button:active {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
+    z-index: 1;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
 }
@@ -227,6 +228,11 @@ button:active {
     justify-content: center;
     align-items: center;
     z-index: 100;
+    animation: fadeInScaleUp 0.3s ease-out forwards;
+}
+
+.modal.closing {
+    animation: fadeOutScaleDown 0.3s ease-out forwards;
 }
 
 .hidden {
@@ -278,7 +284,8 @@ button:active {
     font-size: 12px;
     color: var(--text-secondary);
     opacity: 0.8;
-    margin-top: -8px; /* Pulls it closer to the line above */
+    margin-top: -8px;
+    /* Pulls it closer to the line above */
     margin-bottom: 12px;
 }
 
@@ -471,17 +478,79 @@ button:active {
 .egg-wobble {
     animation: wobble 0.5s ease-in-out;
 }
+
 .egg-frenzy {
     animation: wobble 0.5s ease-in-out infinite;
 }
 
+#particle-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 180px;
+    /* same as egg */
+    height: 220px;
+    /* same as egg */
+    transform: translateX(-50%);
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0;
+    /* make sure it's BEHIND the egg */
+}
+
+.particle {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, rgba(255, 223, 0, 0.9), rgba(255, 215, 0, 0));
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: floatUp 3s linear forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(-250px) scale(0.5);
+        opacity: 0;
+    }
+}
+
 @keyframes wobble {
-    0%, 100% { transform: translateX(0) rotate(0); }
-    15% { transform: translateX(-8px) rotate(-5deg); }
-    30% { transform: translateX(6px) rotate(3deg); }
-    45% { transform: translateX(-4px) rotate(-2deg); }
-    60% { transform: translateX(2px) rotate(1deg); }
-    75% { transform: translateX(-1px) rotate(0deg); }
+
+    0%,
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+
+    15% {
+        transform: translateX(-8px) rotate(-5deg);
+    }
+
+    30% {
+        transform: translateX(6px) rotate(3deg);
+    }
+
+    45% {
+        transform: translateX(-4px) rotate(-2deg);
+    }
+
+    60% {
+        transform: translateX(2px) rotate(1deg);
+    }
+
+    75% {
+        transform: translateX(-1px) rotate(0deg);
+    }
 }
 
 @keyframes fade-in-fall-out {
@@ -508,5 +577,29 @@ button:active {
     100% {
         opacity: 0;
         transform: translateX(-50%) translateY(20px);
+    }
+}
+
+@keyframes fadeInScaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOutScaleDown {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
     }
 }

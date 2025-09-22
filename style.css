@@ -520,7 +520,7 @@ button:active {
     }
 
     100% {
-        transform: translateY(-250px) scale(0.5);
+        transform: translateY(-120%) scale(0.5);
         opacity: 0;
     }
 }

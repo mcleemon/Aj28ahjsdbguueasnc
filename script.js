@@ -200,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (savedState.checksum === expectedChecksum) {
                     gameState = Object.assign(gameState, savedState);
                     gameState.isFrenzyMode = false;
+                    if (gameState.hatchProgress > gameState.hatchGoal) {
+                        gameState.hatchProgress = gameState.hatchGoal;
+                    }
                     return true;
                 }
                 return false;

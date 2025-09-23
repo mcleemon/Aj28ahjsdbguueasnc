@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');
-    const particleContainer = document.getElementById('particle-container');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const eggOverlay = document.getElementById('egg-overlay');
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeOfflineButton = document.getElementById('close-offline-button');
     const offlineDustAmount = document.getElementById('offline-dust-amount');
     const offlineTimePassed = document.getElementById('offline-time-passed');
-
+    
     // --- GAME STATE ---
 
     let gameState = {
@@ -237,8 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         gameState.hatchProgress = gameState.hatchGoal;
                     }
                 }
+                // Update the modal text
                 offlineDustAmount.innerText = formatNumber(dustEarnedOffline);
                 offlineTimePassed.innerText = `${Math.floor(batteryDrain / 60)} minutes`;
+                // Show the modal
                 offlineProgressModal.classList.remove('hidden');
             }
         }
@@ -400,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardInfo = dailyRewards[rewardIndex];
         let rewardText = '';
 
+        // Grant the reward based on its type
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
@@ -410,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rewardText = `${rewardInfo.label}!`;
                 break;
             case 'recharge':
+                // Give a free recharge by reducing the "used" count (can go negative)
                 gameState.dailyRechargesUsed -= rewardInfo.amount;
                 rewardText = `${rewardInfo.label}!`;
                 break;
@@ -515,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         golemEgg.classList.remove('egg-frenzy');
         multiplierButton.disabled = false;
         gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 60000;
+        gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
         frenzyTimerContainer.classList.add('hidden');
         updateUI();
     }
@@ -539,10 +542,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. CONSUME: Use energy based on the multiplier
             gameState.tapEnergy -= gameState.tapMultiplier;
             if (gameState.tapEnergy < 0) gameState.tapEnergy = 0;
+            // Start the 1-hour countdown if energy just hit zero
             const ONE_HOUR_IN_MS = 3600 * 1000;
             if (gameState.tapEnergy === 0) {
+                // If this tap depleted energy to zero, ALWAYS reset the timer
                 gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
             } else if (gameState.energyRechargeUntilTimestamp === 0) {
+                // Otherwise, if the timer hasn't started yet, start the hidden timer
                 gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
             }
         }
@@ -606,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             upgradeModal.classList.add('hidden');
             upgradeModal.classList.remove('closing');
-        }, 300);
+        }, 300); // This duration must match your CSS animation time
     });
     calendarButton.addEventListener('click', () => {
         renderStreakCalendar();
@@ -634,7 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineProgressModal.classList.remove('closing');
         }, 300);
     });
-
     buyChiselButton.addEventListener('click', () => {
         if (gameState.chiselLevel >= 20) return;
         const cost = getChiselCost();
@@ -707,10 +712,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.tapMultiplier = 10;
                 break;
             case 10:
-                gameState.tapMultiplier = 20;
+                gameState.tapMultiplier = 20; // Changed this line
                 break;
             case 20:
-                gameState.tapMultiplier = 50;
+                gameState.tapMultiplier = 50; // Added this new case
                 break;
             case 50:
                 gameState.tapMultiplier = 1;
@@ -732,30 +737,4 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
-    // --- FLOATING PARTICLES --- //
-    function spawnParticle() {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-
-        // Random horizontal position (within egg width)
-        particle.style.left = `${Math.random() * 160 + 10}px`;
-
-        // Random size
-        const size = Math.random() * 6 + 4;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-
-        // Random duration
-        particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
-
-        particleContainer.appendChild(particle);
-
-        // Remove after animation
-        setTimeout(() => {
-            particle.remove();
-        }, 4000);
-    }
-
-    // spawn particles continuously
-    setInterval(spawnParticle, 500);
 });

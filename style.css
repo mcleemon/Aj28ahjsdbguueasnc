@@ -136,7 +136,6 @@ button:active {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
-    z-index: 1;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
 }
@@ -481,48 +480,6 @@ button:active {
 
 .egg-frenzy {
     animation: wobble 0.5s ease-in-out infinite;
-}
-
-#particle-container {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 180px;
-    /* same as egg */
-    height: 220px;
-    /* same as egg */
-    transform: translateX(-50%);
-    overflow: visible;
-    pointer-events: none;
-    z-index: 0;
-    /* make sure it's BEHIND the egg */
-}
-
-.particle {
-    position: absolute;
-    bottom: 0;
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle, rgba(255, 223, 0, 0.9), rgba(255, 215, 0, 0));
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: floatUp 3s linear forwards;
-}
-
-@keyframes floatUp {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-
-    70% {
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: translateY(-120%) scale(0.5);
-        opacity: 0;
-    }
 }
 
 @keyframes wobble {

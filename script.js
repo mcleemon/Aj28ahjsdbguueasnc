@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
-    const eggOverlay = document.getElementById('egg-overlay');
     const progressText = document.getElementById('progress-text');
     const clickEffectContainer = document.getElementById('click-effect-container');
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeOfflineButton = document.getElementById('close-offline-button');
     const offlineDustAmount = document.getElementById('offline-dust-amount');
     const offlineTimePassed = document.getElementById('offline-time-passed');
-    
+
     // --- GAME STATE ---
 
     let gameState = {
@@ -263,13 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
             energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
             multiplierText.innerText = `x${gameState.tapMultiplier}`;
         }
-
-        // Egg Crack Overlay
-        const progressPercent = Math.min(100, (gameState.hatchProgress / gameState.hatchGoal) * 100);
-        eggOverlay.className = 'egg-overlay';
-        if (progressPercent >= 75) { eggOverlay.classList.add('egg-cracked-3'); }
-        else if (progressPercent >= 50) { eggOverlay.classList.add('egg-cracked-2'); }
-        else if (progressPercent >= 25) { eggOverlay.classList.add('egg-cracked-1'); }
 
         // Frenzy Glow
         eggOverlay.classList.remove('frenzy-ready', 'frenzy-active');

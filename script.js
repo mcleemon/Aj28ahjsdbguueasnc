@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     let frenzyInterval = null;
+    let particleSpawnInterval = null; // NEW: To control particle spawning
     const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
@@ -401,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
         rewardStreak.innerText = gameState.loginStreak;
-        rewardAmount.innerHTML = rewardText; 
+        rewardAmount.innerHTML = rewardText;
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
@@ -493,6 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 endFrenzyMode();
             }
         }, 1000);
+        clearInterval(particleSpawnInterval); // Stop the normal spawning
+        particleSpawnInterval = setInterval(spawnParticle, 500 / 3); // Spawn 3x faster (every 166ms)
         updateUI();
     }
 
@@ -503,6 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
         frenzyTimerContainer.classList.add('hidden');
+        clearInterval(particleSpawnInterval); // Stop the frenzy spawning
+        particleSpawnInterval = setInterval(spawnParticle, 500); // Start normal spawning again
         updateUI();
     }
 
@@ -722,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.style.top = `${y}px`;
         wrapper.appendChild(particle);
         particleContainer.appendChild(wrapper);
-        setTimeout(() => wrapper.remove(), 5000);
+        setTimeout(() => wrapper.remove(), 5100);
     }
 
 
@@ -736,6 +741,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
-    setInterval(spawnParticle, 500);
+    particleSpawnInterval = setInterval(spawnParticle, 500); // Store the interval ID
 
 });

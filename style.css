@@ -138,12 +138,30 @@ button:active {
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     object-fit: contain;
-    /* ADD THIS OPTIONAL LINE FOR CENTERING */
     object-position: center;
 }
 
 .egg-image:active:not(.egg-wobble):not(.egg-frenzy) {
     transform: scale(0.95);
+}
+
+.egg-image-wrapper {
+    position: relative;
+    width: 200px;
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#particle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* behind egg */
 }
 
 .progress-container {
@@ -451,6 +469,53 @@ button:active {
 
 .egg-frenzy {
     animation: wobble 0.5s ease-in-out infinite;
+}
+
+@keyframes floatUp {
+    from {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-120px) scale(1.4);
+        opacity: 0;
+    }
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(8px);
+    }
+}
+
+.glow-wrapper {
+    position: absolute;
+    animation: sway 2s ease-in-out infinite;
+}
+
+.glow-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle,
+            rgba(255, 223, 70, 1) 0%,
+            rgba(255, 215, 0, 0.8) 30%,
+            rgba(255, 200, 0, 0) 80%
+        );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatUp 5s ease-out forwards;
+    filter: brightness(1.3) blur(1px);
+    box-shadow: 0 0 10px rgba(255, 223, 70, 0.9),
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(255, 200, 0, 0.3);
 }
 
 @keyframes wobble {

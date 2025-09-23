@@ -263,14 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
             multiplierText.innerText = `x${gameState.tapMultiplier}`;
         }
 
-        // Frenzy Glow
-        eggOverlay.classList.remove('frenzy-ready', 'frenzy-active');
-        if (gameState.isFrenzyMode) {
-            eggOverlay.classList.add('frenzy-active');
-        } else if (Date.now() > gameState.frenzyCooldownUntil) {
-            eggOverlay.classList.add('frenzy-ready');
-        }
-
         // --- UPDATE SHOP MODALS WITH NEW BUTTON TEXT ---
         // Chisel
         chiselLevelText.innerText = gameState.chiselLevel;

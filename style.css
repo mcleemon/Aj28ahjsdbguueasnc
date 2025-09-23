@@ -407,14 +407,6 @@ button:active {
     }
 }
 
-.egg-overlay.frenzy-ready {
-    animation: pulse-ready 2s infinite ease-in-out;
-}
-
-.egg-overlay.frenzy-active {
-    animation: pulse-active 0.7s infinite ease-in-out;
-}
-
 #multiplier-button {
     width: fit-content;
     margin: 10px auto;

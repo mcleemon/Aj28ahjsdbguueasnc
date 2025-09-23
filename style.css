@@ -131,13 +131,15 @@ button:active {
 .egg-image {
     width: 180px;
     height: 220px;
-    background-color: #8A2BE2;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
+    object-fit: contain;
+    /* ADD THIS OPTIONAL LINE FOR CENTERING */
+    object-position: center;
 }
 
 .egg-image:active:not(.egg-wobble):not(.egg-frenzy) {

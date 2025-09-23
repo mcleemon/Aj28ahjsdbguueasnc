@@ -425,11 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getGeodeChance() {
-        const count = gameState.geodesFoundToday;
-        if (count < 10) return 0.03;
-        if (count < 20) return 0.015;
-        if (count < 30) return 0.005;
-        return 0.001;
+        return 0.03;
     }
 
     function handleGeodeEvent() {
@@ -475,6 +471,10 @@ document.addEventListener('DOMContentLoaded', () => {
         geodeEffect.style.left = `${Math.random() * 40 + 30}%`;
         clickEffectContainer.appendChild(geodeEffect);
         setTimeout(() => { geodeEffect.remove(); }, 2000);
+        golemEgg.classList.add('egg-wobble');
+        setTimeout(() => {
+            golemEgg.classList.remove('egg-wobble');
+        }, 500);
         tg.HapticFeedback.notificationOccurred('success');
     }
 
@@ -717,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.className = 'glow-wrapper';
         const particle = document.createElement('div');
         particle.className = 'glow-particle';
-        const brightness = 0.7 + Math.random() * 0.6;
+        const brightness = 0.8 + Math.random() * 0.8;
         particle.style.filter = `brightness(${brightness})`;
         const angle = Math.random() * Math.PI * 2;
         const radius = 70 + Math.random() * 15;

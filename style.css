@@ -520,6 +520,237 @@ button:active {
         0 0 70px rgba(255, 150, 0, 0.3);
 }
 
+/* === MINI SLOT STYLES === */
+
+#slot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* thin dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200; /* above all UI */
+}
+
+#slot-overlay.hidden {
+  display: none;
+}
+
+.slot-machine-container {
+  position: relative; /* so frame can sit inside */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.slot-ui {
+  position: relative; /* so result can anchor inside */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+  z-index: 3;
+}
+
+.slot-frame {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;   /* adjust this until frame fits */
+  height: auto;
+  z-index: 2;     /* sits above reels */
+  pointer-events: none; /* make sure clicks pass through */
+}
+
+.slot-machine {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 1;  /* keep reels below frame */
+}
+
+.reel {
+  width: 80px;
+  height: 100px;
+  overflow: hidden;
+  background: #000;
+  border: 2px solid #666;
+  border-radius: 8px;
+  position: relative;
+}
+
+.symbols {
+  display: flex;
+  flex-direction: column;
+}
+
+.symbol {
+  width: 80px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.slot-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast; /* crisp */
+  image-rendering: crisp-edges;
+}
+
+#slot-spin-btn {
+  margin-top: 0;
+  padding: 10px 25px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: gold;
+  color: #000;
+  font-weight: bold;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+#slot-spin-btn:hover {
+  transform: scale(0.95);
+  background: #ffdb4d;
+}
+
+#slot-spin-btn:disabled {
+  background: #777;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+#slot-result {
+  position: absolute;
+  bottom: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;              /* hidden by default */
+  visibility: hidden;      /* not clickable */
+  transition: opacity 0.3s ease;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.8);
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  box-shadow: 0 0 10px rgba(255,215,0,0.8);
+  white-space: nowrap;      /* prevent line breaks */
+}
+
+#slot-result.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+#slot-result.win {
+  color: gold;
+  text-shadow: 0 0 10px gold, 0 0 20px orange;
+}
+
+#slot-result.lose {
+  color: #aaa;
+  text-shadow: 0 0 5px #333;
+}
+
+/* Spin animation */
+.spinning {
+  animation: spin 0.15s linear infinite;
+  filter: blur(3px);
+}
+
+.slot-popup {
+  position: absolute;
+  top: 50%;                /* middle of egg area */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;              /* hidden by default */
+  z-index: 210;            /* above egg */
+  transition: opacity 0.5s ease;
+}
+
+.slot-popup-img {
+  width: 400px;            /* adjust until it feels right */
+  height: auto;            /* keeps aspect ratio */
+  pointer-events: none;    /* clicks pass through */
+}
+
+.slot-popup.show {
+  opacity: 1;
+}
+
+.slot-popup.hidden {
+  display: none;
+}
+
+@keyframes spin {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-100%); }
+}
+
+/* Fade animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+
+.slot-fade-out {
+  animation: fadeOut 1s ease forwards;
+}
+
+.icon-battery {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: -5px;
+}
+
+.icon-crystaldust {
+  width: 20px;  /* smaller than battery */
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 0px;
+}
+
+.icon-gem {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: -2px;
+}
+
+.slot-icon-small {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+
+.slot-machine-container.fade-out {
+  animation: fadeOut 1s ease forwards;
+}
+
+#slot-overlay.banner-only .slot-machine-container {
+    display: none;
+}
+
 @keyframes flicker {
     0%   { opacity: 0; }
     20%  { opacity: 1; }

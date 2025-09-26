@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     tg.expand();
 
     // --- DOM ELEMENTS ---
-
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
@@ -49,10 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const offlineDustAmount = document.getElementById('offline-dust-amount');
     const offlineTimePassed = document.getElementById('offline-time-passed');
     const particleContainer = document.getElementById('particle-container');
+    const slotPopup = document.getElementById("slot-popup");
+
+    // --- MINI SLOT ELEMENTS ---
+    const slotOverlay = document.getElementById("slot-overlay");
+    const slotMachine = document.querySelector(".slot-machine");
+    const slotSpinBtn = document.getElementById("slot-spin-btn");
+    const slotResult = document.getElementById("slot-result");
+    const slotReels = document.querySelectorAll(".symbols");
+
+    let slotActive = false;
 
 
     // --- GAME STATE ---
-
     let gameState = {
         tapMultiplier: 1,
         dust: 0,
@@ -84,6 +92,35 @@ document.addEventListener('DOMContentLoaded', () => {
         energyLevel: 1,
         energyBaseCost: 5000
     };
+
+    const slotSymbols = [
+        { name: "crystaldust", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" },
+        { name: "geode", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true" },
+        { name: "gem", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" }
+    ];
+
+    const weightedSlotProbabilities = [];
+    // 70% chance for Crystal Dust (index 0)
+    for (let i = 0; i < 70; i++) { weightedSlotProbabilities.push(0); }
+    // 25% chance for Geode (index 1)
+    for (let i = 0; i < 25; i++) { weightedSlotProbabilities.push(1); }
+    // 5% chance for Gem (index 2)
+    for (let i = 0; i < 5; i++) { weightedSlotProbabilities.push(2); }
+    function populateReel(reel) {
+        reel.innerHTML = "";
+        for (let i = 0; i < 30; i++) {
+            const div = document.createElement("div");
+            div.className = "symbol";
+            const symbol = slotSymbols[i % slotSymbols.length];
+            const img = document.createElement("img");
+            img.src = symbol.img;
+            img.alt = symbol.name;
+            img.className = "slot-icon";
+            div.appendChild(img);
+            reel.appendChild(div);
+        }
+    }
+    slotReels.forEach(populateReel);
 
     const dailyRewards = [
 
@@ -125,12 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     let frenzyInterval = null;
-    let particleSpawnInterval = null; // NEW: To control particle spawning
+    let particleSpawnInterval = null;
     const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     // --- HELPER FUNCTIONS ---
-
     function formatNumber(num) {
         num = Math.floor(num);
         if (num < 1000) return num.toString();
@@ -148,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = date || new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
-
     function generateChecksum(state) {
         const dataToHash = {
             dust: Math.floor(state.dust),
@@ -157,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cl: state.chiselLevel,
             dl: state.droneLevel
         };
-
         const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
         return btoa(stringToHash);
     }
@@ -168,9 +202,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = String(totalSeconds % 60).padStart(2, '0');
         return `${minutes}:${seconds}`;
     }
+    function openSlot() {
+        if (slotActive) return; 
+        slotActive = true;
+        slotOverlay.classList.add('banner-only');
+        slotOverlay.classList.remove('hidden');
+        slotPopup.classList.remove("hidden");
+        setTimeout(() => {
+            slotPopup.classList.add("show");
+        }, 10);
+        setTimeout(() => {
+            slotPopup.classList.remove("show");
+            setTimeout(() => slotPopup.classList.add("hidden"), 500);
+            slotOverlay.classList.remove('banner-only');
+            slotResult.classList.add("hidden");
+            slotSpinBtn.disabled = false;
+        }, 1000); 
+    }
+    function closeSlot() {
+        const container = document.querySelector(".slot-machine-container");
+        container.classList.add("fade-out");
+
+        setTimeout(() => {
+            slotOverlay.classList.add("hidden");
+            container.classList.remove("fade-out");
+            slotActive = false;
+        }, 1000);
+    }
 
     // --- CORE FUNCTIONS ---
-
     function saveGame() {
         try {
             const currentSave = localStorage.getItem('golemEggGameState');
@@ -184,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to save game:", error);
         }
     }
-
     function loadGame() {
         let isNew = true;
         try {
@@ -222,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return isNew;
     }
-
     function calculateOfflineProgress() {
         const now = Date.now();
         const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
@@ -244,15 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
     function updateUI() {
         dustCounter.innerText = formatWithCommas(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
         progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
         const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
         batteryStatus.innerText = `${Math.floor(batteryPercent)}%`;
-
-        // Energy Bar & Multiplier Text
         const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
         energyBarFill.style.width = `${energyPercent}%`;
         if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
@@ -264,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
             multiplierText.innerText = `x${gameState.tapMultiplier}`;
         }
 
-        // --- UPDATE SHOP MODALS WITH NEW BUTTON TEXT ---
         // Chisel
         chiselLevelText.innerText = gameState.chiselLevel;
         chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
@@ -330,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
             buyRechargeButton.disabled = gameState.dust < cost || gameState.currentBattery >= gameState.batteryCapacity;
         }
     }
-
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
@@ -338,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function getEnergyCost() {
         return Math.floor(gameState.energyBaseCost * Math.pow(2.0, gameState.energyLevel - 1));
     }
-
     function gameLoop() {
         if (gameState.dustPerSecond > 0 && gameState.currentBattery > 0) {
             gameState.currentBattery -= 1;
@@ -362,17 +414,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateUI();
     }
-
     function handleDailyLogin() {
         const today = formatDate();
         if (gameState.lastLoginDate === today) return;
-
-        // Reset daily limits
         gameState.geodesFoundToday = 0;
         gameState.dailyRechargesUsed = 0;
         gameState.currentBattery = gameState.batteryCapacity;
-
-        // Check for streak
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = formatDate(yesterday);
@@ -385,8 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardIndex = (gameState.loginStreak - 1) % dailyRewards.length;
         const rewardInfo = dailyRewards[rewardIndex];
         let rewardText = '';
-
-        // Grant the reward based on its type
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
@@ -406,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
-
     function renderStreakCalendar() {
         streakGrid.innerHTML = '';
         calendarStreakLabel.innerText = gameState.loginStreak;
@@ -423,11 +467,9 @@ document.addEventListener('DOMContentLoaded', () => {
             streakGrid.appendChild(dayCell);
         }
     }
-
     function getGeodeChance() {
         return 0.03;
     }
-
     function handleGeodeEvent() {
         gameState.geodesFoundToday++;
         const prizeRoll = Math.random();
@@ -477,7 +519,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
         tg.HapticFeedback.notificationOccurred('success');
     }
-
     function startFrenzyMode() {
         if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
         golemEgg.classList.add('egg-frenzy');
@@ -494,25 +535,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 endFrenzyMode();
             }
         }, 1000);
-        clearInterval(particleSpawnInterval); // Stop the normal spawning
-        particleSpawnInterval = setInterval(spawnParticle, 500 / 3); // Spawn 3x faster (every 166ms)
+        clearInterval(particleSpawnInterval);
+        particleSpawnInterval = setInterval(spawnParticle, 500 / 3);
         updateUI();
     }
-
     function endFrenzyMode() {
         clearInterval(frenzyInterval);
         golemEgg.classList.remove('egg-frenzy');
         multiplierButton.disabled = false;
         gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 60000; // 1 minute cooldown
+        gameState.frenzyCooldownUntil = Date.now() + 60000;
         frenzyTimerContainer.classList.add('hidden');
-        clearInterval(particleSpawnInterval); // Stop the frenzy spawning
-        particleSpawnInterval = setInterval(spawnParticle, 500); // Start normal spawning again
+        clearInterval(particleSpawnInterval);
+        particleSpawnInterval = setInterval(spawnParticle, 500);
         updateUI();
     }
 
     // --- EVENT LISTENERS ---
-
     golemEgg.addEventListener('click', () => {
         if (!gameState.isFrenzyMode) {
             // 1. VALIDATE: Check if there's enough energy
@@ -563,6 +602,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     golemEgg.classList.remove('egg-wobble');
                 }, 500);
+            }
+        }
+
+        // --- MINI SLOT TRIGGER ---
+        if (!slotActive) {
+            const chanceMap = { 1: 0.01, 10: 0.02, 20: 0.03, 50: 0.05 };
+            const roll = Math.random();
+            if (roll < (chanceMap[gameState.tapMultiplier] || 0)) {
+                openSlot();
             }
         }
 
@@ -730,6 +778,106 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => wrapper.remove(), 5100);
     }
 
+    slotSpinBtn.addEventListener("click", () => {
+        slotSpinBtn.disabled = true;
+        if (!slotActive) return;
+        slotReels.forEach(r => {
+            r.classList.add("spinning");
+            r.style.transform = "translateY(0)";
+        });
+        const results = [
+            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)],
+            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)],
+            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)]
+        ];
+        setTimeout(() => stopReel(0, results[0]), 1000);
+        setTimeout(() => stopReel(1, results[1]), 2000);
+        const tensionDelay = (slotSymbols[results[0]] === slotSymbols[results[1]]) ? 3500 : 2500;
+        setTimeout(() => {
+            stopReel(2, results[2]);
+            handleSlotResult(results);
+        }, tensionDelay);
+    });
+
+    function stopReel(index, stopIndex) {
+        const reel = slotReels[index];
+        reel.classList.remove("spinning");
+        reel.style.filter = "none";
+        reel.style.transform = `translateY(${-100 * stopIndex}px)`;
+    }
+
+    function handleSlotResult(results) {
+        const [r1, r2, r3] = results;
+        const win = (slotSymbols[r1].name === slotSymbols[r2].name && slotSymbols[r2].name === slotSymbols[r3].name);
+
+        if (tg && tg.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred(win ? 'success' : 'warning');
+        }
+        if (win) {
+            const winningSymbolName = slotSymbols[r1].name;
+            let rewardDisplayHtml = '';
+            if (winningSymbolName === 'crystaldust') {
+                let dustReward = 0;
+                switch (gameState.tapMultiplier) {
+                    case 1: dustReward = 5000; break;
+                    case 10: dustReward = 10000; break;
+                    case 20: dustReward = 20000; break;
+                    case 50: dustReward = 50000; break;
+                    default: dustReward = 5000;
+                }
+                gameState.dust += dustReward;
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+            } else if (winningSymbolName === 'geode') {
+                let dustReward = 0;
+                switch (gameState.tapMultiplier) {
+                    case 1: dustReward = 10000; break;
+                    case 10: dustReward = 50000; break;
+                    case 20: dustReward = 100000; break;
+                    case 50: dustReward = 500000; break;
+                    default: dustReward = 10000;
+                }
+                gameState.dust += dustReward;
+                const rareGeodesWon = 5;
+                gameState.geodesFoundToday += rareGeodesWon;
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small"> & ${rareGeodesWon} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true" class="slot-icon-small">`;
+            } else if (winningSymbolName === 'gem') {
+                let gemReward = 0;
+                switch (gameState.tapMultiplier) {
+                    case 1: gemReward = 1; break;
+                    case 10: gemReward = 3; break;
+                    case 20: gemReward = 5; break;
+                    case 50: gemReward = 10; break;
+                    default: gemReward = 1;
+                }
+                gameState.gemShards += gemReward;
+                rewardDisplayHtml = `${gemReward} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" class="slot-icon-small">`;
+            }
+            slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
+            slotResult.className = "slot-result win";
+        } else {
+            let dustReward = 0;
+            switch (gameState.tapMultiplier) {
+                case 1: dustReward = 500; break;
+                case 10: dustReward = 1000; break;
+                case 20: dustReward = 2000; break;
+                case 50: dustReward = 5000; break;
+                default: dustReward = 500;
+            }
+            gameState.dust += dustReward;
+
+            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+
+            slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
+            slotResult.className = "slot-result win"; 
+        }
+
+        slotResult.classList.remove("hidden");
+        slotResult.classList.add("show");
+
+        slotOverlay.addEventListener("click", () => {
+            closeSlot();
+        }, { once: true });
+    }
 
     // --- INITIALIZE GAME ---
 
@@ -742,5 +890,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
     particleSpawnInterval = setInterval(spawnParticle, 500); // Store the interval ID
-
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "s") {  // press "s" key
+            openSlot();
+        }
+    });
 });

@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${seconds}`;
     }
     function openSlot() {
-        if (slotActive) return; 
+        if (slotActive) return;
         slotActive = true;
         slotOverlay.classList.add('banner-only');
         slotOverlay.classList.remove('hidden');
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotOverlay.classList.remove('banner-only');
             slotResult.classList.add("hidden");
             slotSpinBtn.disabled = false;
-        }, 1000); 
+        }, 2000);
     }
     function closeSlot() {
         const container = document.querySelector(".slot-machine-container");
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             buyEnergyButton.disabled = gameState.dust < cost;
         }
 
-        // Recharge (No change)
+        // Recharge
         const rechargesLeft = 3 - gameState.dailyRechargesUsed;
         rechargeCountText.innerText = rechargesLeft;
         if (rechargesLeft <= 0) {
@@ -606,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- MINI SLOT TRIGGER ---
-        if (!slotActive) {
+        if (!slotActive && !gameState.isFrenzyMode) {
             const chanceMap = { 1: 0.01, 10: 0.02, 20: 0.03, 50: 0.05 };
             const roll = Math.random();
             if (roll < (chanceMap[gameState.tapMultiplier] || 0)) {
@@ -839,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.dust += dustReward;
                 const rareGeodesWon = 5;
                 gameState.geodesFoundToday += rareGeodesWon;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small"> & ${rareGeodesWon} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true" class="slot-icon-small">`;
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 let gemReward = 0;
                 switch (gameState.tapMultiplier) {
@@ -868,7 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
 
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
-            slotResult.className = "slot-result win"; 
+            slotResult.className = "slot-result win";
         }
 
         slotResult.classList.remove("hidden");

@@ -260,10 +260,26 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTreasureBox = null;
     }
 
+    // Check if any modal (Upgrade, Settings, Calendar, etc.) is currently visible
+    function isAnyModalOpen() {
+        const modals = document.querySelectorAll('.modal');
+        for (const modal of modals) {
+            // Visible modals are displayed as flex (not .hidden)
+            const style = window.getComputedStyle(modal);
+            if (style.display !== 'none' && style.visibility !== 'hidden' && !modal.classList.contains('hidden')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Spawn a treasure box (positioned in the middle area between stats and buttons)
     function spawnTreasureBox() {
         // Safety: don't spawn if one already exists or slot is already active or in frenzy
         if (activeTreasureBox || slotActive || gameState.isFrenzyMode) return;
+
+        // 🧠 New check: don't spawn when any modal/menu is open
+        if (isAnyModalOpen()) return;
 
         const container = document.querySelector('.game-container');
         if (!container) return;
@@ -409,10 +425,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
             const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
             energyText.innerText = `Full in ${formatTime(remainingSeconds)}`;
-            multiplierText.innerText = 'Recharging...';
+
+            // Replace the entire button label while recharging
+            multiplierButton.textContent = 'Recharging...';
         } else {
             energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
-            multiplierText.innerText = `x${gameState.tapMultiplier}`;
+
+            // Restore the normal button label + multiplier
+            multiplierButton.innerHTML = `Multiplier: <span id="multiplier-text">x${gameState.tapMultiplier}</span>`;
         }
 
         // Chisel

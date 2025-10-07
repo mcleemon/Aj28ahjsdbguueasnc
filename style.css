@@ -768,7 +768,7 @@ button:active {
 
 .treasure-box {
   position: absolute;
-  z-index: 220;              /* above most UI, below full-screen overlays (slot uses 200) */
+  z-index: 80;              /* above most UI, below full-screen overlays (slot uses 200) */
   width: 56px;               /* button-like size; tweak if you want larger/smaller */
   height: auto;
   left: 50%;

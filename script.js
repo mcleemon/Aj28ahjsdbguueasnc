@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const offlineDustAmount = document.getElementById('offline-dust-amount');
     const offlineTimePassed = document.getElementById('offline-time-passed');
     const particleContainer = document.getElementById('particle-container');
+    const settingsButton = document.getElementById('settings-button');
+    const settingsModal = document.getElementById('settings-modal');
     const slotPopup = document.getElementById("slot-popup");
 
     // --- MINI SLOT ELEMENTS ---
@@ -58,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotReels = document.querySelectorAll(".symbols");
 
     let slotActive = false;
-
+    let activeTreasureBox = null;
+    const MIN_TAPS_BETWEEN_SPINS = 10;
 
     // --- GAME STATE ---
     let gameState = {
@@ -90,7 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
         maxTapEnergy: 2000,
         energyRechargeUntilTimestamp: 0,
         energyLevel: 1,
-        energyBaseCost: 5000
+        energyBaseCost: 5000,
+        tapsSinceLastSpin: 0
     };
 
     const slotSymbols = [
@@ -166,6 +170,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
+    const particleSystem = {
+        baseRate: 500,          // default spawn rate (normal mode)
+        frenzyRateMultiplier: 1 / 3, // how much faster frenzy is
+        currentInterval: null,  // holds the active interval ID
+        mode: "normal"          // can be "normal" or "frenzy"
+    };
+
+    function startParticleLoop(rate) {
+        if (particleSystem.currentInterval) {
+            clearInterval(particleSystem.currentInterval);
+        }
+        particleSystem.currentInterval = setInterval(spawnParticle, rate);
+    }
+
+
     // --- HELPER FUNCTIONS ---
     function formatNumber(num) {
         num = Math.floor(num);
@@ -203,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${seconds}`;
     }
     function openSlot() {
+        removeTreasureBox();
         if (slotActive) return;
         slotActive = true;
         slotOverlay.classList.add('banner-only');
@@ -228,6 +248,82 @@ document.addEventListener('DOMContentLoaded', () => {
             container.classList.remove("fade-out");
             slotActive = false;
         }, 1000);
+    }
+
+    // Remove the active treasure box if it exists
+    function removeTreasureBox() {
+        if (!activeTreasureBox) return;
+        try {
+            activeTreasureBox.removeEventListener?.('click', activeTreasureBox._tbClickHandler);
+        } catch (e) { /* ignore */ }
+        activeTreasureBox.remove();
+        activeTreasureBox = null;
+    }
+
+    // Spawn a treasure box (positioned in the middle area between stats and buttons)
+    function spawnTreasureBox() {
+        // Safety: don't spawn if one already exists or slot is already active or in frenzy
+        if (activeTreasureBox || slotActive || gameState.isFrenzyMode) return;
+
+        const container = document.querySelector('.game-container');
+        if (!container) return;
+
+        // Create DOM structure: parent (centering + absolute), inner for animation, image inside
+        const box = document.createElement('div');
+        box.className = 'treasure-box';
+
+        const inner = document.createElement('div');
+        inner.className = 'treasure-box-inner';
+
+        const img = document.createElement('img');
+        img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true';
+        img.alt = 'Treasure Box';
+
+        inner.appendChild(img);
+        box.appendChild(inner);
+
+        // Attach click handler (store ref for later removal)
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            // Immediately remove the box then open the slot
+            removeTreasureBox();
+            // ensure only one slot starts
+            openSlot();
+        };
+        // store handler so removeTreasureBox can detach if necessary
+        box._tbClickHandler = clickHandler;
+        box.addEventListener('click', clickHandler, { passive: true });
+
+        // Append to container first (so we can measure)
+        container.appendChild(box);
+        activeTreasureBox = box;
+
+        // Positioning: compute safe vertical range (below header, above bottom buttons)
+        // We'll read DOM measurements to compute a safe rectangle inside game-container
+        const header = document.querySelector('.header-container');
+        const bottomBar = document.querySelector('.button-bar');
+
+        const containerRect = container.getBoundingClientRect();
+        const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
+        const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
+
+        // Safe top zone: a bit below header bottom, and above button bar top
+        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50); // min px from top of container
+        const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
+
+        // Safe left range: keep some margins from sides
+        const safeLeftMin = 16;
+        const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
+
+        // Choose random position inside safe area
+        const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
+        const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
+
+        // Apply coordinates relative to container — remember .treasure-box uses translate(-50%, -50%) centering.
+        box.style.left = `${randLeft + box.clientWidth / 2}px`;
+        box.style.top = `${randTop + box.clientHeight / 2}px`;
+
+        // Store state: one box active
     }
 
     // --- CORE FUNCTIONS ---
@@ -536,7 +632,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000);
         clearInterval(particleSpawnInterval);
-        particleSpawnInterval = setInterval(spawnParticle, 500 / 3);
+        particleSystem.mode = "frenzy";
+        const frenzyRate = particleSystem.baseRate * particleSystem.frenzyRateMultiplier;
+        startParticleLoop(frenzyRate);
         updateUI();
     }
     function endFrenzyMode() {
@@ -546,10 +644,11 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 60000;
         frenzyTimerContainer.classList.add('hidden');
-        clearInterval(particleSpawnInterval);
-        particleSpawnInterval = setInterval(spawnParticle, 500);
+        particleSystem.mode = "normal";
+        startParticleLoop(particleSystem.baseRate);
         updateUI();
     }
+
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
@@ -605,12 +704,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- MINI SLOT TRIGGER ---
+        // --- MINI SLOT TRIGGER WITH TAP COOLDOWN ---
         if (!slotActive && !gameState.isFrenzyMode) {
-            const chanceMap = { 1: 0.01, 10: 0.02, 20: 0.03, 50: 0.05 };
+            // Count this tap toward the cooldown (only successful taps reach here)
+            gameState.tapsSinceLastSpin = (gameState.tapsSinceLastSpin || 0) + 1;
+
+            const chanceMap = { 1: 0.01, 10: 0.015, 20: 0.02, 50: 0.03 };
+            const chance = (chanceMap[gameState.tapMultiplier] || 0);
             const roll = Math.random();
-            if (roll < (chanceMap[gameState.tapMultiplier] || 0)) {
-                openSlot();
+
+            // Require at least MIN_TAPS_BETWEEN_SPINS taps since the last appearance
+            if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < chance) {
+                // reset counter (player must tap at least MIN_TAPS_BETWEEN_SPINS times before next trigger)
+                gameState.tapsSinceLastSpin = 0;
+                spawnTreasureBox();
             }
         }
 
@@ -637,6 +744,21 @@ document.addEventListener('DOMContentLoaded', () => {
         clickEffectContainer.appendChild(effect);
         setTimeout(() => { effect.remove(); }, 1000);
         updateUI();
+    });
+
+    // Settings Modal Listeners
+    settingsButton.addEventListener('click', () => {
+        settingsModal.classList.remove('hidden');
+    });
+
+    // We need to define the close button for settings
+    const closeSettingsButton = document.getElementById('close-settings-button');
+    closeSettingsButton.addEventListener('click', () => {
+        settingsModal.classList.add('closing');
+        setTimeout(() => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('closing');
+        }, 300);
     });
 
     upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
@@ -882,6 +1004,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZE GAME ---
 
     const isNewPlayer = loadGame();
+    // If the save doesn't include the taps counter, initialize it so spin can appear immediately
+    if (typeof gameState.tapsSinceLastSpin !== 'number') {
+        gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
+    }
     if (isNewPlayer) {
         saveGame();
     }

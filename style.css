@@ -94,11 +94,13 @@ button:active {
 }
 
 #settings-button {
-    background: none;
+    width: 35px;
+    height: 35px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true');
+    background-size: contain;
+    background-color: transparent;
     border: none;
-    font-size: 28px;
     cursor: pointer;
-    padding: 0;
 }
 
 .stats-container {
@@ -258,6 +260,7 @@ button:active {
     right: 20px;
     font-size: 24px;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #close-upgrade-button {
@@ -697,7 +700,7 @@ button:active {
 
 #slot-result {
     position: absolute;
-    bottom: -70px;
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;

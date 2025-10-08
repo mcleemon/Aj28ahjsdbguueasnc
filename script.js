@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    const tg = (window.Telegram && window.Telegram.WebApp)
+        ? window.Telegram.WebApp
+        : {
+            expand: () => { },
+            HapticFeedback: {
+                notificationOccurred: () => { },
+                impactOccurred: () => { }
+            }
+        };
+    if (typeof tg.expand === 'function') tg.expand();
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
@@ -249,13 +257,25 @@ document.addEventListener('DOMContentLoaded', () => {
             slotActive = false;
         }, 1000);
     }
-
-    // Remove the active treasure box if it exists
     function removeTreasureBox() {
+        // 🧠 Don't do anything if no active chest
         if (!activeTreasureBox) return;
+
         try {
-            activeTreasureBox.removeEventListener?.('click', activeTreasureBox._tbClickHandler);
-        } catch (e) { /* ignore */ }
+            // If there’s a stored click handler, remove it safely
+            if (activeTreasureBox._tbClickHandler) {
+                activeTreasureBox.removeEventListener('click', activeTreasureBox._tbClickHandler);
+            }
+        } catch (e) {
+            /* ignore any errors */
+        }
+
+        if (activeTreasureBox._particleInterval) {
+            clearInterval(activeTreasureBox._particleInterval);
+            activeTreasureBox._particleInterval = null;
+        }
+
+        // 🧹 Finally, remove the chest from DOM and clear reference
         activeTreasureBox.remove();
         activeTreasureBox = null;
     }
@@ -271,6 +291,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         return false;
+    }
+
+    // Spawn a glowing downward particle from around the treasure chest
+    function spawnTreasureParticle(box) {
+        if (!box) return;
+        const container = document.querySelector('.game-container');
+        if (!container) return;
+
+        const particle = document.createElement('div');
+        particle.className = 'treasure-particle';
+        container.appendChild(particle);
+
+        const boxRect = box.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // Random X offset around the chest width
+        const xOffset = (Math.random() - 0.5) * boxRect.width;
+        // Start slightly above top or around upper area
+        const startX = boxRect.left - containerRect.left + boxRect.width / 2 + xOffset - 5;
+        const startY = boxRect.top - containerRect.top + boxRect.height * 0.2;
+
+        particle.style.left = `${Math.round(startX)}px`;
+        particle.style.top = `${Math.round(startY)}px`;
+
+        // random size for natural look
+        const size = 6 + Math.random() * 6;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+
+        // Remove after animation ends
+        setTimeout(() => {
+            try { particle.remove(); } catch (e) { }
+        }, 5000);
     }
 
     // Spawn a treasure box (positioned in the middle area between stats and buttons)
@@ -314,8 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(box);
         activeTreasureBox = box;
 
-        // Positioning: compute safe vertical range (below header, above bottom buttons)
-        // We'll read DOM measurements to compute a safe rectangle inside game-container
         const header = document.querySelector('.header-container');
         const bottomBar = document.querySelector('.button-bar');
 
@@ -339,7 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
         box.style.left = `${randLeft + box.clientWidth / 2}px`;
         box.style.top = `${randTop + box.clientHeight / 2}px`;
 
-        // Store state: one box active
+        // Start continuous falling particles around chest
+        box._particleInterval = setInterval(() => {
+            if (!box.parentElement) {
+                clearInterval(box._particleInterval);
+                box._particleInterval = null;
+                return;
+            }
+            spawnTreasureParticle(box);
+        }, 700); // every 0.4s, tweak for density
     }
 
     // --- CORE FUNCTIONS ---
@@ -436,55 +495,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Chisel
+        const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
         chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
+            chiselNextEffect.parentElement.style.display = 'none'; // Hide
         } else {
             const cost = getChiselCost();
             const nextEffect = gameState.dustPerTap + 1;
-            buyChiselButton.innerText = `Next +${formatWithCommas(nextEffect)} (Cost: ${formatNumber(cost)})`;
+            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`; // Update new text
+            chiselNextEffect.parentElement.style.display = 'block'; // Show
+            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
             buyChiselButton.disabled = gameState.dust < cost;
         }
 
         // Drone
+        const droneNextEffect = document.getElementById('drone-next-effect');
         droneLevelText.innerText = gameState.droneLevel;
         droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
         if (gameState.droneLevel >= 10) {
             buyDroneButton.innerText = "Max Level";
             buyDroneButton.disabled = true;
+            droneNextEffect.parentElement.style.display = 'none'; // Hide
         } else {
             const cost = getDroneCost();
             const nextEffect = gameState.dustPerSecond + 1;
-            buyDroneButton.innerText = `Next +${formatNumber(nextEffect)} (Cost: ${formatNumber(cost)})`;
+            droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`; // Update new text
+            droneNextEffect.parentElement.style.display = 'block'; // Show
+            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
             buyDroneButton.disabled = gameState.dust < cost;
         }
 
         // Battery
+        const batteryNextCapacity = document.getElementById('battery-next-capacity');
         batteryLevelText.innerText = gameState.batteryLevel;
         batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
         if (gameState.batteryLevel >= batteryLevels.length) {
             buyBatteryButton.innerText = "Max Level";
             buyBatteryButton.disabled = true;
+            batteryNextCapacity.parentElement.style.display = 'none'; // Hide
         } else {
             const cost = getBatteryCost();
             const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
-            buyBatteryButton.innerText = `Next ${nextCapacityText} (Cost: ${formatNumber(cost)})`;
+            batteryNextCapacity.innerText = nextCapacityText; // Update new text
+            batteryNextCapacity.parentElement.style.display = 'block'; // Show
+            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
             buyBatteryButton.disabled = gameState.dust < cost;
         }
 
         // Energy Core
+        const energyNextEffect = document.getElementById('energy-next-effect'); // Find the new 'Next' text element
         energyLevelText.innerText = gameState.energyLevel;
         energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
+
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
             buyEnergyButton.disabled = true;
+            energyNextEffect.parentElement.style.display = 'none'; // Hide 'Next:' text at max level
         } else {
             const cost = getEnergyCost();
             const nextEffect = 2000 + (gameState.energyLevel * 500);
-            buyEnergyButton.innerText = `Next +${formatWithCommas(nextEffect)} Max (Cost: ${formatNumber(cost)})`;
+
+            // Put the 'Next +6000 Max' text in the new <p> tag
+            energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
+            energyNextEffect.parentElement.style.display = 'block'; // Make sure it's visible
+
+            // Make the button ONLY show the cost
+            buyEnergyButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyEnergyButton.disabled = gameState.dust < cost;
         }
 
@@ -907,6 +987,9 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.className = 'glow-wrapper';
         const particle = document.createElement('div');
         particle.className = 'glow-particle';
+        if (gameState.isFrenzyMode) {
+            particle.classList.add('frenzy');
+        }
         const brightness = 0.8 + Math.random() * 0.8;
         particle.style.filter = `brightness(${brightness})`;
         const angle = Math.random() * Math.PI * 2;
@@ -1036,9 +1119,76 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
     particleSpawnInterval = setInterval(spawnParticle, 500); // Store the interval ID
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "s") {  // press "s" key
-            openSlot();
+    // === DEVELOPER CHEATS ===
+    document.addEventListener('keydown', (e) => {
+        if (!e.key) return;
+        const key = e.key.toLowerCase();
+
+        switch (key) {
+            // 🌀 Force open slot machine
+            case 's':
+                console.log('[DEV] Forcing Spin-to-Win...');
+                openSlot();
+                break;
+
+            // ⚡ Toggle Frenzy Mode
+            case 'f':
+                if (!gameState.isFrenzyMode) {
+                    console.log('[DEV] Frenzy Mode START');
+                    startFrenzyMode();
+                } else {
+                    console.log('[DEV] Frenzy Mode END');
+                    endFrenzyMode();
+                }
+                break;
+
+            // 🔋 Refill energy instantly
+            case 'e':
+                console.log('[DEV] Energy refilled to max.');
+                gameState.tapEnergy = gameState.maxTapEnergy;
+                updateUI?.();
+                break;
+
+            // 🪫 Drain energy instantly
+            case 'd':
+                console.log('[DEV] Energy drained to 0.');
+                gameState.tapEnergy = 0;
+                gameState.energyRechargeUntilTimestamp = Date.now() + 10000; // 10s recharge
+                updateUI?.();
+                break;
+
+            // 💎 Add gems
+            case 'g':
+                console.log('[DEV] +10 Gems');
+                gameState.gems = (gameState.gems || 0) + 10;
+                updateUI?.();
+                break;
+
+            // ✨ Add crystal dust
+            case 'c':
+                console.log('[DEV] +1000 Crystal Dust');
+                gameState.crystalDust = (gameState.crystalDust || 0) + 1000;
+                updateUI?.();
+                break;
+
+            // 🧰 Spawn treasure box manually
+            case 't':
+                console.log('[DEV] Spawning treasure box manually...');
+                spawnTreasureBox();
+                break;
+
+            // 🔄 Reset all progress
+            case 'r':
+                console.log('[DEV] Soft reset');
+                if (confirm('⚠️ Are you sure you want to reset your save?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+                break;
+
+            default:
+                // no-op for other keys
+                break;
         }
     });
 });

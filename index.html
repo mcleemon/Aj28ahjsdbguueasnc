@@ -5,7 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Golem Egg</title>
-    <link rel="stylesheet" href="style.css?v=2.11.11">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css?v=2.11.12">
 </head>
 
 <body>
@@ -86,44 +92,66 @@
     </div>
     <div id="upgrade-modal" class="modal hidden">
         <div class="modal-content">
-            <span id="close-upgrade-button" class="close-button">&times;</span>
-            <h2>Upgrades</h2>
-            <div class="upgrade-item">
-                <h3>Crystal Chisel</h3>
-                <p>Increases Crystal Dust per tap.</p>
-                <p>Level: <span id="chisel-level">1</span></p>
-                <p>Effect: <span id="chisel-effect">+1</span> Dust/Tap</p>
-                <button id="buy-chisel-button">Upgrade (Cost: <span id="chisel-cost">100</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Mining Drone</h3>
-                <p>Automatically generates Dust per second.</p>
-                <p>Level: <span id="drone-level">0</span></p>
-                <p>Effect: <span id="drone-effect">+0</span> Dust/Sec</p>
-                <button id="buy-drone-button">Upgrade (Cost: <span id="drone-cost">250</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Drone Battery</h3>
-                <p>Increases drone offline mining time.</p>
-                <p>Level: <span id="battery-level">1</span></p>
-                <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
-                <button id="buy-battery-button">Upgrade (Cost: <span id="battery-cost">1K</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>Recharge Drone</h3>
-                <p>Recharge the drone battery to 50% capacity.</p>
-                <p>Recharges Left Today: <span id="recharge-count">3</span></p>
-                <button id="buy-recharge-button">Recharge (Cost: <span id="recharge-cost">1000</span>)</button>
-            </div>
-            <div class="upgrade-item">
-                <h3>⚡ Energy Core</h3>
-                <p>Increases your maximum tap energy.</p>
-                <p>Level: <span id="energy-level">1</span></p>
-                <p>Effect: <span id="energy-effect">+2000 Max</span></p>
-                <button id="buy-energy-button">Upgrade (Cost: <span id="energy-cost">5K</span>)</button>
-            </div>
-        </div>
-    </div>
+            <span id="close-upgrade-button" class="close-button"></span>
+
+            <!-- NEW WRAPPER: everything goes inside this inner container -->
+            <div class="modal-inner">
+
+                <div class="upgrade-item">
+                    <h3> Crystal Chisel ⛏️</h3>
+                    <p>Level: <span id="chisel-level">1</span></p>
+                    <p>Increases Crystal Dust per Tap</p>
+                    <p>Effect: <span id="chisel-effect">+1</span> Dust/Tap</p>
+                    <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p> <button
+                        id="buy-chisel-button">
+                        Upgrade (Cost: <span id="chisel-cost">100</span>)
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <h3> Mining Drone 🤖</h3>
+                    <p>Level: <span id="drone-level">0</span></p>
+                    <p>Automatically Generates Crystal Dust</p>
+                    <p>Effect: <span id="drone-effect">+0</span> Dust/Sec</p>
+                    <p class="next-level-preview">Next: <span id="drone-next-effect"></span></p> <button
+                        id="buy-drone-button">
+                        Upgrade (Cost: <span id="drone-cost">250</span>)
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <h3> Drone Battery🔋</h3>
+                    <p>Level: <span id="battery-level">1</span></p>
+                    <p>Increases Drone Offline Mining Time</p>
+                    <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
+                    <p class="next-level-preview">Next: <span id="battery-next-capacity"></span></p> <button
+                        id="buy-battery-button">
+                        Upgrade (Cost: <span id="battery-cost">1K</span>)
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <h3> Energy Core⚡</h3>
+                    <p>Level: <span id="energy-level">1</span></p>
+                    <p>Increases Maximum Tap Energy</p>
+                    <p>Effect: <span id="energy-effect">+2000 Max</span></p>
+                    <p class="next-level-preview">Next: <span id="energy-next-effect"></span></p>
+                    <button id="buy-energy-button">
+                        Upgrade (Cost: <span id="energy-cost">5K</span>)
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <h3> Recharge Drone⛽</h3>
+                    <p>Recharge Drone Battery to 50% Capacity</p>
+                    <p>Recharges Left Today: <span id="recharge-count">3</span></p>
+                    <button id="buy-recharge-button">
+                        Recharge (Cost: <span id="recharge-cost">1000</span>)
+                    </button>
+                </div>
+            </div> <!-- end of .modal-inner -->
+        </div> <!-- end of .modal-content -->
+    </div> <!-- end of #upgrade-modal -->
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-reward-button" class="close-button">&times;</span>
@@ -188,7 +216,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.11.11"></script>
+    <script src="script.js?v=2.11.12"></script>
 
 </body>
 

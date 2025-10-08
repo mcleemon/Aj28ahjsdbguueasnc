@@ -15,7 +15,7 @@ body {
     background-size: cover;
     background-position: center;
     color: var(--tg-theme-text-color);
-    font-family: 'Helvetica Neue', sans-serif;
+    font-family: 'Nunito', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -246,12 +246,28 @@ button:active {
     overflow-y: auto;
 }
 
+.modal-content h2 {
+    font-family: 'Lilita One', cursive;
+    font-size: 28px;
+    /* You might need to adjust font size */
+}
+
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 0px;
+    right: 20px;
     font-size: 24px;
     cursor: pointer;
+}
+
+#close-upgrade-button {
+    top: 483px;
+    right: 160px;
+    width: 30px;
+    height: 29px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
 .upgrade-item button {
@@ -503,244 +519,312 @@ button:active {
     width: 10px;
     height: 10px;
     background: radial-gradient(circle,
-        rgba(255, 240, 150, 1) 0%,   
-        rgba(255, 215, 80, 0.9) 30%,
-        rgba(255, 180, 0, 0) 80%  
-    );
+            rgba(255, 240, 150, 1) 0%,
+            rgba(255, 215, 80, 0.9) 30%,
+            rgba(255, 180, 0, 0) 80%);
     border-radius: 50%;
     pointer-events: none;
     animation: floatUpTransform 5s ease-out forwards, flicker 5s ease-out forwards;
     filter: brightness(1.5) blur(1px);
-    box-shadow: 
+    box-shadow:
         0 0 12px rgba(255, 240, 150, 0.9),
         0 0 25px rgba(255, 210, 60, 0.7),
         0 0 45px rgba(255, 180, 0, 0.5),
         0 0 70px rgba(255, 150, 0, 0.3);
 }
 
+/* === Falling particles for Treasure Box === */
+.treasure-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle,
+            rgba(255, 240, 170, 1) 0%,
+            rgba(255, 220, 100, 0.9) 30%,
+            rgba(255, 180, 60, 0) 80%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: fallDown 5s ease-in forwards, flicker 5s linear infinite;
+    filter: brightness(1.5) blur(1px);
+    opacity: 0.8;
+    box-shadow:
+        0 0 10px rgba(255, 220, 80, 0.9),
+        0 0 25px rgba(255, 180, 60, 0.6);
+}
+
+/* Floating DOWN animation */
+@keyframes fallDown {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(60px);
+        opacity: 0;
+    }
+}
+
+/* === Frenzy Particle Variant === */
+.glow-particle.frenzy {
+    background: radial-gradient(circle,
+            rgba(255, 180, 80, 1) 0%,
+            /* bright gold core */
+            rgba(255, 80, 0, 0.9) 35%,
+            /* fiery red ring */
+            rgba(255, 0, 0, 0) 80%
+            /* fade out edge */
+        );
+    filter: brightness(1.8) blur(1px);
+    box-shadow:
+        0 0 14px rgba(255, 150, 50, 1),
+        0 0 30px rgba(255, 80, 0, 0.9),
+        0 0 60px rgba(255, 40, 0, 0.6),
+        0 0 90px rgba(255, 20, 0, 0.4);
+}
+
 /* === MINI SLOT STYLES === */
 
 #slot-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8); 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 200; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
 }
 
 #slot-overlay.hidden {
-  display: none;
+    display: none;
 }
 
 .slot-machine-container {
-  position: relative; 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeIn 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
 }
 
 .slot-ui {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-  gap: 15px;
-  z-index: 3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    gap: 15px;
+    z-index: 3;
 }
 
 .slot-frame {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;  
-  height: auto;
-  z-index: 2;    
-  pointer-events: none; 
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: auto;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .slot-machine {
-  display: flex;
-  gap: 10px;
-  padding: 20px;
-  border-radius: 12px;
-  z-index: 1; 
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 1;
 }
 
 .reel {
-  width: 80px;
-  height: 100px;
-  overflow: hidden;
-  background: #000;
-  border: 2px solid #666;
-  border-radius: 8px;
-  position: relative;
+    width: 80px;
+    height: 100px;
+    overflow: hidden;
+    background: #000;
+    border: 2px solid #666;
+    border-radius: 8px;
+    position: relative;
 }
 
 .symbols {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .symbol {
-  width: 80px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
+    width: 80px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
 }
 
 .slot-icon {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  image-rendering: -webkit-optimize-contrast; 
-  image-rendering: crisp-edges;
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 #slot-spin-btn {
-  margin-top: 0;
-  padding: 10px 25px;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: gold;
-  color: #000;
-  font-weight: bold;
-  transition: transform 0.2s ease, background 0.2s ease;
+    margin-top: 0;
+    padding: 10px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: gold;
+    color: #000;
+    font-weight: bold;
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 #slot-spin-btn:hover {
-  transform: scale(0.95);
-  background: #ffdb4d;
+    transform: scale(0.95);
+    background: #ffdb4d;
 }
 
 #slot-spin-btn:disabled {
-  background: #777;
-  color: #ccc;
-  cursor: not-allowed;
+    background: #777;
+    color: #ccc;
+    cursor: not-allowed;
 }
 
 #slot-result {
-  position: absolute;
-  bottom: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;         
-  visibility: hidden;     
-  transition: opacity 0.3s ease;
-  padding: 10px 20px;
-  background: rgba(0,0,0,0.8);
-  border-radius: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  color: white;
-  box-shadow: 0 0 10px rgba(255,215,0,0.8);
-  white-space: nowrap;  
+    position: absolute;
+    bottom: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    white-space: nowrap;
 }
 
 #slot-result.show {
-  opacity: 1;
-  visibility: visible;
+    opacity: 1;
+    visibility: visible;
 }
 
 #slot-result.win {
-  color: gold;
-  text-shadow: 0 0 10px gold, 0 0 20px orange;
+    color: gold;
+    text-shadow: 0 0 10px gold, 0 0 20px orange;
 }
 
 #slot-result.lose {
-  color: #aaa;
-  text-shadow: 0 0 5px #333;
+    color: #aaa;
+    text-shadow: 0 0 5px #333;
 }
 
 .spinning {
-  animation: spin 0.15s linear infinite;
-  filter: blur(3px);
+    animation: spin 0.15s linear infinite;
+    filter: blur(3px);
 }
 
 .slot-popup {
-  position: absolute;
-  top: 50%;            
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;           
-  z-index: 210;          
-  transition: opacity 0.5s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 210;
+    transition: opacity 0.5s ease;
 }
 
 .slot-popup-img {
-  width: 400px;       
-  height: auto;           
-  pointer-events: none;    
+    width: 400px;
+    height: auto;
+    pointer-events: none;
 }
 
 .slot-popup.show {
-  opacity: 1;
+    opacity: 1;
 }
 
 .slot-popup.hidden {
-  display: none;
+    display: none;
 }
 
 @keyframes spin {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-100%); }
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-100%);
+    }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: scale(1); }
-  to   { opacity: 0; transform: scale(0.95); }
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
 }
 
 .slot-fade-out {
-  animation: fadeOut 1s ease forwards;
+    animation: fadeOut 1s ease forwards;
 }
 
 .icon-battery {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin-right: -5px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: -5px;
 }
 
 .icon-crystaldust {
-  width: 20px;  
-  height: 20px;
-  vertical-align: middle;
-  margin-right: 0px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 0px;
 }
 
 .icon-gem {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin-right: -2px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: -2px;
 }
 
 .slot-icon-small {
-  width: 18px;
-  height: 18px;
-  vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
 }
 
 .slot-machine-container.fade-out {
-  animation: fadeOut 1s ease forwards;
+    animation: fadeOut 1s ease forwards;
 }
 
 #slot-overlay.banner-only .slot-machine-container {
@@ -749,11 +833,15 @@ button:active {
 
 /* Settings Modal Styles */
 .settings-modal-content {
-    background-color: #3e4a61; /* A nice dark blue-gray */
+    background-color: #3e4a61;
+    /* A nice dark blue-gray */
     padding: 20px;
-    border-radius: 15px; /* More rounded corners */
-    width: 85%; /* Not full width */
-    max-width: 320px; /* A max width for larger screens */
+    border-radius: 15px;
+    /* More rounded corners */
+    width: 85%;
+    /* Not full width */
+    max-width: 320px;
+    /* A max width for larger screens */
     position: relative;
     text-align: center;
     border: 2px solid #a9c1d9;
@@ -762,56 +850,168 @@ button:active {
 
 /* === TREASURE BOX (spawned dynamically) === */
 .game-container {
-  /* ensure children absolutely positioned inside this container */
-  position: relative;
+    /* ensure children absolutely positioned inside this container */
+    position: relative;
 }
 
 .treasure-box {
-  position: absolute;
-  z-index: 80;              /* above most UI, below full-screen overlays (slot uses 200) */
-  width: 56px;               /* button-like size; tweak if you want larger/smaller */
-  height: auto;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%); /* center by transform; exact coordinates set by JS */
-  cursor: pointer;
-  user-select: none;
-  pointer-events: auto;
-  -webkit-tap-highlight-color: transparent;
+    position: absolute;
+    z-index: 80;
+    /* above most UI, below full-screen overlays (slot uses 200) */
+    width: 56px;
+    /* button-like size; tweak if you want larger/smaller */
+    height: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* center by transform; exact coordinates set by JS */
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .treasure-box-inner {
-  width: 100%;
-  height: 100%;
-  display: block;
-  transform-origin: 50% 50%;
-  /* continuous small shake */
-  animation: tb-shake 0.9s ease-in-out infinite;
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform-origin: 50% 50%;
+    /* continuous small shake */
+    animation: tb-shake 1s ease-in-out infinite;
 }
 
 .treasure-box img {
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none; /* click handled by parent */
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+    /* click handled by parent */
+}
+
+#upgrade-modal {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#upgrade-modal .modal-content {
+    position: relative;
+    width: min(90vw, 540px);
+    aspect-ratio: 2 / 3;
+    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true") center/contain no-repeat;
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+#upgrade-modal .modal-inner {
+    position: absolute;
+    top: 9.5%;
+    left: 17%;
+    width: 66%;
+    height: 81%;
+    overflow-y: auto;
+    text-align: center;
+    color: #fff;
+    padding: 8px 0;
+    box-sizing: border-box;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#upgrade-modal .modal-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.upgrade-item {
+    background: rgba(30, 30, 50, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.05);
+
+    width: 75%;
+    margin: 0 auto 10px;
+}
+
+.upgrade-item h3 {
+    margin: 5px 0;
+    color: #ffd55c;
+    font-weight: bold;
+}
+
+.upgrade-item button {
+    background: linear-gradient(145deg, #6a4cff, #9a7fff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+
+.upgrade-item button:hover {
+    background: linear-gradient(145deg, #9a7fff, #c3b0ff);
+    transform: scale(1.03);
+}
+
+#upgrade-modal .modal-inner::-webkit-scrollbar {
+    display: none;
 }
 
 @keyframes tb-shake {
-  0%   { transform: translateY(0) rotate(0deg); }
-  20%  { transform: translateY(-4px) rotate(-2deg); }
-  50%  { transform: translateY(0) rotate(0deg); }
-  80%  { transform: translateY(-3px) rotate(2deg); }
-  100% { transform: translateY(0) rotate(0deg); }
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    20% {
+        transform: translateY(-4px) rotate(-2deg);
+    }
+
+    50% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    80% {
+        transform: translateY(-3px) rotate(2deg);
+    }
+
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
 }
 
 @keyframes flicker {
-    0%   { opacity: 0; }
-    20%  { opacity: 1; }
-    30%  { opacity: 0.5; }
-    50%  { opacity: 1; }
-    70%  { opacity: 0.2; }
-    80%  { opacity: 0.8; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    30% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 0.2;
+    }
+
+    80% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
 @keyframes wobble {

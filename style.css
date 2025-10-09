@@ -965,6 +965,56 @@ button:active {
     display: none;
 }
 
+#offline-progress-modal .modal-content {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    width: min(90vw, 438px);
+    line-height: 1;
+}
+
+#welcome-frame-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#offline-progress-modal .modal-text-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+#offline-progress-modal .modal-text-content h2 {
+    font-size: 22px;
+    /* Adjust this value */
+}
+
+/* This controls the smaller paragraph text */
+#offline-progress-modal .modal-text-content p {
+    font-size: 14px;
+    /* Adjust this value */
+    line-height: 1.4;
+    /* Improves readability for paragraphs */
+}
+
+#close-offline-button {
+    position: absolute;
+    z-index: 10;
+    top: 35px;
+    right: 45px;
+    width: 30px;
+    height: 29px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
 @keyframes tb-shake {
     0% {
         transform: translateY(0) rotate(0deg);

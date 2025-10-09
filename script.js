@@ -1131,6 +1131,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 openSlot();
                 break;
 
+            // 🔋 Fill Drone Battery
+            case 'b':
+                console.log('[DEV] Drone battery filled to max.');
+                gameState.currentBattery = gameState.batteryCapacity;
+                updateUI?.();
+                break;
+
             // ⚡ Toggle Frenzy Mode
             case 'f':
                 if (!gameState.isFrenzyMode) {

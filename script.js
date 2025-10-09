@@ -178,10 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     const particleSystem = {
-        baseRate: 500,         
-        frenzyRateMultiplier: 1 / 3, 
-        currentInterval: null, 
-        mode: "normal"          
+        baseRate: 500,
+        frenzyRateMultiplier: 1 / 3,
+        currentInterval: null,
+        mode: "normal"
     };
 
     function startParticleLoop(rate) {
@@ -446,12 +446,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
-            chiselNextEffect.parentElement.style.display = 'none'; 
+            chiselNextEffect.parentElement.style.display = 'none';
+        }
+        else {
             const cost = getChiselCost();
             const nextEffect = gameState.dustPerTap + 1;
-            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`; 
-            chiselNextEffect.parentElement.style.display = 'block'; 
-            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; 
+            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`;
+            chiselNextEffect.parentElement.style.display = 'block';
+            buyChiselButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyChiselButton.disabled = gameState.dust < cost;
         }
 
@@ -484,9 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const cost = getBatteryCost();
             const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
-            batteryNextCapacity.innerText = nextCapacityText; 
-            batteryNextCapacity.parentElement.style.display = 'block'; 
-            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; 
+            batteryNextCapacity.innerText = nextCapacityText;
+            batteryNextCapacity.parentElement.style.display = 'block';
+            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
             buyBatteryButton.disabled = gameState.dust < cost;
         }
 
@@ -498,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
             buyEnergyButton.disabled = true;
-            energyNextEffect.parentElement.style.display = 'none'; 
+            energyNextEffect.parentElement.style.display = 'none';
         } else {
             const cost = getEnergyCost();
             const nextEffect = 2000 + (gameState.energyLevel * 500);

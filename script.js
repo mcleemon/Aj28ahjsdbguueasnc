@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const multiplierText = document.getElementById('multiplier-text');
     const temporaryMessage = document.getElementById('temporary-message');
     const offlineProgressModal = document.getElementById('offline-progress-modal');
-    const closeOfflineButton = document.getElementById('close-offline-button');
     const offlineDustAmount = document.getElementById('offline-dust-amount');
     const offlineTimePassed = document.getElementById('offline-time-passed');
     const particleContainer = document.getElementById('particle-container');
@@ -179,10 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
     const particleSystem = {
-        baseRate: 500,          // default spawn rate (normal mode)
-        frenzyRateMultiplier: 1 / 3, // how much faster frenzy is
-        currentInterval: null,  // holds the active interval ID
-        mode: "normal"          // can be "normal" or "frenzy"
+        baseRate: 500,         
+        frenzyRateMultiplier: 1 / 3, 
+        currentInterval: null, 
+        mode: "normal"          
     };
 
     function startParticleLoop(rate) {
@@ -191,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         particleSystem.currentInterval = setInterval(spawnParticle, rate);
     }
-
 
     // --- HELPER FUNCTIONS ---
     function formatNumber(num) {
@@ -258,33 +256,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
     function removeTreasureBox() {
-        // 🧠 Don't do anything if no active chest
         if (!activeTreasureBox) return;
-
         try {
-            // If there’s a stored click handler, remove it safely
             if (activeTreasureBox._tbClickHandler) {
                 activeTreasureBox.removeEventListener('click', activeTreasureBox._tbClickHandler);
             }
         } catch (e) {
-            /* ignore any errors */
         }
-
         if (activeTreasureBox._particleInterval) {
             clearInterval(activeTreasureBox._particleInterval);
             activeTreasureBox._particleInterval = null;
         }
-
-        // 🧹 Finally, remove the chest from DOM and clear reference
         activeTreasureBox.remove();
         activeTreasureBox = null;
     }
 
-    // Check if any modal (Upgrade, Settings, Calendar, etc.) is currently visible
     function isAnyModalOpen() {
         const modals = document.querySelectorAll('.modal');
         for (const modal of modals) {
-            // Visible modals are displayed as flex (not .hidden)
             const style = window.getComputedStyle(modal);
             if (style.display !== 'none' && style.visibility !== 'hidden' && !modal.classList.contains('hidden')) {
                 return true;
@@ -293,104 +282,64 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    // Spawn a glowing downward particle from around the treasure chest
     function spawnTreasureParticle(box) {
         if (!box) return;
         const container = document.querySelector('.game-container');
         if (!container) return;
-
         const particle = document.createElement('div');
         particle.className = 'treasure-particle';
         container.appendChild(particle);
-
         const boxRect = box.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-
-        // Random X offset around the chest width
         const xOffset = (Math.random() - 0.5) * boxRect.width;
-        // Start slightly above top or around upper area
         const startX = boxRect.left - containerRect.left + boxRect.width / 2 + xOffset - 5;
         const startY = boxRect.top - containerRect.top + boxRect.height * 0.2;
-
         particle.style.left = `${Math.round(startX)}px`;
         particle.style.top = `${Math.round(startY)}px`;
-
-        // random size for natural look
         const size = 6 + Math.random() * 6;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-
-        // Remove after animation ends
         setTimeout(() => {
             try { particle.remove(); } catch (e) { }
         }, 5000);
     }
 
-    // Spawn a treasure box (positioned in the middle area between stats and buttons)
     function spawnTreasureBox() {
-        // Safety: don't spawn if one already exists or slot is already active or in frenzy
         if (activeTreasureBox || slotActive || gameState.isFrenzyMode) return;
-
-        // 🧠 New check: don't spawn when any modal/menu is open
         if (isAnyModalOpen()) return;
-
         const container = document.querySelector('.game-container');
         if (!container) return;
-
-        // Create DOM structure: parent (centering + absolute), inner for animation, image inside
         const box = document.createElement('div');
         box.className = 'treasure-box';
-
         const inner = document.createElement('div');
         inner.className = 'treasure-box-inner';
-
         const img = document.createElement('img');
         img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true';
         img.alt = 'Treasure Box';
-
         inner.appendChild(img);
         box.appendChild(inner);
-
-        // Attach click handler (store ref for later removal)
         const clickHandler = (e) => {
             e.stopPropagation();
-            // Immediately remove the box then open the slot
             removeTreasureBox();
-            // ensure only one slot starts
             openSlot();
         };
-        // store handler so removeTreasureBox can detach if necessary
         box._tbClickHandler = clickHandler;
         box.addEventListener('click', clickHandler, { passive: true });
-
-        // Append to container first (so we can measure)
         container.appendChild(box);
         activeTreasureBox = box;
-
         const header = document.querySelector('.header-container');
         const bottomBar = document.querySelector('.button-bar');
-
         const containerRect = container.getBoundingClientRect();
         const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
         const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
-
-        // Safe top zone: a bit below header bottom, and above button bar top
-        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50); // min px from top of container
+        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50);
         const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
-
-        // Safe left range: keep some margins from sides
         const safeLeftMin = 16;
         const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
-
-        // Choose random position inside safe area
         const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
         const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
-
-        // Apply coordinates relative to container — remember .treasure-box uses translate(-50%, -50%) centering.
         box.style.left = `${randLeft + box.clientWidth / 2}px`;
         box.style.top = `${randTop + box.clientHeight / 2}px`;
-
-        // Start continuous falling particles around chest
         box._particleInterval = setInterval(() => {
             if (!box.parentElement) {
                 clearInterval(box._particleInterval);
@@ -398,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             spawnTreasureParticle(box);
-        }, 700); // every 0.4s, tweak for density
+        }, 700);
     }
 
     // --- CORE FUNCTIONS ---
@@ -484,13 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
             const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
             energyText.innerText = `Full in ${formatTime(remainingSeconds)}`;
-
-            // Replace the entire button label while recharging
             multiplierButton.textContent = 'Recharging...';
         } else {
             energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
-
-            // Restore the normal button label + multiplier
             multiplierButton.innerHTML = `Multiplier: <span id="multiplier-text">x${gameState.tapMultiplier}</span>`;
         }
 
@@ -501,13 +446,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
-            chiselNextEffect.parentElement.style.display = 'none'; // Hide
-        } else {
+            chiselNextEffect.parentElement.style.display = 'none'; 
             const cost = getChiselCost();
             const nextEffect = gameState.dustPerTap + 1;
-            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`; // Update new text
-            chiselNextEffect.parentElement.style.display = 'block'; // Show
-            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
+            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`; 
+            chiselNextEffect.parentElement.style.display = 'block'; 
+            buyChiselButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; 
             buyChiselButton.disabled = gameState.dust < cost;
         }
 
@@ -518,13 +462,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.droneLevel >= 10) {
             buyDroneButton.innerText = "Max Level";
             buyDroneButton.disabled = true;
-            droneNextEffect.parentElement.style.display = 'none'; // Hide
+            droneNextEffect.parentElement.style.display = 'none';
         } else {
             const cost = getDroneCost();
             const nextEffect = gameState.dustPerSecond + 1;
-            droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`; // Update new text
-            droneNextEffect.parentElement.style.display = 'block'; // Show
-            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
+            droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`;
+            droneNextEffect.parentElement.style.display = 'block';
+            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
             buyDroneButton.disabled = gameState.dust < cost;
         }
 
@@ -535,35 +479,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.batteryLevel >= batteryLevels.length) {
             buyBatteryButton.innerText = "Max Level";
             buyBatteryButton.disabled = true;
-            batteryNextCapacity.parentElement.style.display = 'none'; // Hide
+            batteryNextCapacity.parentElement.style.display = 'none';
         } else {
             const cost = getBatteryCost();
             const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
-            batteryNextCapacity.innerText = nextCapacityText; // Update new text
-            batteryNextCapacity.parentElement.style.display = 'block'; // Show
-            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; // Simplify button
+            batteryNextCapacity.innerText = nextCapacityText; 
+            batteryNextCapacity.parentElement.style.display = 'block'; 
+            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`; 
             buyBatteryButton.disabled = gameState.dust < cost;
         }
 
         // Energy Core
-        const energyNextEffect = document.getElementById('energy-next-effect'); // Find the new 'Next' text element
+        const energyNextEffect = document.getElementById('energy-next-effect');
         energyLevelText.innerText = gameState.energyLevel;
         energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
 
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
             buyEnergyButton.disabled = true;
-            energyNextEffect.parentElement.style.display = 'none'; // Hide 'Next:' text at max level
+            energyNextEffect.parentElement.style.display = 'none'; 
         } else {
             const cost = getEnergyCost();
             const nextEffect = 2000 + (gameState.energyLevel * 500);
-
-            // Put the 'Next +6000 Max' text in the new <p> tag
             energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
-            energyNextEffect.parentElement.style.display = 'block'; // Make sure it's visible
-
-            // Make the button ONLY show the cost
+            energyNextEffect.parentElement.style.display = 'block';
             buyEnergyButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyEnergyButton.disabled = gameState.dust < cost;
         }
@@ -605,8 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (gameState.energyRechargeUntilTimestamp > 0 && Date.now() >= gameState.energyRechargeUntilTimestamp) {
-            gameState.tapEnergy = gameState.maxTapEnergy; // Fully recharge
-            gameState.energyRechargeUntilTimestamp = 0; // Reset the timer
+            gameState.tapEnergy = gameState.maxTapEnergy;
+            gameState.energyRechargeUntilTimestamp = 0;
         }
         updateUI();
     }
@@ -749,7 +689,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     }
 
-
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
         if (!gameState.isFrenzyMode) {
@@ -808,14 +747,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!slotActive && !gameState.isFrenzyMode) {
             // Count this tap toward the cooldown (only successful taps reach here)
             gameState.tapsSinceLastSpin = (gameState.tapsSinceLastSpin || 0) + 1;
-
             const chanceMap = { 1: 0.01, 10: 0.015, 20: 0.02, 50: 0.03 };
             const chance = (chanceMap[gameState.tapMultiplier] || 0);
             const roll = Math.random();
-
-            // Require at least MIN_TAPS_BETWEEN_SPINS taps since the last appearance
             if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < chance) {
-                // reset counter (player must tap at least MIN_TAPS_BETWEEN_SPINS times before next trigger)
                 gameState.tapsSinceLastSpin = 0;
                 spawnTreasureBox();
             }
@@ -846,12 +781,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     });
 
-    // Settings Modal Listeners
     settingsButton.addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
     });
 
-    // We need to define the close button for settings
     const closeSettingsButton = document.getElementById('close-settings-button');
     closeSettingsButton.addEventListener('click', () => {
         settingsModal.classList.add('closing');
@@ -886,13 +819,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             calendarModal.classList.add('hidden');
             calendarModal.classList.remove('closing');
-        }, 300);
-    });
-    closeOfflineButton.addEventListener('click', () => {
-        offlineProgressModal.classList.add('closing');
-        setTimeout(() => {
-            offlineProgressModal.classList.add('hidden');
-            offlineProgressModal.classList.remove('closing');
         }, 300);
     });
     buyChiselButton.addEventListener('click', () => {
@@ -1104,10 +1030,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 
+    offlineProgressModal.addEventListener('click', (event) => {
+        offlineProgressModal.classList.add('closing');
+        setTimeout(() => {
+            offlineProgressModal.classList.add('hidden');
+            offlineProgressModal.classList.remove('closing');
+        }, 300);
+    });
+
     // --- INITIALIZE GAME ---
 
     const isNewPlayer = loadGame();
-    // If the save doesn't include the taps counter, initialize it so spin can appear immediately
     if (typeof gameState.tapsSinceLastSpin !== 'number') {
         gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
     }
@@ -1118,12 +1051,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     setInterval(gameLoop, 1000);
     setInterval(saveGame, 3000);
-    particleSpawnInterval = setInterval(spawnParticle, 500); // Store the interval ID
+    particleSpawnInterval = setInterval(spawnParticle, 500);
     // === DEVELOPER CHEATS ===
     document.addEventListener('keydown', (e) => {
         if (!e.key) return;
         const key = e.key.toLowerCase();
-
         switch (key) {
             // 🌀 Force open slot machine
             case 's':

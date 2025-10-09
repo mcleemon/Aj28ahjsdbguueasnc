@@ -251,7 +251,6 @@ button:active {
 .modal-content h2 {
     font-family: 'Lilita One', cursive;
     font-size: 28px;
-    /* You might need to adjust font size */
 }
 
 .close-button {
@@ -536,7 +535,6 @@ button:active {
         0 0 70px rgba(255, 150, 0, 0.3);
 }
 
-/* === Falling particles for Treasure Box === */
 .treasure-particle {
     position: absolute;
     width: 10px;
@@ -555,7 +553,6 @@ button:active {
         0 0 25px rgba(255, 180, 60, 0.6);
 }
 
-/* Floating DOWN animation */
 @keyframes fallDown {
     0% {
         transform: translateY(0);
@@ -568,16 +565,11 @@ button:active {
     }
 }
 
-/* === Frenzy Particle Variant === */
 .glow-particle.frenzy {
     background: radial-gradient(circle,
             rgba(255, 180, 80, 1) 0%,
-            /* bright gold core */
             rgba(255, 80, 0, 0.9) 35%,
-            /* fiery red ring */
-            rgba(255, 0, 0, 0) 80%
-            /* fade out edge */
-        );
+            rgba(255, 0, 0, 0) 80%);
     filter: brightness(1.8) blur(1px);
     box-shadow:
         0 0 14px rgba(255, 150, 50, 1),
@@ -826,6 +818,23 @@ button:active {
     vertical-align: middle;
 }
 
+#offline-dust-amount {
+    color: #87CEEB;
+    text-shadow: 0 0 5px #00BFFF;
+}
+
+.time-passed-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: -12px;
+}
+
+.inline-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: -4px;
+}
+
 .slot-machine-container.fade-out {
     animation: fadeOut 1s ease forwards;
 }
@@ -834,40 +843,30 @@ button:active {
     display: none;
 }
 
-/* Settings Modal Styles */
 .settings-modal-content {
     background-color: #3e4a61;
-    /* A nice dark blue-gray */
     padding: 20px;
     border-radius: 15px;
-    /* More rounded corners */
     width: 85%;
-    /* Not full width */
     max-width: 320px;
-    /* A max width for larger screens */
     position: relative;
     text-align: center;
     border: 2px solid #a9c1d9;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* === TREASURE BOX (spawned dynamically) === */
 .game-container {
-    /* ensure children absolutely positioned inside this container */
     position: relative;
 }
 
 .treasure-box {
     position: absolute;
     z-index: 80;
-    /* above most UI, below full-screen overlays (slot uses 200) */
     width: 56px;
-    /* button-like size; tweak if you want larger/smaller */
     height: auto;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    /* center by transform; exact coordinates set by JS */
     cursor: pointer;
     user-select: none;
     pointer-events: auto;
@@ -879,7 +878,6 @@ button:active {
     height: 100%;
     display: block;
     transform-origin: 50% 50%;
-    /* continuous small shake */
     animation: tb-shake 1s ease-in-out infinite;
 }
 
@@ -888,7 +886,6 @@ button:active {
     height: auto;
     display: block;
     pointer-events: none;
-    /* click handled by parent */
 }
 
 #upgrade-modal {
@@ -992,15 +989,11 @@ button:active {
 
 #offline-progress-modal .modal-text-content h2 {
     font-size: 22px;
-    /* Adjust this value */
 }
 
-/* This controls the smaller paragraph text */
 #offline-progress-modal .modal-text-content p {
     font-size: 14px;
-    /* Adjust this value */
     line-height: 1.4;
-    /* Improves readability for paragraphs */
 }
 
 #close-offline-button {
@@ -1013,6 +1006,14 @@ button:active {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
     background-size: contain;
     background-repeat: no-repeat;
+}
+
+#welcome-back-title {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-top: 25px;
+    margin-bottom: 0px;
 }
 
 @keyframes tb-shake {

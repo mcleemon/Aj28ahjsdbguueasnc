@@ -184,8 +184,9 @@ button:active {
 
 .button-bar {
     display: grid;
+    justify-content: center;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 5px;
     width: 100%;
     margin-top: auto;
 }
@@ -195,7 +196,7 @@ button:active {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--tg-theme-text-color);
     padding: 10px 15px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     border-radius: 25px;
     transition: all 0.2s ease;
@@ -281,10 +282,10 @@ button:active {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    font-size: 15px;
 }
 
 .upgrade-item button:disabled {
-    background-color: #555;
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -926,35 +927,65 @@ button:active {
 }
 
 .upgrade-item {
-    background: rgba(30, 30, 50, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.05);
+    /* 1. Set your new custom background image */
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true');
+    background-size: 100% 100%;
+    /* Stretches the image to fill the box */
+    background-position: center;
+    background-repeat: no-repeat;
 
-    width: 75%;
+    /* 2. Remove the old default styles */
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+    /* Make sure old color is gone */
+
+    /* 3. Adjust padding to fit the text nicely inside the new frame */
+    padding: 45px;
+    /* You might need to adjust this value */
+
+    width: 95%;
+    /* Let's make it a bit wider */
     margin: 0 auto 10px;
+    box-sizing: border-box;
+    /* Ensures padding is calculated correctly */
 }
 
 .upgrade-item h3 {
     margin: 5px 0;
     color: #ffd55c;
     font-weight: bold;
+    font-size: 16px;
+}
+
+/* Add this new rule to your style.css */
+.upgrade-item p {
+    font-size: 14px;
+    /* Adjust this for text size */
+    color: #ffffff;
+    /* Change the color if you want */
+    margin: 10px 0;
+    /* Adjust the spacing between lines */
 }
 
 .upgrade-item button {
-    background: linear-gradient(145deg, #6a4cff, #9a7fff);
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
     border: none;
-    border-radius: 8px;
     color: white;
     font-weight: bold;
-    padding: 6px 12px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    padding: 5px 25px;
+    min-width: 95px;
+    min-height: 65px;
     cursor: pointer;
     transition: 0.15s;
 }
 
 .upgrade-item button:hover {
-    background: linear-gradient(145deg, #9a7fff, #c3b0ff);
     transform: scale(1.03);
 }
 
@@ -1014,6 +1045,109 @@ button:active {
     height: auto;
     margin-top: 25px;
     margin-bottom: 0px;
+}
+
+/* --- Styles for the Daily Login Custom Frame --- */
+
+/* 1. The main container. It acts as a positioning stage. */
+#login-reward-modal .modal-content {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    width: min(90vw, 438px);
+    /* Uses the same size as your welcome frame */
+    line-height: 1;
+}
+
+/* 2. The frame image itself. */
+#login-frame-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 3. The text content, centered on top of the image. */
+#login-reward-modal .modal-text-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* 4. The close button, positioned in the top-right. */
+#close-reward-button {
+    position: absolute;
+    z-index: 10;
+    top: 35px;
+    right: 45px;
+    width: 30px;
+    height: 29px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.dust-amount-color {
+    color: #87CEEB;
+    /* A nice crystal-like sky blue */
+    text-shadow: 0 0 5px #00BFFF;
+    /* Adds a blue glow */
+    font-weight: bold;
+}
+
+/* --- Styling for the new Daily Login title image --- */
+#daily-login-title {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-top: 25px;
+    margin-bottom: 0px;
+}
+
+/* --- Custom Style for ALL Bottom Bar Buttons --- */
+#upgrade-button,
+#new-shop-button,
+#friends-button,
+#calendar-button {
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    background-color: transparent;
+    border: none;
+
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    font-family: 'Graduate', serif;
+    width: 95px;
+    height: 50px;
+}
+
+/* --- Golden text color for the Upgrade Button --- */
+#upgrade-button,
+#new-shop-button,
+#friends-button,
+#calendar-button {
+    color: #dfc117;
+    /* A classic gold color */
+
+    /* This stronger shadow makes the gold text pop more */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes shine {
+    0% {
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
 }
 
 @keyframes tb-shake {

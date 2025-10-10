@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700&display=swap"
         rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true"
         as="image">
     <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/goldenegg.png?raw=true"
@@ -33,7 +36,14 @@
         as="image">
     <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
         as="image">
-    <link rel="stylesheet" href="style.css?v=2.11.19">
+    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
+        as="image">
+    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true"
+        as="image">
+    <link rel="preload"
+        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true"
+        as="image">
+    <link rel="stylesheet" href="style.css?v=2.11.21">
 </head>
 
 <body>
@@ -118,10 +128,10 @@
 
             <div class="modal-inner">
                 <div class="upgrade-item">
-                    <h3> Crystal Chisel ⛏️</h3>
+                    <h3>Crystal Chisel</h3>
                     <p>Level: <span id="chisel-level">1</span></p>
-                    <p>Increases Crystal Dust per Tap</p>
-                    <p>Effect: <span id="chisel-effect">+1</span> Dust/Tap</p>
+                    <p>More Dust per Tap</p>
+                    <p>Rate: <span id="chisel-effect">+1</span> Dust/Tap</p>
                     <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p> <button
                         id="buy-chisel-button">
                         Upgrade (Cost: <span id="chisel-cost">100</span>)
@@ -129,10 +139,10 @@
                 </div>
 
                 <div class="upgrade-item">
-                    <h3> Mining Drone 🤖</h3>
+                    <h3>Mining Drone</h3>
                     <p>Level: <span id="drone-level">0</span></p>
-                    <p>Automatically Generates Crystal Dust</p>
-                    <p>Effect: <span id="drone-effect">+0</span> Dust/Sec</p>
+                    <p>Generates Dust Automatically</p>
+                    <p>Rate: <span id="drone-effect">+0</span> Dust/Sec</p>
                     <p class="next-level-preview">Next: <span id="drone-next-effect"></span></p> <button
                         id="buy-drone-button">
                         Upgrade (Cost: <span id="drone-cost">250</span>)
@@ -140,9 +150,9 @@
                 </div>
 
                 <div class="upgrade-item">
-                    <h3> Drone Battery🔋</h3>
+                    <h3>Drone Battery</h3>
                     <p>Level: <span id="battery-level">1</span></p>
-                    <p>Increases Drone Offline Mining Time</p>
+                    <p>Increases Drone Offline Time</p>
                     <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
                     <p class="next-level-preview">Next: <span id="battery-next-capacity"></span></p> <button
                         id="buy-battery-button">
@@ -151,10 +161,10 @@
                 </div>
 
                 <div class="upgrade-item">
-                    <h3> Energy Core⚡</h3>
+                    <h3>Energy Core</h3>
                     <p>Level: <span id="energy-level">1</span></p>
-                    <p>Increases Maximum Tap Energy</p>
-                    <p>Effect: <span id="energy-effect">+2000 Max</span></p>
+                    <p>Boosts Max Energy</p>
+                    <p>Rate: <span id="energy-effect">+2000 Max</span></p>
                     <p class="next-level-preview">Next: <span id="energy-next-effect"></span></p>
                     <button id="buy-energy-button">
                         Upgrade (Cost: <span id="energy-cost">5K</span>)
@@ -162,8 +172,8 @@
                 </div>
 
                 <div class="upgrade-item">
-                    <h3> Recharge Drone⛽</h3>
-                    <p>Recharge Drone Battery to 50% Capacity</p>
+                    <h3>Recharge Drone</h3>
+                    <p>Restores 50% of drone battery</p>
                     <p>Recharges Left Today: <span id="recharge-count">3</span></p>
                     <button id="buy-recharge-button">
                         Recharge (Cost: <span id="recharge-cost">1000</span>)
@@ -174,10 +184,16 @@
     </div>
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
-            <span id="close-reward-button" class="close-button">&times;</span>
-            <h2>Daily Login!</h2>
-            <p>Your streak is <strong id="reward-streak">1</strong> day(s)!</p>
-            <p>You received <strong id="reward-amount">100</strong> Crystal Dust!</p>
+            <img id="login-frame-img"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
+                alt="Login Reward Frame">
+            <div class="modal-text-content">
+                <img id="daily-login-title"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
+                    alt="Daily Login!">
+                <p>Your streak is <strong id="reward-streak">1</strong> day(s)!</p>
+                <p>You received <span id="reward-amount"></span></p>
+            </div>
         </div>
     </div>
     <div id="calendar-modal" class="modal hidden">
@@ -244,7 +260,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.11.19"></script>
+    <script src="script.js?v=2.11.21"></script>
 
 </body>
 

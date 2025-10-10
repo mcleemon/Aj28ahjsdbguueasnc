@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
-    const closeRewardButton = document.getElementById('close-reward-button');
     const closeCalendarButton = document.getElementById('close-calendar-button');
     const rewardStreak = document.getElementById('reward-streak');
     const rewardAmount = document.getElementById('reward-amount');
@@ -514,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rechargesLeft = 3 - gameState.dailyRechargesUsed;
         rechargeCountText.innerText = rechargesLeft;
         if (rechargesLeft <= 0) {
-            buyRechargeButton.innerText = "No Recharges Left";
+            buyRechargeButton.innerText = "Depleted";
             buyRechargeButton.disabled = true;
         } else {
             const cost = getRechargeCost();
@@ -573,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
-                rewardText = `${formatNumber(rewardInfo.amount)} Crystal Dust!`;
+                rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
                 break;
             case 'gem_shard':
                 gameState.gemShards += rewardInfo.amount;
@@ -808,14 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStreakCalendar();
         calendarModal.classList.remove('hidden');
     });
-
-    closeRewardButton.addEventListener('click', () => {
-        loginRewardModal.classList.add('closing');
-        setTimeout(() => {
-            loginRewardModal.classList.add('hidden');
-            loginRewardModal.classList.remove('closing');
-        }, 300);
-    });
     closeCalendarButton.addEventListener('click', () => {
         calendarModal.classList.add('closing');
         setTimeout(() => {
@@ -1032,11 +1023,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 
+    // This is the existing block for the "Welcome Back" modal
     offlineProgressModal.addEventListener('click', (event) => {
         offlineProgressModal.classList.add('closing');
         setTimeout(() => {
             offlineProgressModal.classList.add('hidden');
             offlineProgressModal.classList.remove('closing');
+        }, 300);
+    });
+
+    // ADD THE NEW CODE FOR THE DAILY LOGIN MODAL RIGHT HERE
+    loginRewardModal.addEventListener('click', (event) => {
+        loginRewardModal.classList.add('closing');
+        setTimeout(() => {
+            loginRewardModal.classList.add('hidden');
+            loginRewardModal.classList.remove('closing');
         }, 300);
     });
 
@@ -1108,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // ✨ Add crystal dust
             case 'c':
                 console.log('[DEV] +1000 Crystal Dust');
-                gameState.crystalDust = (gameState.crystalDust || 0) + 1000;
+                gameState.dust = (gameState.dust || 0) + 1000;
                 updateUI?.();
                 break;
 
@@ -1116,6 +1117,15 @@ document.addEventListener('DOMContentLoaded', () => {
             case 't':
                 console.log('[DEV] Spawning treasure box manually...');
                 spawnTreasureBox();
+                break;
+
+            // 📅 Force daily login    
+            case 'l':
+                console.log('[DEV] Forcing Daily Login...');
+                // Temporarily reset the last login date to trigger the function
+                gameState.lastLoginDate = null;
+                handleDailyLogin();
+                saveGame(); // Optional: save the new login state
                 break;
 
             // 🔄 Reset all progress

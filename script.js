@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     function updateUI() {
-        dustCounter.innerText = formatWithCommas(gameState.dust);
+        dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
         progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
         const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Chisel
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+        chiselEffectText.innerText = `+${formatNumber(gameState.dustPerTap)}`;
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else {
             const cost = getChiselCost();
             const nextEffect = gameState.dustPerTap + 1;
-            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`;
+            chiselNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Tap`;
             chiselNextEffect.parentElement.style.display = 'block';
             buyChiselButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyChiselButton.disabled = gameState.dust < cost;
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Energy Core
         const energyNextEffect = document.getElementById('energy-next-effect');
         energyLevelText.innerText = gameState.energyLevel;
-        energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
+        energyEffectText.innerText = `+${formatNumber(gameState.maxTapEnergy)} Max`;
 
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const cost = getEnergyCost();
             const nextEffect = 2000 + (gameState.energyLevel * 500);
-            energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
+            energyNextEffect.innerText = `+${formatNumber(nextEffect)} Max`;
             energyNextEffect.parentElement.style.display = 'block';
             buyEnergyButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyEnergyButton.disabled = gameState.dust < cost;
@@ -588,21 +588,26 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
-    function renderStreakCalendar() {
-        streakGrid.innerHTML = '';
-        calendarStreakLabel.innerText = gameState.loginStreak;
-        for (let i = 1; i <= 28; i++) {
-            const dayCell = document.createElement('div');
-            dayCell.className = 'streak-day';
-            dayCell.innerText = i;
-            const visualDay = ((gameState.loginStreak - 1) % 28) + 1;
-            if (i < visualDay) {
-                dayCell.classList.add('completed');
-            } else if (i === visualDay) {
-                dayCell.classList.add('current');
-            }
-            streakGrid.appendChild(dayCell);
+    // AFTER
+    function updateCalendarModal() {
+        const streakCount = document.getElementById('calendar-streak-count');
+        // We now target the new element for the value
+        const nextRewardValue = document.getElementById('next-reward-value');
+
+        streakCount.innerText = `${gameState.loginStreak} Day${gameState.loginStreak === 1 ? '' : 's'}`;
+
+        const nextRewardIndex = (gameState.loginStreak) % dailyRewards.length;
+        const rewardInfo = dailyRewards[nextRewardIndex];
+        let rewardText = '';
+
+        if (rewardInfo.type === 'dust') {
+            rewardText = `${formatNumber(rewardInfo.amount)} Crystal Dust`;
+        } else {
+            rewardText = rewardInfo.label;
         }
+
+        // Update only the value, since the label is now in the HTML
+        nextRewardValue.innerText = rewardText;
     }
     function getGeodeChance() {
         return 0.03;
@@ -804,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
     calendarButton.addEventListener('click', () => {
-        renderStreakCalendar();
+        updateCalendarModal();
         calendarModal.classList.remove('hidden');
     });
     closeCalendarButton.addEventListener('click', () => {
@@ -970,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     default: dustReward = 5000;
                 }
                 gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'geode') {
                 let dustReward = 0;
                 switch (gameState.tapMultiplier) {
@@ -983,7 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.dust += dustReward;
                 const rareGeodesWon = 5;
                 gameState.geodesFoundToday += rareGeodesWon;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 let gemReward = 0;
                 switch (gameState.tapMultiplier) {
@@ -1009,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameState.dust += dustReward;
 
-            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+            const rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
 
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";

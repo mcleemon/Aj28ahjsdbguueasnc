@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true"
         as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/goldenegg.png?raw=true"
+    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
         as="image">
     <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true"
         as="image">
@@ -43,7 +43,9 @@
     <link rel="preload"
         href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true"
         as="image">
-    <link rel="stylesheet" href="style.css?v=2.11.21">
+    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true"
+        as="image">
+    <link rel="stylesheet" href="style.css?v=2.11.22">
 </head>
 
 <body>
@@ -90,7 +92,7 @@
             <div class="egg-image-wrapper">
                 <div id="particle-container"></div>
                 <img id="golem-egg" class="golem-egg egg-image"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/goldenegg.png?raw=true"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
                     alt="Golem Egg">
             </div>
             <div id="click-effect-container"></div>
@@ -191,7 +193,7 @@
                 <img id="daily-login-title"
                     src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
                     alt="Daily Login!">
-                <p>Your streak is <strong id="reward-streak">1</strong> day(s)!</p>
+                <p>Your streak is <strong id="reward-streak">1</strong> Day!</p>
                 <p>You received <span id="reward-amount"></span></p>
             </div>
         </div>
@@ -199,68 +201,71 @@
     <div id="calendar-modal" class="modal hidden">
         <div class="modal-content">
             <span id="close-calendar-button" class="close-button">&times;</span>
-            <h2>Attendance Streak</h2>
-            <p>Your current streak is <strong id="calendar-streak-label">0</strong> days!</p>
-            <div id="streak-grid" class="streak-grid">
+            <div class="modal-inner">
+                <h2>Daily Streak</h2>
+                <p id="calendar-streak-count">0 Days</p>
+                <div id="calendar-next-reward">
+                    <span id="next-reward-label">Next Reward</span>
+                    <span id="next-reward-value"></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div id="cheat-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Cheat Detected</h2>
-            <p>Your game data appears to be corrupted or modified.</p>
-            <p>Please contact game support if you believe this is a mistake.</p>
+        <div id="cheat-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Cheat Detected</h2>
+                <p>Your game data appears to be corrupted or modified.</p>
+                <p>Please contact game support if you believe this is a mistake.</p>
+            </div>
         </div>
-    </div>
-    <div id="settings-modal" class="modal hidden">
-        <div class="settings-modal-content">
-            <span id="close-settings-button" class="close-button">&times;</span>
-            <h2>Settings</h2>
-            <!-- We will add buttons here in the next step -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="settings-modal-content">
+                <span id="close-settings-button" class="close-button">&times;</span>
+                <h2>Settings</h2>
+                <!-- We will add buttons here in the next step -->
+            </div>
         </div>
-    </div>
-    <div id="offline-progress-modal" class="modal hidden">
-        <div class="modal-content">
-            <img id="welcome-frame-img"
-                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
-                alt="Welcome Back Frame">
-            <div class="modal-text-content">
-                <img id="welcome-back-title"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
-                    alt="Welcome Back">
-                <p>Your Drone was busy while you were away!</p>
-                <p>It collected <strong id="offline-dust-amount">0</strong> <img
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                        class="inline-icon" alt="Crystal Dust"></p>
-                <p class="time-passed-label">in <strong id="offline-time-passed">0 Minutes</strong></p>
+        <div id="offline-progress-modal" class="modal hidden">
+            <div class="modal-content">
+                <img id="welcome-frame-img"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
+                    alt="Welcome Back Frame">
+                <div class="modal-text-content">
+                    <img id="welcome-back-title"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
+                        alt="Welcome Back">
+                    <p>Your Drone was busy while you were away!</p>
+                    <p>It collected <strong id="offline-dust-amount">0</strong> <img
+                            src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
+                            class="inline-icon" alt="Crystal Dust"></p>
+                    <p class="time-passed-label">in <strong id="offline-time-passed">0 Minutes</strong></p>
 
+                </div>
             </div>
         </div>
-    </div>
-    <div id="slot-overlay" class="hidden">
-        <div class="slot-machine-container">
-            <div class="slot-machine">
-                <div class="reel">
-                    <div class="symbols"></div>
+        <div id="slot-overlay" class="hidden">
+            <div class="slot-machine-container">
+                <div class="slot-machine">
+                    <div class="reel">
+                        <div class="symbols"></div>
+                    </div>
+                    <div class="reel">
+                        <div class="symbols"></div>
+                    </div>
+                    <div class="reel">
+                        <div class="symbols"></div>
+                    </div>
                 </div>
-                <div class="reel">
-                    <div class="symbols"></div>
-                </div>
-                <div class="reel">
-                    <div class="symbols"></div>
-                </div>
-            </div>
-            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true"
-                alt="slot frame" class="slot-frame">
+                <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true"
+                    alt="slot frame" class="slot-frame">
 
-            <div class="slot-ui">
-                <button id="slot-spin-btn">SPIN</button>
-                <div id="slot-result" class="hidden"></div>
+                <div class="slot-ui">
+                    <button id="slot-spin-btn">SPIN</button>
+                    <div id="slot-result" class="hidden"></div>
+                </div>
             </div>
         </div>
-    </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.11.21"></script>
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <script src="script.js?v=2.11.22"></script>
 
 </body>
 

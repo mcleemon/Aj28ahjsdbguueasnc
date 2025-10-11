@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        progressText.innerText = `${formatNumber(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
+        progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatWithCommas(gameState.hatchGoal)}`;
         if (gameState.droneLevel === 0) {
             batteryStatus.innerText = '--:--'; // Show a placeholder when no drone exists
         } else {
@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextEffect = gameState.dustPerTap + 1;
             chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`;
             chiselNextEffect.parentElement.style.display = 'block';
-            buyChiselButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
+            buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyChiselButton.disabled = gameState.dust < cost;
         }
 
@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextEffect = gameState.dustPerSecond + 1;
             droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`;
             droneNextEffect.parentElement.style.display = 'block';
-            buyDroneButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyDroneButton.disabled = gameState.dust < cost;
         }
 
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
             batteryNextCapacity.innerText = nextCapacityText;
             batteryNextCapacity.parentElement.style.display = 'block';
-            buyBatteryButton.innerText = `Upgrade (Cost: ${formatNumber(cost)})`;
+            buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyBatteryButton.disabled = gameState.dust < cost;
         }
 
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextEffect = 2000 + (gameState.energyLevel * 500);
             energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
             energyNextEffect.parentElement.style.display = 'block';
-            buyEnergyButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
+            buyEnergyButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyEnergyButton.disabled = gameState.dust < cost;
         }
 
@@ -546,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // This is the existing check for cost
         else {
             const cost = getRechargeCost();
-            buyRechargeButton.innerText = `Recharge (Cost: ${formatNumber(cost)})`;
+            buyRechargeButton.innerHTML = `Recharge <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyRechargeButton.disabled = gameState.dust < cost || gameState.currentBattery >= gameState.batteryCapacity;
         }
     }
@@ -617,20 +617,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // We now target the new element for the value
         const nextRewardValue = document.getElementById('next-reward-value');
 
-        streakCount.innerText = `${gameState.loginStreak} Day${gameState.loginStreak === 1 ? '' : 's'}`;
+        streakCount.innerHTML = `${gameState.loginStreak} <span class="streak-unit-font">Day${gameState.loginStreak === 1 ? '' : 's'}</span>`;
 
         const nextRewardIndex = (gameState.loginStreak) % dailyRewards.length;
         const rewardInfo = dailyRewards[nextRewardIndex];
         let rewardText = '';
 
         if (rewardInfo.type === 'dust') {
-            rewardText = `${formatNumber(rewardInfo.amount)} Crystal Dust`;
+            // This creates the HTML for a blue number and the image icon
+            rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
         } else {
-            rewardText = rewardInfo.label;
+            rewardText = rewardInfo.label; // Other rewards stay as text
         }
 
-        // Update only the value, since the label is now in the HTML
-        nextRewardValue.innerText = rewardText;
+        // We MUST use .innerHTML now to display the image
+        nextRewardValue.innerHTML = rewardText;
     }
     function getGeodeChance() {
         return 0.03;

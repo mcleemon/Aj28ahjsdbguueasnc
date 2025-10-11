@@ -1178,6 +1178,45 @@ button:active {
     box-sizing: border-box;
 }
 
+#close-calendar-button {
+    position: absolute;
+    /* This is required for z-index to work */
+    z-index: 10;
+    /* This brings the button to the top layer */
+    top: 350px;
+    right: 184px;
+    width: 30px;
+    height: 29px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    font-size: 0;
+}
+
+/* --- Styling for the new Calendar title image --- */
+#calendar-title-img {
+    width: 70%;
+    /* Controls how wide the title image is */
+    max-width: 280px;
+    /* Prevents it from getting too large */
+    height: auto;
+    /* Keeps the correct aspect ratio */
+    margin-bottom: 0px;
+    /* Adds a nice space below the title */
+    margin-top: 10px
+}
+
+.streak-unit-font {
+    font-family: 'Oswald', sans-serif;
+    font-size: 30px;
+    /* Makes 'Day(s)' smaller than the number */
+    opacity: 0.8;
+}
+
+#next-reward-value .dust-amount-color {
+    font-size: 18px; /* Adjust this value for the calendar reward only */
+}
+
 @keyframes shine {
     0% {
         background-position: -100% 0;

@@ -1179,12 +1179,10 @@ button:active {
 }
 
 #close-calendar-button {
-    position: absolute;
-    /* This is required for z-index to work */
     z-index: 10;
-    /* This brings the button to the top layer */
-    top: 350px;
-    right: 184px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 88%;
     width: 30px;
     height: 29px;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -1214,7 +1212,8 @@ button:active {
 }
 
 #next-reward-value .dust-amount-color {
-    font-size: 18px; /* Adjust this value for the calendar reward only */
+    font-size: 18px;
+    /* Adjust this value for the calendar reward only */
 }
 
 @keyframes shine {

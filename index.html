@@ -12,40 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true"
-        as="image">
-    <link rel="preload"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true" as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true"
-        as="image">
-    <link rel="preload"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true" as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true"
-        as="image">
-    <link rel="preload"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true"
-        as="image">
-    <link rel="preload" href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true"
-        as="image">
-    <link rel="stylesheet" href="style.css?v=2.11.24">
+    <link rel="stylesheet" href="style.css?v=2.13.0">
 </head>
 
 <body>
@@ -210,62 +177,63 @@
                 </div>
             </div>
         </div>
-        <div id="cheat-modal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Cheat Detected</h2>
-                <p>Your game data appears to be corrupted or modified.</p>
-                <p>Please contact game support if you believe this is a mistake.</p>
-            </div>
+    </div>
+    <div id="cheat-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Cheat Detected</h2>
+            <p>Your game data appears to be corrupted or modified.</p>
+            <p>Please contact game support if you believe this is a mistake.</p>
         </div>
-        <div id="settings-modal" class="modal hidden">
-            <div class="settings-modal-content">
-                <span id="close-settings-button" class="close-button">&times;</span>
-                <h2>Settings</h2>
-                <!-- We will add buttons here in the next step -->
-            </div>
+    </div>
+    <div id="settings-modal" class="modal hidden">
+        <div class="settings-modal-content">
+            <span id="close-settings-button" class="close-button">&times;</span>
+            <h2>Settings</h2>
+            <!-- We will add buttons here in the next step -->
         </div>
-        <div id="offline-progress-modal" class="modal hidden">
-            <div class="modal-content">
-                <img id="welcome-frame-img"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
-                    alt="Welcome Back Frame">
-                <div class="modal-text-content">
-                    <img id="welcome-back-title"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
-                        alt="Welcome Back">
-                    <p>Your Drone was busy while you were away!</p>
-                    <p>It collected <strong id="offline-dust-amount">0</strong> <img
-                            src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                            class="inline-icon" alt="Crystal Dust"></p>
-                    <p class="time-passed-label">in <strong id="offline-time-passed">0 Minutes</strong></p>
+    </div>
+    <div id="offline-progress-modal" class="modal hidden">
+        <div class="modal-content">
+            <img id="welcome-frame-img"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
+                alt="Welcome Back Frame">
+            <div class="modal-text-content">
+                <img id="welcome-back-title"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
+                    alt="Welcome Back">
+                <p>Your Drone was busy while you were away!</p>
+                <p>It collected <strong id="offline-dust-amount">0</strong> <img
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
+                        class="inline-icon" alt="Crystal Dust"></p>
+                <p class="time-passed-label">in <strong id="offline-time-passed">0 Minutes</strong></p>
 
-                </div>
             </div>
         </div>
-        <div id="slot-overlay" class="hidden">
-            <div class="slot-machine-container">
-                <div class="slot-machine">
-                    <div class="reel">
-                        <div class="symbols"></div>
-                    </div>
-                    <div class="reel">
-                        <div class="symbols"></div>
-                    </div>
-                    <div class="reel">
-                        <div class="symbols"></div>
-                    </div>
+    </div>
+    <div id="slot-overlay" class="hidden">
+        <div class="slot-machine-container">
+            <div class="slot-machine">
+                <div class="reel">
+                    <div class="symbols"></div>
                 </div>
-                <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true"
-                    alt="slot frame" class="slot-frame">
+                <div class="reel">
+                    <div class="symbols"></div>
+                </div>
+                <div class="reel">
+                    <div class="symbols"></div>
+                </div>
+            </div>
+            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true"
+                alt="slot frame" class="slot-frame">
 
-                <div class="slot-ui">
-                    <button id="slot-spin-btn">SPIN</button>
-                    <div id="slot-result" class="hidden"></div>
-                </div>
+            <div class="slot-ui">
+                <button id="slot-spin-btn">SPIN</button>
+                <div id="slot-result" class="hidden"></div>
             </div>
         </div>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <script src="script.js?v=2.11.24"></script>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js?v=2.13.0"></script>
 
 </body>
 

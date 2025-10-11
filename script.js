@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCalendarButton = document.getElementById('close-calendar-button');
     const rewardStreak = document.getElementById('reward-streak');
     const rewardAmount = document.getElementById('reward-amount');
-    const calendarStreakLabel = document.getElementById('calendar-streak-label');
-    const streakGrid = document.getElementById('streak-grid');
     const buyChiselButton = document.getElementById('buy-chisel-button');
     const chiselLevelText = document.getElementById('chisel-level');
     const chiselEffectText = document.getElementById('chisel-effect');
@@ -192,12 +190,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- HELPER FUNCTIONS ---
     function formatNumber(num) {
-        num = Math.floor(num);
+        num = Math.floor(Number(num) || 0);
         if (num < 1000) return num.toString();
-        const suffixes = ["", "K", "M", "B", "T"];
-        const i = Math.floor(Math.log10(num) / 3);
-        const shortNum = (num / Math.pow(1000, i)).toFixed(1);
-        return shortNum.replace(/\.0$/, '') + suffixes[i];
+
+        const suffixes = ["", "k", "m", "b", "t", "q"]; // Changed to lowercase
+        const tier = Math.floor(Math.log10(num) / 3);
+
+        if (tier === 0) return num;
+
+        const scaled = num / Math.pow(1000, tier);
+        const formatted = scaled.toFixed(1).replace(/\.0$/, '');
+
+        return `${formatted}${suffixes[tier]}`;
+    }
+
+    function formatBatteryTime(totalSeconds) {
+        if (totalSeconds < 0) totalSeconds = 0;
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        return `${hours}:${minutes}`;
     }
 
     function formatWithCommas(num) {
@@ -409,12 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const dustEarnedOffline = batteryDrain * gameState.dustPerSecond;
             if (dustEarnedOffline > 0) {
                 gameState.dust += dustEarnedOffline;
-                if (gameState.hatchProgress < gameState.hatchGoal) {
-                    gameState.hatchProgress += dustEarnedOffline;
-                    if (gameState.hatchProgress > gameState.hatchGoal) {
-                        gameState.hatchProgress = gameState.hatchGoal;
-                    }
-                }
                 offlineDustAmount.innerText = formatNumber(dustEarnedOffline);
                 offlineTimePassed.innerText = `${Math.floor(batteryDrain / 60)} minutes`;
                 offlineProgressModal.classList.remove('hidden');
@@ -424,9 +429,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
-        const batteryPercent = (gameState.currentBattery / gameState.batteryCapacity) * 100;
-        batteryStatus.innerText = `${Math.floor(batteryPercent)}%`;
+        progressText.innerText = `${formatNumber(gameState.hatchProgress)} / ${formatNumber(gameState.hatchGoal)}`;
+        if (gameState.droneLevel === 0) {
+            batteryStatus.innerText = '--:--'; // Show a placeholder when no drone exists
+        } else {
+            const currentTime = formatBatteryTime(gameState.currentBattery);
+            const totalTime = formatBatteryTime(gameState.batteryCapacity);
+            batteryStatus.innerText = `${currentTime} / ${totalTime}`;
+        }
         const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
         energyBarFill.style.width = `${energyPercent}%`;
         if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
@@ -441,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Chisel
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatNumber(gameState.dustPerTap)}`;
+        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
         if (gameState.chiselLevel >= 20) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
@@ -450,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else {
             const cost = getChiselCost();
             const nextEffect = gameState.dustPerTap + 1;
-            chiselNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Tap`;
+            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`;
             chiselNextEffect.parentElement.style.display = 'block';
             buyChiselButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyChiselButton.disabled = gameState.dust < cost;
@@ -477,11 +487,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const batteryNextCapacity = document.getElementById('battery-next-capacity');
         batteryLevelText.innerText = gameState.batteryLevel;
         batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
-        if (gameState.batteryLevel >= batteryLevels.length) {
+
+        // This is the NEW check for the drone's level
+        if (gameState.droneLevel === 0) {
+            buyBatteryButton.innerText = "Requires Drone";
+            buyBatteryButton.disabled = true;
+            batteryNextCapacity.parentElement.style.display = 'none';
+        }
+        // This is the existing check for max level
+        else if (gameState.batteryLevel >= batteryLevels.length) {
             buyBatteryButton.innerText = "Max Level";
             buyBatteryButton.disabled = true;
             batteryNextCapacity.parentElement.style.display = 'none';
-        } else {
+        }
+        // This is the existing check for cost
+        else {
             const cost = getBatteryCost();
             const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
@@ -494,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Energy Core
         const energyNextEffect = document.getElementById('energy-next-effect');
         energyLevelText.innerText = gameState.energyLevel;
-        energyEffectText.innerText = `+${formatNumber(gameState.maxTapEnergy)} Max`;
+        energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
 
         if (gameState.energyLevel >= 10) {
             buyEnergyButton.innerText = "Max Level";
@@ -503,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const cost = getEnergyCost();
             const nextEffect = 2000 + (gameState.energyLevel * 500);
-            energyNextEffect.innerText = `+${formatNumber(nextEffect)} Max`;
+            energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
             energyNextEffect.parentElement.style.display = 'block';
             buyEnergyButton.innerHTML = `Upgrade<br>(Cost: ${formatNumber(cost)})`;
             buyEnergyButton.disabled = gameState.dust < cost;
@@ -512,10 +532,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Recharge
         const rechargesLeft = 3 - gameState.dailyRechargesUsed;
         rechargeCountText.innerText = rechargesLeft;
-        if (rechargesLeft <= 0) {
+
+        // This is the NEW check for the drone's level
+        if (gameState.droneLevel === 0) {
+            buyRechargeButton.innerText = "Requires Drone";
+            buyRechargeButton.disabled = true;
+        }
+        // This is the existing check for recharges left
+        else if (rechargesLeft <= 0) {
             buyRechargeButton.innerText = "Depleted";
             buyRechargeButton.disabled = true;
-        } else {
+        }
+        // This is the existing check for cost
+        else {
             const cost = getRechargeCost();
             buyRechargeButton.innerText = `Recharge (Cost: ${formatNumber(cost)})`;
             buyRechargeButton.disabled = gameState.dust < cost || gameState.currentBattery >= gameState.batteryCapacity;
@@ -538,12 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (dustFromDrones > 0) {
             gameState.dust += dustFromDrones;
-            if (gameState.hatchProgress < gameState.hatchGoal) {
-                gameState.hatchProgress += dustFromDrones;
-                if (gameState.hatchProgress > gameState.hatchGoal) {
-                    gameState.hatchProgress = gameState.hatchGoal;
-                }
-            }
         }
         if (gameState.energyRechargeUntilTimestamp > 0 && Date.now() >= gameState.energyRechargeUntilTimestamp) {
             gameState.tapEnergy = gameState.maxTapEnergy;
@@ -975,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     default: dustReward = 5000;
                 }
                 gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'geode') {
                 let dustReward = 0;
                 switch (gameState.tapMultiplier) {
@@ -988,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.dust += dustReward;
                 const rareGeodesWon = 5;
                 gameState.geodesFoundToday += rareGeodesWon;
-                rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 let gemReward = 0;
                 switch (gameState.tapMultiplier) {
@@ -1014,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameState.dust += dustReward;
 
-            const rewardDisplayHtml = `${formatNumber(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
 
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";

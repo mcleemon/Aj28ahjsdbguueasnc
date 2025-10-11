@@ -625,7 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (rewardInfo.type === 'dust') {
             // This creates the HTML for a blue number and the image icon
-            rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+            rewardText = `<span class="dust-amount-color">${formatWithCommas(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
         } else {
             rewardText = rewardInfo.label; // Other rewards stay as text
         }

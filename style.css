@@ -264,13 +264,24 @@ button:active {
 }
 
 #close-upgrade-button {
-    top: 483px;
-    right: 160px;
+    position: absolute;
+    /* Ensures positioning context */
+    z-index: 10;
+    /* Keeps it on top */
+
+    /* --- New Responsive Positioning --- */
+    left: 50%;
+    transform: translateX(-50%);
+    top: 92%;
+    /* Position it 90% of the way down */
+
+    /* ...image and size styles... */
     width: 30px;
     height: 29px;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
     background-size: contain;
     background-repeat: no-repeat;
+    font-size: 0;
 }
 
 .upgrade-item button {

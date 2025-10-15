@@ -1126,7 +1126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleDailyLogin();
     updateUI();
     setInterval(gameLoop, 1000);
-    setInterval(saveGame, 600000);
+    setInterval(saveGame, 10000);
     window.addEventListener('beforeunload', saveGame);
     particleSpawnInterval = setInterval(spawnParticle, 500);
     // === DEVELOPER CHEATS ===

@@ -149,6 +149,13 @@ button:active {
     object-position: center;
 }
 
+#golem-egg {
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .egg-image:active:not(.egg-wobble):not(.egg-frenzy) {
     transform: scale(0.95);
 }
@@ -308,6 +315,7 @@ button:active {
     margin-bottom: 12px;
 }
 
+/* This is the original, fast style for normal taps */
 .click-effect {
     position: absolute;
     font-size: 24px;
@@ -315,6 +323,22 @@ button:active {
     color: white;
     pointer-events: none;
     animation: float-up 1s ease-out forwards;
+}
+
+/* This is our new, slower, blue style ONLY for the drone claim */
+.drone-claim-effect {
+    position: fixed;
+    /* Use fixed for better positioning relative to the screen */
+    font-size: 24px;
+    font-weight: bold;
+    transform: translateX(-50%);
+    pointer-events: none;
+    color: #87CEEB;
+    /* Crystal dust blue color */
+    text-shadow: 0 0 5px #00BFFF;
+    /* Blue glow */
+    animation: float-up 3s ease-out forwards;
+    /* Slower 3-second animation */
 }
 
 @keyframes float-up {
@@ -1258,10 +1282,7 @@ button:active {
 }
 
 img {
-    /* Prevents the menu from appearing on long press (especially on iOS) */
     -webkit-touch-callout: none;
-
-    /* Prevents the user from being able to select the image text/element */
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;

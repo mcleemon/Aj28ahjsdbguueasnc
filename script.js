@@ -553,7 +553,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             hatchOverlay.classList.remove('active');
             hatchOverlay.classList.add('hidden');
-            golemEgg.classList.remove('egg-frenzy'); // ✨ AND ADD THIS LINE
+            // Only remove the shaking class if we are NOT in frenzy mode
+            if (!gameState.isFrenzyMode) {
+                golemEgg.classList.remove('egg-frenzy');
+            }
         }
     }
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
@@ -735,6 +738,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // If the tap is allowed, update the timestamp to the current time.
         gameState.lastTapTimestamp = now;
+        // ✨ --- NEW GUARD CLAUSE --- ✨
+        // If the egg is ready to hatch, stop all tap actions immediately.
+        if (gameState.egg.progress >= gameState.egg.goal) {
+            return; // Do nothing.
+        }
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
@@ -885,6 +893,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.droneLevel++;
             gameState.dustPerSecond++;
+            // ✨ NEW: Start the first cooldown cycle if this is the first drone
+            if (gameState.droneLevel === 1) {
+                gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
+            }
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }
@@ -897,6 +909,8 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.batteryLevel++;
             gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
+            // ✨ NEW: Reset the cooldown with the new, longer duration
+            gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }
@@ -1095,14 +1109,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const dustCounterRect = dustCounter.getBoundingClientRect();
 
         const effect = document.createElement('div');
-        effect.className = 'click-effect';
+        effect.className = 'drone-claim-effect'; // Use our new, specific class
         effect.innerText = `+${formatNumber(dustEarned)}`;
-        effect.style.position = 'fixed'; // Use 'fixed' for positioning relative to the viewport
-        effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`; // Center it horizontally
-        effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;  // Center it vertically
-        effect.style.color = '#87CEEB';
-        effect.style.transform = 'translateX(-50%)'; // Fine-tune horizontal centering
-        effect.style.textShadow = '0 0 5px #00BFFF';
+        effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`;
+        effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;
         document.body.appendChild(effect);
         setTimeout(() => effect.remove(), 4000);
 

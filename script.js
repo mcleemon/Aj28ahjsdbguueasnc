@@ -27,8 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cheatModal = document.getElementById('cheat-modal');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
     const closeCalendarButton = document.getElementById('close-calendar-button');
-    const rewardStreak = document.getElementById('reward-streak');
-    const rewardAmount = document.getElementById('reward-amount');
     const buyChiselButton = document.getElementById('buy-chisel-button');
     const chiselLevelText = document.getElementById('chisel-level');
     const chiselEffectText = document.getElementById('chisel-effect');
@@ -44,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsButton = document.getElementById('settings-button');
     const settingsModal = document.getElementById('settings-modal');
     const slotPopup = document.getElementById("slot-popup");
+    const loginStreakText = document.getElementById('login-streak-text');
+    const loginRewardText = document.getElementById('login-reward-text');
 
     // --- MINI SLOT ELEMENTS ---
     const slotOverlay = document.getElementById("slot-overlay");
@@ -437,21 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return isNew;
     }
-    function calculateOfflineProgress() {
-        const now = Date.now();
-        const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-        if (timePassedInSeconds > 0) {
-            const batteryDrain = Math.min(gameState.currentBattery, timePassedInSeconds);
-            gameState.currentBattery -= batteryDrain;
-            const dustEarnedOffline = batteryDrain * gameState.dustPerSecond;
-            if (dustEarnedOffline > 0) {
-                gameState.dust += dustEarnedOffline;
-                offlineDustAmount.innerText = formatNumber(dustEarnedOffline);
-                offlineTimePassed.innerText = `${Math.floor(batteryDrain / 60)} minutes`;
-                offlineProgressModal.classList.remove('hidden');
-            }
-        }
-    }
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
@@ -570,8 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = formatDate();
         if (gameState.lastLoginDate === today) return;
         gameState.geodesFoundToday = 0;
-        gameState.dailyRechargesUsed = 0;
-        gameState.currentBattery = gameState.batteryCapacity;
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = formatDate(yesterday);
@@ -593,13 +576,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.gemShards += rewardInfo.amount;
                 rewardText = `${rewardInfo.label}!`;
                 break;
-            case 'recharge':
-                gameState.dailyRechargesUsed -= rewardInfo.amount;
-                rewardText = `${rewardInfo.label}!`;
-                break;
         }
-        rewardStreak.innerText = gameState.loginStreak;
-        rewardAmount.innerHTML = rewardText;
+        // Use our new elements to display the info
+        loginStreakText.innerText = `Streak: ${gameState.loginStreak} Day(s)`;
+        loginRewardText.innerHTML = rewardText;
+        // --- End of new lines ---
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
@@ -1148,13 +1129,6 @@ document.addEventListener('DOMContentLoaded', () => {
             case 's':
                 console.log('[DEV] Forcing Spin-to-Win...');
                 openSlot();
-                break;
-
-            // 🔋 Fill Drone Battery
-            case 'b':
-                console.log('[DEV] Drone battery filled to max.');
-                gameState.currentBattery = gameState.batteryCapacity;
-                updateUI?.();
                 break;
 
             // ⚡ Toggle Frenzy Mode

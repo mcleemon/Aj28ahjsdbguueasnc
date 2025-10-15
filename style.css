@@ -1094,18 +1094,6 @@ button:active {
     line-height: 1.4;
 }
 
-#close-offline-button {
-    position: absolute;
-    z-index: 10;
-    top: 35px;
-    right: 45px;
-    width: 30px;
-    height: 29px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
 #welcome-back-title {
     width: 100%;
     max-width: 200px;
@@ -1143,19 +1131,6 @@ button:active {
     width: 70%;
     color: white;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-/* 4. The close button, positioned in the top-right. */
-#close-reward-button {
-    position: absolute;
-    z-index: 10;
-    top: 35px;
-    right: 45px;
-    width: 30px;
-    height: 29px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
-    background-size: contain;
-    background-repeat: no-repeat;
 }
 
 .dust-amount-color {
@@ -1323,6 +1298,28 @@ img {
     align-items: center;
     justify-content: center;
     gap: 5px;
+}
+
+/* --- New Daily Login Modal Text Styles --- */
+#daily-login-title {
+    width: 80%;
+    max-width: 250px;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+#login-streak-text {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFD700;
+    /* Gold color */
+    margin-bottom: 10px;
+}
+
+#login-reward-text {
+    display: block;
+    font-size: 20px;
 }
 
 @keyframes shine {

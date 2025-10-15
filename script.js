@@ -38,19 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const buyBatteryButton = document.getElementById('buy-battery-button');
     const batteryLevelText = document.getElementById('battery-level');
     const batteryCapacityText = document.getElementById('battery-capacity');
-    const buyRechargeButton = document.getElementById('buy-recharge-button');
-    const rechargeCountText = document.getElementById('recharge-count');
-    const energyBarFill = document.getElementById('energy-bar-fill');
-    const energyText = document.getElementById('energy-text');
-    const buyEnergyButton = document.getElementById('buy-energy-button');
-    const energyLevelText = document.getElementById('energy-level');
-    const energyEffectText = document.getElementById('energy-effect');
-    const multiplierButton = document.getElementById('multiplier-button');
-    const multiplierText = document.getElementById('multiplier-text');
     const temporaryMessage = document.getElementById('temporary-message');
     const offlineProgressModal = document.getElementById('offline-progress-modal');
-    const offlineDustAmount = document.getElementById('offline-dust-amount');
-    const offlineTimePassed = document.getElementById('offline-time-passed');
     const particleContainer = document.getElementById('particle-container');
     const settingsButton = document.getElementById('settings-button');
     const settingsModal = document.getElementById('settings-modal');
@@ -64,12 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotReels = document.querySelectorAll(".symbols");
 
     let slotActive = false;
+    let hatchHoldTimer = null;
     let activeTreasureBox = null;
-    const MIN_TAPS_BETWEEN_SPINS = 10;
+    const MIN_TAPS_BETWEEN_SPINS = 50;
 
     // --- GAME STATE ---
     let gameState = {
-        tapMultiplier: 1,
         dust: 0,
         dustPerTap: 1,
         hatchProgress: 0,
@@ -88,17 +77,34 @@ document.addEventListener('DOMContentLoaded', () => {
         batteryCapacity: 3600,
         batteryBaseCost: 1000,
         geodesFoundToday: 0,
-        currentBattery: 3600,
-        dailyRechargesUsed: 0,
         rechargeBaseCost: 1000,
+        droneCooldownEndTimestamp: 0,
         isFrenzyMode: false,
         frenzyCooldownUntil: 0,
-        tapEnergy: 2000,
-        maxTapEnergy: 2000,
-        energyRechargeUntilTimestamp: 0,
-        energyLevel: 1,
-        energyBaseCost: 5000,
-        tapsSinceLastSpin: 0
+        tapsSinceLastSpin: 0,
+        lastTapTimestamp: 0 // ✨ ADD THIS LINE
+    };
+
+    // --- Default Egg configuration ---
+    const DEFAULT_EGG_LEVELS = [
+        { level: 1, tapsRequired: 1000, rewardDust: 2500 },
+        { level: 2, tapsRequired: 5000, rewardDust: 12000 },
+        { level: 3, tapsRequired: 10000, rewardDust: 30000 },
+        { level: 4, tapsRequired: 25000, rewardDust: 75000 },
+        { level: 5, tapsRequired: 50000, rewardDust: 160000 },
+        { level: 6, tapsRequired: 100000, rewardDust: 350000 },
+        { level: 7, tapsRequired: 250000, rewardDust: 900000 },
+        { level: 8, tapsRequired: 500000, rewardDust: 2000000 },
+        { level: 9, tapsRequired: 750000, rewardDust: 3500000 },
+        { level: 10, tapsRequired: 1000000, rewardDust: 5000000 }
+    ];
+
+    // --- Add egg data to gameState ---
+    gameState.egg = {
+        name: "Default Egg",
+        level: 1,
+        progress: 0,
+        goal: DEFAULT_EGG_LEVELS[0].tapsRequired,
     };
 
     const slotSymbols = [
@@ -165,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'dust', amount: 8000 },
         { type: 'dust', amount: 9000 },
         { type: 'dust', amount: 10000 },
-        { type: 'recharge', amount: 1, label: '1 Drone Recharge' },
+        { type: 'dust', amount: 15000 },
         { type: 'gem_shard', amount: 5, label: '5 Gem Shards' }, // BIG Milestone Day 28
     ];
 
@@ -193,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         num = Math.floor(Number(num) || 0);
         if (num < 1000) return num.toString();
 
-        const suffixes = ["", "k", "m", "b", "t", "q"]; // Changed to lowercase
+        const suffixes = ["", "K", "M", "B", "T", "Q"];
         const tier = Math.floor(Math.log10(num) / 3);
 
         if (tier === 0) return num;
@@ -360,6 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 700);
     }
 
+    function formatCooldownTime(totalSeconds) {
+        if (totalSeconds < 0) totalSeconds = 0;
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(Math.floor(totalSeconds % 60)).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
     // --- CORE FUNCTIONS ---
     function saveGame() {
         try {
@@ -394,12 +408,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             };
             if (tryLoadingState('golemEggGameState')) {
-                calculateOfflineProgress();
+                const now = Date.now();
+                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                // If the player was away for more than 5 minutes (300 seconds), show the welcome back modal.
+                if (timePassedInSeconds > 300) {
+                    offlineProgressModal.classList.remove('hidden');
+                }
+                // 🔹 Ensure consistency between chisel and tap power
+                gameState.dustPerTap = gameState.chiselLevel || 1;
                 return false;
             }
             console.warn("Main save file corrupt or tampered. Trying backup.");
             if (tryLoadingState('golemEggGameState_previous')) {
-                calculateOfflineProgress();
+                const now = Date.now();
+                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                // If the player was away for more than 5 minutes (300 seconds), show the welcome back modal.
+                if (timePassedInSeconds > 300) {
+                    offlineProgressModal.classList.remove('hidden');
+                }
                 return false;
             }
             if (localStorage.getItem('golemEggGameState')) {
@@ -429,30 +455,33 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        progressText.innerText = `${formatWithCommas(gameState.hatchProgress)} / ${formatWithCommas(gameState.hatchGoal)}`;
+        // show egg progress and level instead of old hatch progress
+        progressText.innerText = `${formatWithCommas(gameState.egg.progress)} / ${formatWithCommas(gameState.egg.goal)}`;
+        const eggLevelText = document.getElementById('egg-level-text');
+        if (eggLevelText) eggLevelText.innerText = `Lv. ${gameState.egg.level}`;
+        // --- New Drone Cooldown UI ---
         if (gameState.droneLevel === 0) {
-            batteryStatus.innerText = '--:--'; // Show a placeholder when no drone exists
+            batteryStatus.innerText = '--:--';
+            batteryStatus.classList.remove('claimable');
         } else {
-            const currentTime = formatBatteryTime(gameState.currentBattery);
-            const totalTime = formatBatteryTime(gameState.batteryCapacity);
-            batteryStatus.innerText = `${currentTime} / ${totalTime}`;
-        }
-        const energyPercent = (gameState.tapEnergy / gameState.maxTapEnergy) * 100;
-        energyBarFill.style.width = `${energyPercent}%`;
-        if (gameState.tapEnergy === 0 && gameState.energyRechargeUntilTimestamp > 0) {
-            const remainingSeconds = Math.round((gameState.energyRechargeUntilTimestamp - Date.now()) / 1000);
-            energyText.innerText = `Full in ${formatTime(remainingSeconds)}`;
-            multiplierButton.textContent = 'Recharging...';
-        } else {
-            energyText.innerText = `${Math.floor(gameState.tapEnergy)} / ${gameState.maxTapEnergy}`;
-            multiplierButton.innerHTML = `Multiplier: <span id="multiplier-text">x${gameState.tapMultiplier}</span>`;
+            const now = Date.now();
+            if (now >= gameState.droneCooldownEndTimestamp) {
+                // Cooldown is finished, ready to claim
+                batteryStatus.innerText = 'Claim';
+                batteryStatus.classList.add('claimable');
+            } else {
+                // Cooldown is active, show the timer
+                const timeLeftInSeconds = Math.ceil((gameState.droneCooldownEndTimestamp - now) / 1000);
+                batteryStatus.innerText = formatCooldownTime(timeLeftInSeconds);
+                batteryStatus.classList.remove('claimable');
+            }
         }
 
         // Chisel
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
         chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
-        if (gameState.chiselLevel >= 20) {
+        if (gameState.chiselLevel >= 10) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
             chiselNextEffect.parentElement.style.display = 'none';
@@ -511,69 +540,29 @@ document.addEventListener('DOMContentLoaded', () => {
             buyBatteryButton.disabled = gameState.dust < cost;
         }
 
-        // Energy Core
-        const energyNextEffect = document.getElementById('energy-next-effect');
-        energyLevelText.innerText = gameState.energyLevel;
-        energyEffectText.innerText = `+${formatWithCommas(gameState.maxTapEnergy)} Max`;
+        progressText.innerText = `${formatWithCommas(gameState.egg.progress)} / ${formatWithCommas(gameState.egg.goal)}`;
+        eggLevelText.innerText = `Lv. ${gameState.egg.level}`;
 
-        if (gameState.energyLevel >= 10) {
-            buyEnergyButton.innerText = "Max Level";
-            buyEnergyButton.disabled = true;
-            energyNextEffect.parentElement.style.display = 'none';
+        // --- Handle Ready to Hatch overlay & egg shaking ---
+        const hatchOverlay = document.getElementById('hatch-overlay');
+
+        if (gameState.egg.progress >= gameState.egg.goal) {
+            hatchOverlay.classList.add('active');
+            hatchOverlay.classList.remove('hidden');
+            golemEgg.classList.add('egg-frenzy'); // ✨ ADD THIS LINE
         } else {
-            const cost = getEnergyCost();
-            const nextEffect = 2000 + (gameState.energyLevel * 500);
-            energyNextEffect.innerText = `+${formatWithCommas(nextEffect)} Max`;
-            energyNextEffect.parentElement.style.display = 'block';
-            buyEnergyButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
-            buyEnergyButton.disabled = gameState.dust < cost;
-        }
-
-        // Recharge
-        const rechargesLeft = 3 - gameState.dailyRechargesUsed;
-        rechargeCountText.innerText = rechargesLeft;
-
-        // This is the NEW check for the drone's level
-        if (gameState.droneLevel === 0) {
-            buyRechargeButton.innerText = "Requires Drone";
-            buyRechargeButton.disabled = true;
-        }
-        // This is the existing check for recharges left
-        else if (rechargesLeft <= 0) {
-            buyRechargeButton.innerText = "Depleted";
-            buyRechargeButton.disabled = true;
-        }
-        // This is the existing check for cost
-        else {
-            const cost = getRechargeCost();
-            buyRechargeButton.innerHTML = `Recharge <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
-            buyRechargeButton.disabled = gameState.dust < cost || gameState.currentBattery >= gameState.batteryCapacity;
+            hatchOverlay.classList.remove('active');
+            hatchOverlay.classList.add('hidden');
+            golemEgg.classList.remove('egg-frenzy'); // ✨ AND ADD THIS LINE
         }
     }
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
-    function getRechargeCost() { return Math.floor(gameState.rechargeBaseCost * Math.pow(2.5, gameState.dailyRechargesUsed)); }
-    function getEnergyCost() {
-        return Math.floor(gameState.energyBaseCost * Math.pow(2.0, gameState.energyLevel - 1));
-    }
     function gameLoop() {
-        if (gameState.dustPerSecond > 0 && gameState.currentBattery > 0) {
-            gameState.currentBattery -= 1;
-        }
-        let dustFromDrones = 0;
-        if (gameState.currentBattery > 0) {
-            dustFromDrones = gameState.dustPerSecond;
-        }
-        if (dustFromDrones > 0) {
-            gameState.dust += dustFromDrones;
-        }
-        if (gameState.energyRechargeUntilTimestamp > 0 && Date.now() >= gameState.energyRechargeUntilTimestamp) {
-            gameState.tapEnergy = gameState.maxTapEnergy;
-            gameState.energyRechargeUntilTimestamp = 0;
-        }
         updateUI();
     }
+
     function handleDailyLogin() {
         const today = formatDate();
         if (gameState.lastLoginDate === today) return;
@@ -611,7 +600,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
-    // AFTER
     function updateCalendarModal() {
         const streakCount = document.getElementById('calendar-streak-count');
         // We now target the new element for the value
@@ -638,62 +626,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function handleGeodeEvent() {
         gameState.geodesFoundToday++;
+
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
         let rarityClass = '';
         let rewardText = '';
-        const baseReward = gameState.dustPerTap * gameState.tapMultiplier;
-        if (prizeRoll < 0.01) { // EPIC GEODE!
+
+        // Fixed base reward (you can tune this easily)
+        const baseReward = 1000;
+
+        if (prizeRoll < 0.01) {
+            // 🎇 EPIC GEODE!
             rarity = "EPIC GEODE!";
             rarityClass = 'epic';
-            reward = baseReward * 500;
-            rewardText = `+ 1 Gem Shard! (🎁 ${formatNumber(reward)})`;
-            gameState.gemShards++;
-        } else if (prizeRoll < 0.05) { // Rare Geode!
+            reward = baseReward * 500; // 500k dust
+            rewardText = `+ ${formatNumber(reward)} Dust & 💠 1 Gem Shard!`;
+            gameState.gemShards += 1;
+            gameState.dust += reward;
+
+        } else if (prizeRoll < 0.05) {
+            // 💎 Rare Geode!
             rarity = "Rare Geode!";
             rarityClass = 'rare';
-            reward = baseReward * 20;
+            reward = baseReward * 50; // 50k dust
             rewardText = `+ ${formatNumber(reward)} Dust!`;
-        } else if (prizeRoll < 0.20) { // Uncommon Geode!
+            gameState.dust += reward;
+
+        } else if (prizeRoll < 0.20) {
+            // 🟣 Uncommon Geode!
             rarity = "Uncommon Geode!";
             rarityClass = 'uncommon';
-            reward = baseReward * 5;
+            reward = baseReward * 10; // 10k dust
             rewardText = `+ ${formatNumber(reward)} Dust!`;
-        } else { // Common Geode
+            gameState.dust += reward;
+
+        } else {
+            // ⚪ Common Geode
             rarity = "Common Geode";
             rarityClass = 'common';
-            reward = baseReward * 2;
+            reward = baseReward * 3; // 3k dust
             rewardText = `+ ${formatNumber(reward)} Dust!`;
+            gameState.dust += reward;
         }
-        gameState.dust += reward;
-        if (gameState.hatchProgress < gameState.hatchGoal) {
-            gameState.hatchProgress += reward;
-            if (gameState.hatchProgress > gameState.hatchGoal) {
-                gameState.hatchProgress = gameState.hatchGoal;
-            }
-        }
-        const geodeEffect = document.createElement('div');
-        geodeEffect.className = `geode-effect ${rarityClass}`;
-        geodeEffect.innerHTML = `${rarity}<br>${rewardText}`;
-        geodeEffect.style.left = `${Math.random() * 40 + 30}%`;
-        clickEffectContainer.appendChild(geodeEffect);
-        setTimeout(() => { geodeEffect.remove(); }, 2000);
-        golemEgg.classList.add('egg-wobble');
+
+        // ✨ Visual feedback
+        const geodeMessage = document.createElement('div');
+        geodeMessage.className = `geode-effect ${rarityClass}`;
+        geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
+        document.body.appendChild(geodeMessage);
+
         setTimeout(() => {
-            golemEgg.classList.remove('egg-wobble');
-        }, 500);
-        tg.HapticFeedback.notificationOccurred('success');
+            geodeMessage.remove();
+        }, 3000);
+
+        // 🔔 Feedback
+        tg?.HapticFeedback?.notificationOccurred('success');
     }
+
     function startFrenzyMode() {
         if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
+
         golemEgg.classList.add('egg-frenzy');
-        multiplierButton.disabled = true;
         gameState.isFrenzyMode = true;
+
         let timeLeft = 15;
         frenzyTimerContainer.classList.remove('hidden');
         frenzyTimer.innerText = `${timeLeft}s`;
+
         tg.HapticFeedback.notificationOccurred('success');
+
         frenzyInterval = setInterval(() => {
             timeLeft--;
             frenzyTimer.innerText = `${timeLeft}s`;
@@ -701,19 +703,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 endFrenzyMode();
             }
         }, 1000);
+
         clearInterval(particleSpawnInterval);
         particleSystem.mode = "frenzy";
+
         const frenzyRate = particleSystem.baseRate * particleSystem.frenzyRateMultiplier;
         startParticleLoop(frenzyRate);
+
         updateUI();
     }
     function endFrenzyMode() {
         clearInterval(frenzyInterval);
         golemEgg.classList.remove('egg-frenzy');
-        multiplierButton.disabled = false;
-        gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 60000;
         frenzyTimerContainer.classList.add('hidden');
+        gameState.isFrenzyMode = false;
+        gameState.frenzyCooldownUntil = Date.now() + 120000; // 2-minute cooldown
         particleSystem.mode = "normal";
         startParticleLoop(particleSystem.baseRate);
         updateUI();
@@ -721,94 +725,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        if (!gameState.isFrenzyMode) {
-            // 1. VALIDATE: Check if there's enough energy
-            if (gameState.tapEnergy < gameState.tapMultiplier) {
-                const message = (gameState.tapEnergy === 0)
-                    ? 'Insufficient Energy'
-                    : 'Reduce the multiplier!';
-                temporaryMessage.innerText = message;
-                temporaryMessage.classList.remove('hidden');
-                setTimeout(() => temporaryMessage.classList.add('hidden'), 2500);
-                tg.HapticFeedback.notificationOccurred('error');
-                return;
-            }
+        // --- NEW: Anti-Macro Tap Cooldown ---
+        const now = Date.now();
+        const COOLDOWN_DURATION = 100; // 1000ms / 5 taps per second = 200ms
 
-            // 2. CONSUME: Use energy based on the multiplier
-            gameState.tapEnergy -= gameState.tapMultiplier;
-            if (gameState.tapEnergy < 0) gameState.tapEnergy = 0;
-            const ONE_HOUR_IN_MS = 3600 * 1000;
-            if (gameState.tapEnergy === 0) {
-                gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
-            } else if (gameState.energyRechargeUntilTimestamp === 0) {
-                gameState.energyRechargeUntilTimestamp = Date.now() + ONE_HOUR_IN_MS;
-            }
+        // Check if enough time has passed since the last successful tap.
+        if (now - gameState.lastTapTimestamp < COOLDOWN_DURATION) {
+            return; // If not, ignore this tap and do nothing else.
         }
-
-        // --- REWARD LOGIC: Applies to ALL taps ---
-        // 3. CALCULATE REWARD: Multiplier is applied first
-        let dustEarned = gameState.dustPerTap * gameState.tapMultiplier;
+        // If the tap is allowed, update the timestamp to the current time.
+        gameState.lastTapTimestamp = now;
+        let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
-        // 4. APPLY BONUSES: Frenzy and Criticals apply to the multiplied amount
+        // --- FRENZY / CRITICAL / GEODE EVENTS ---
         if (gameState.isFrenzyMode) {
             isCritical = true;
             dustEarned *= 2;
         } else {
+            // 0.5% chance to trigger frenzy mode
             if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005) {
                 startFrenzyMode();
                 return;
             }
+            // small chance to spawn a geode
             if (Math.random() < getGeodeChance()) {
                 handleGeodeEvent();
                 return;
             }
+            // 10% chance of critical tap (double dust + wobble)
             if (Math.random() < 0.10) {
                 isCritical = true;
                 dustEarned *= 2;
                 golemEgg.classList.add('egg-wobble');
-                setTimeout(() => {
-                    golemEgg.classList.remove('egg-wobble');
-                }, 500);
+                setTimeout(() => golemEgg.classList.remove('egg-wobble'), 500);
             }
         }
 
-        // --- MINI SLOT TRIGGER WITH TAP COOLDOWN ---
+        // --- MINI-SLOT TRIGGER WITH TAP COOLDOWN ---
         if (!slotActive && !gameState.isFrenzyMode) {
-            // Count this tap toward the cooldown (only successful taps reach here)
             gameState.tapsSinceLastSpin = (gameState.tapsSinceLastSpin || 0) + 1;
-            const chanceMap = { 1: 0.01, 10: 0.015, 20: 0.02, 50: 0.03 };
-            const chance = (chanceMap[gameState.tapMultiplier] || 0);
+            const SPIN_BASE_CHANCE = 0.02; // 2% base chance per eligible tap sequence
             const roll = Math.random();
-            if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < chance) {
+            if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < SPIN_BASE_CHANCE) {
                 gameState.tapsSinceLastSpin = 0;
                 spawnTreasureBox();
             }
         }
 
-        // 5. UPDATE GAME STATE & VISUALS 
-        if (gameState.hatchProgress < gameState.hatchGoal) {
-            gameState.hatchProgress += dustEarned;
-            if (gameState.hatchProgress > gameState.hatchGoal) {
-                gameState.hatchProgress = gameState.hatchGoal;
+        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION ---
+        // The 'dustEarned' variable already has the correct value,
+        // whether it's a normal, critical, or frenzy tap.
+        // So we use it for everything.
+
+        // --- Progress and rewards ---
+        if (gameState.egg.progress < gameState.egg.goal) {
+            gameState.egg.progress += dustEarned; // Use the correct value
+            if (gameState.egg.progress > gameState.egg.goal) {
+                gameState.egg.progress = gameState.egg.goal;
             }
+            // Gain dust equal to the correct value
+            gameState.dust += dustEarned;
+            updateUI();
         }
-        gameState.dust += dustEarned;
+
+        // --- HAPTIC FEEDBACK ---
         if (isCritical) {
             tg.HapticFeedback.notificationOccurred('warning');
         } else {
             tg.HapticFeedback.impactOccurred('light');
         }
+
+        // --- TAP EFFECT VISUAL ---
         const effect = document.createElement('div');
         effect.className = 'click-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
-        if (isCritical) {
-            effect.classList.add('critical');
-        }
+        if (isCritical) effect.classList.add('critical');
         effect.style.left = `${Math.random() * 60 + 20}%`;
         clickEffectContainer.appendChild(effect);
-        setTimeout(() => { effect.remove(); }, 1000);
-        updateUI();
+        setTimeout(() => effect.remove(), 1000);
+    });
+
+    // --- New: Press and Hold to Hatch Logic ---
+
+    function startHatchHold() {
+        // Only start the timer if the egg is actually ready to hatch
+        if (gameState.egg.progress >= gameState.egg.goal) {
+            // After 5 seconds (5000 milliseconds), call the hatchEgg function
+            hatchHoldTimer = setTimeout(hatchEgg, 5000);
+        }
+    }
+
+    function cancelHatchHold() {
+        // If the player lets go, clear the timer to prevent hatching
+        clearTimeout(hatchHoldTimer);
+    }
+
+    // Add listeners for both mouse and touch screens
+    golemEgg.addEventListener('mousedown', startHatchHold);
+    golemEgg.addEventListener('mouseup', cancelHatchHold);
+    golemEgg.addEventListener('mouseleave', cancelHatchHold); // Also cancel if mouse leaves the egg
+
+    golemEgg.addEventListener('touchstart', startHatchHold);
+    golemEgg.addEventListener('touchend', cancelHatchHold);
+
+    // Prevent the context menu on all images
+    document.querySelectorAll('img').forEach(image => {
+        image.addEventListener('contextmenu', event => event.preventDefault());
     });
 
     settingsButton.addEventListener('click', () => {
@@ -844,12 +867,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
     buyChiselButton.addEventListener('click', () => {
-        if (gameState.chiselLevel >= 20) return;
+        if (gameState.chiselLevel >= 10) return; // reduced max to 10
         const cost = getChiselCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.chiselLevel++;
-            gameState.dustPerTap++;
+            gameState.dustPerTap = gameState.chiselLevel; // keep synced with chisel level
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }
@@ -877,57 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }
-    });
-
-    buyRechargeButton.addEventListener('click', () => {
-        const rechargesLeft = 3 - gameState.dailyRechargesUsed;
-        if (rechargesLeft <= 0) return;
-        const cost = getRechargeCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.dailyRechargesUsed++;
-            gameState.currentBattery += gameState.batteryCapacity * 0.5;
-            if (gameState.currentBattery > gameState.batteryCapacity) {
-                gameState.currentBattery = gameState.batteryCapacity;
-            }
-            updateUI();
-            tg.HapticFeedback.notificationOccurred('success');
-        } else {
-            tg.HapticFeedback.notificationOccurred('error');
-        }
-    });
-
-    buyEnergyButton.addEventListener('click', () => {
-        if (gameState.energyLevel >= 10) return;
-        const cost = getEnergyCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.energyLevel++;
-            gameState.maxTapEnergy = 2000 + ((gameState.energyLevel - 1) * 500);
-            updateUI();
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
-    multiplierButton.addEventListener('click', () => {
-        switch (gameState.tapMultiplier) {
-            case 1:
-                gameState.tapMultiplier = 10;
-                break;
-            case 10:
-                gameState.tapMultiplier = 20;
-                break;
-            case 20:
-                gameState.tapMultiplier = 50;
-                break;
-            case 50:
-                gameState.tapMultiplier = 1;
-                break;
-            default:
-                gameState.tapMultiplier = 1;
-        }
-        updateUI();
-        tg.HapticFeedback.impactOccurred('light');
     });
 
     function spawnParticle() {
@@ -981,75 +953,102 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleSlotResult(results) {
         const [r1, r2, r3] = results;
-        const win = (slotSymbols[r1].name === slotSymbols[r2].name && slotSymbols[r2].name === slotSymbols[r3].name);
+        const win = (
+            slotSymbols[r1].name === slotSymbols[r2].name &&
+            slotSymbols[r2].name === slotSymbols[r3].name
+        );
 
         if (tg && tg.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred(win ? 'success' : 'warning');
         }
+
+        let rewardDisplayHtml = '';
+
         if (win) {
             const winningSymbolName = slotSymbols[r1].name;
-            let rewardDisplayHtml = '';
+
             if (winningSymbolName === 'crystaldust') {
-                let dustReward = 0;
-                switch (gameState.tapMultiplier) {
-                    case 1: dustReward = 5000; break;
-                    case 10: dustReward = 10000; break;
-                    case 20: dustReward = 20000; break;
-                    case 50: dustReward = 50000; break;
-                    default: dustReward = 5000;
-                }
+                // 🔹 Fixed Crystal Dust reward
+                const dustReward = 30000;
                 gameState.dust += dustReward;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+
             } else if (winningSymbolName === 'geode') {
-                let dustReward = 0;
-                switch (gameState.tapMultiplier) {
-                    case 1: dustReward = 10000; break;
-                    case 10: dustReward = 50000; break;
-                    case 20: dustReward = 100000; break;
-                    case 50: dustReward = 500000; break;
-                    default: dustReward = 10000;
-                }
+                // 🔹 Geode win gives dust + geodes
+                const dustReward = 100000;
+                const rareGeodesWon = 3;
                 gameState.dust += dustReward;
-                const rareGeodesWon = 5;
-                gameState.geodesFoundToday += rareGeodesWon;
+                gameState.geodesFoundToday = (gameState.geodesFoundToday || 0) + rareGeodesWon;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+
             } else if (winningSymbolName === 'gem') {
-                let gemReward = 0;
-                switch (gameState.tapMultiplier) {
-                    case 1: gemReward = 1; break;
-                    case 10: gemReward = 3; break;
-                    case 20: gemReward = 5; break;
-                    case 50: gemReward = 10; break;
-                    default: gemReward = 1;
-                }
+                // 🔹 Gem win gives gem shards
+                const gemReward = 5;
                 gameState.gemShards += gemReward;
                 rewardDisplayHtml = `${gemReward} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" class="slot-icon-small">`;
             }
+
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
+
         } else {
-            let dustReward = 0;
-            switch (gameState.tapMultiplier) {
-                case 1: dustReward = 500; break;
-                case 10: dustReward = 1000; break;
-                case 20: dustReward = 2000; break;
-                case 50: dustReward = 5000; break;
-                default: dustReward = 500;
-            }
+            // ❌ Lose case
+            let dustReward = 5000;
             gameState.dust += dustReward;
-
             const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
-
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
         }
 
+        // Show result
         slotResult.classList.remove("hidden");
         slotResult.classList.add("show");
 
+        // Allow click to close slot overlay
         slotOverlay.addEventListener("click", () => {
             closeSlot();
         }, { once: true });
+    }
+
+    function hatchEgg() {
+        const currentLevelIndex = gameState.egg.level - 1;
+        const config = DEFAULT_EGG_LEVELS[currentLevelIndex] || DEFAULT_EGG_LEVELS[DEFAULT_EGG_LEVELS.length - 1];
+
+        // Give dust reward
+        gameState.dust += config.rewardDust;
+
+        // Level up
+        if (gameState.egg.level < 10) {
+            gameState.egg.level++;
+        } else {
+            // Loop at level 10 forever
+            gameState.egg.level = 10;
+        }
+
+        // Reset progress to 0 and update new goal
+        const newConfig = DEFAULT_EGG_LEVELS[Math.min(gameState.egg.level - 1, DEFAULT_EGG_LEVELS.length - 1)];
+        gameState.egg.progress = 0;
+        gameState.egg.goal = newConfig.tapsRequired;
+
+        // UI feedback
+        // --- Show Level-Up Reward Popup ---
+        const levelupPopup = document.getElementById('levelup-popup');
+        levelupPopup.innerHTML = `
+  <div class="levelup-title">🌟 Level Up! 🌟</div>
+  <div class="levelup-reward">
+    +${formatWithCommas(config.rewardDust)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon">
+  </div>
+`;
+        levelupPopup.classList.remove('hidden');
+        levelupPopup.classList.add('show');
+
+        // Hide after 2.5s
+        setTimeout(() => {
+            levelupPopup.classList.remove('show');
+            setTimeout(() => levelupPopup.classList.add('hidden'), 600);
+        }, 2500);
+        tg.HapticFeedback.notificationOccurred('success');
+        document.getElementById('hatch-overlay').classList.add('hidden');
     }
 
     // This is the existing block for the "Welcome Back" modal
@@ -1070,6 +1069,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
+    // --- New Drone Claim Event Listener ---
+    const batteryDisplayContainer = batteryStatus.parentElement;
+    batteryDisplayContainer.addEventListener('click', () => {
+        // 1. First, check if the player even owns a drone.
+        if (gameState.droneLevel === 0) return;
+
+        // 2. Then, check if the cooldown is actually finished.
+        const now = Date.now();
+        if (now < gameState.droneCooldownEndTimestamp) {
+            // Optional: Give feedback that it's not ready yet.
+            console.log("Drone reward is not ready yet.");
+            tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
+
+        // 3. Calculate the reward. It's the drone's power multiplied by the full cooldown duration.
+        const dustEarned = gameState.dustPerSecond * gameState.batteryCapacity;
+        gameState.dust += dustEarned;
+
+        // 4. Give the player satisfying feedback!
+        tg.HapticFeedback.notificationOccurred('success');
+
+        // Get the exact position of the dust counter on the screen
+        const dustCounterRect = dustCounter.getBoundingClientRect();
+
+        const effect = document.createElement('div');
+        effect.className = 'click-effect';
+        effect.innerText = `+${formatNumber(dustEarned)}`;
+        effect.style.position = 'fixed'; // Use 'fixed' for positioning relative to the viewport
+        effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`; // Center it horizontally
+        effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;  // Center it vertically
+        effect.style.color = '#87CEEB';
+        effect.style.transform = 'translateX(-50%)'; // Fine-tune horizontal centering
+        effect.style.textShadow = '0 0 5px #00BFFF';
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 4000);
+
+
+        // 5. IMPORTANT: Reset the cooldown for the next cycle.
+        gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
+
+        // 6. Instantly update the UI to show the new timer.
+        updateUI();
+    });
+
     // --- INITIALIZE GAME ---
 
     const isNewPlayer = loadGame();
@@ -1082,7 +1126,8 @@ document.addEventListener('DOMContentLoaded', () => {
     handleDailyLogin();
     updateUI();
     setInterval(gameLoop, 1000);
-    setInterval(saveGame, 3000);
+    setInterval(saveGame, 600000);
+    window.addEventListener('beforeunload', saveGame);
     particleSpawnInterval = setInterval(spawnParticle, 500);
     // === DEVELOPER CHEATS ===
     document.addEventListener('keydown', (e) => {
@@ -1113,21 +1158,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
 
-            // 🔋 Refill energy instantly
-            case 'e':
-                console.log('[DEV] Energy refilled to max.');
-                gameState.tapEnergy = gameState.maxTapEnergy;
-                updateUI?.();
-                break;
-
-            // 🪫 Drain energy instantly
-            case 'd':
-                console.log('[DEV] Energy drained to 0.');
-                gameState.tapEnergy = 0;
-                gameState.energyRechargeUntilTimestamp = Date.now() + 10000; // 10s recharge
-                updateUI?.();
-                break;
-
             // 💎 Add gems
             case 'g':
                 console.log('[DEV] +10 Gems');
@@ -1146,6 +1176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 't':
                 console.log('[DEV] Spawning treasure box manually...');
                 spawnTreasureBox();
+                gameState.tapsSinceLastSpin = 0;
                 break;
 
             // 📅 Force daily login    

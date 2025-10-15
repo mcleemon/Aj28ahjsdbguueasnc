@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.3">
+    <link rel="stylesheet" href="style.css?v=2.13.4">
 </head>
 
 <body>
@@ -62,6 +62,8 @@
                 <img id="golem-egg" class="golem-egg egg-image"
                     src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
                     alt="Golem Egg">
+                <div id="hatch-overlay" class="hatch-overlay hidden">Hatch!<br>Press and Hold!</div>
+                <div id="levelup-popup" class="levelup-popup hidden"></div>
             </div>
             <div id="click-effect-container"></div>
             <div id="slot-popup" class="slot-popup hidden">
@@ -75,15 +77,12 @@
                 <span class="label">Hatch Progress</span>
                 <span id="progress-text">0 / 10000</span>
             </div>
-        </div>
-        <div class="energy-container">
-            <span class="label">⚡Tap Energy⚡</span>
-            <div class="progress-bar-outline">
-                <div id="energy-bar-fill" class="progress-bar-fill energy-bar"></div>
+            <div class="level-display">
+                <span class="label">Egg Level</span>
+                <div id="egg-level-text" style="font-weight:bold; margin-top:4px;">Lv. 1</div>
             </div>
-            <span id="energy-text">2000 / 2000</span>
+
         </div>
-        <button id="multiplier-button">Multiplier: <span id="multiplier-text">x1</span></button>
         <div class="button-bar">
             <button id="upgrade-button">Upgrade</button>
             <button id="new-shop-button" disabled>Shop</button>
@@ -129,26 +128,6 @@
                         Upgrade (Cost: <span id="battery-cost">1K</span>)
                     </button>
                 </div>
-
-                <div class="upgrade-item">
-                    <h3>Energy Core</h3>
-                    <p>Level: <span id="energy-level">1</span></p>
-                    <p>Boosts Max Energy</p>
-                    <p>Rate: <span id="energy-effect">+2000 Max</span></p>
-                    <p class="next-level-preview">Next: <span id="energy-next-effect"></span></p>
-                    <button id="buy-energy-button">
-                        Upgrade (Cost: <span id="energy-cost">5K</span>)
-                    </button>
-                </div>
-
-                <div class="upgrade-item">
-                    <h3>Recharge Drone</h3>
-                    <p>Restores 50% of drone battery</p>
-                    <p>Recharges Left Today: <span id="recharge-count">3</span></p>
-                    <button id="buy-recharge-button">
-                        Recharge (Cost: <span id="recharge-cost">1000</span>)
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -158,11 +137,9 @@
                 src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
                 alt="Login Reward Frame">
             <div class="modal-text-content">
-                <img id="daily-login-title"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
-                    alt="Daily Login!">
-                <p>Your streak is <strong id="reward-streak">1</strong> Day!</p>
-                <p>You received <span id="reward-amount"></span></p>
+                <img id="welcome-back-title"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
+                    alt="Welcome Back">
             </div>
         </div>
     </div>
@@ -204,12 +181,6 @@
                 <img id="welcome-back-title"
                     src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
                     alt="Welcome Back">
-                <p>Your Drone was busy while you were away!</p>
-                <p>It collected <strong id="offline-dust-amount">0</strong> <img
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                        class="inline-icon" alt="Crystal Dust"></p>
-                <p class="time-passed-label">in <strong id="offline-time-passed">0 Minutes</strong></p>
-
             </div>
         </div>
     </div>
@@ -236,7 +207,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.3"></script>
+    <script src="script.js?v=2.13.4"></script>
 
 </body>
 

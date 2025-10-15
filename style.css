@@ -114,10 +114,16 @@ button:active {
     text-align: center;
 }
 
+.progress-container,
+.level-display {
+    text-align: center;
+    margin-top: 6px;
+}
+
 .label {
     display: block;
     font-size: 12px;
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
 .egg-container {
@@ -169,17 +175,6 @@ button:active {
     width: 100%;
     text-align: center;
     margin-top: 10px;
-}
-
-.energy-container {
-    width: 100%;
-    text-align: center;
-    margin-top: 15px;
-}
-
-.progress-bar-fill.energy-bar {
-    background-color: #00bfff;
-
 }
 
 .button-bar {
@@ -466,26 +461,6 @@ button:active {
     }
 }
 
-#multiplier-button {
-    width: fit-content;
-    margin: 10px auto;
-    margin-bottom: 20px;
-    display: block;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#multiplier-button:active {
-    background-color: #34495e;
-}
-
 .temporary-message {
     position: absolute;
     bottom: 120px;
@@ -509,6 +484,52 @@ button:active {
 .egg-frenzy {
     animation: wobble 0.5s ease-in-out infinite;
 }
+
+/* --- READY TO HATCH OVERLAY --- */
+.hatch-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-family: 'Graduate', sans-serif;
+    font-size: 28px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px #00eaff;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px 20px;
+    border-radius: 15px;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.hatch-overlay.active {
+    opacity: 1;
+}
+
+/* --- LEVEL-UP POPUP --- */
+.levelup-popup {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Graduate', sans-serif;
+    color: #fff8e7;
+    text-align: center;
+    font-size: 28px;
+    text-shadow: 0 0 10px #ffd27f, 0 0 20px #ffae00;
+    opacity: 0;
+    z-index: 40;
+    pointer-events: none;
+    transition: opacity 0.6s, transform 0.6s;
+}
+
+.levelup-popup.show {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1.1);
+}
+
 
 @keyframes floatUpTransform {
     from {
@@ -651,7 +672,7 @@ button:active {
 
 .slot-machine {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     padding: 20px;
     border-radius: 12px;
     z-index: 1;
@@ -1225,6 +1246,48 @@ button:active {
 #next-reward-value .dust-amount-color {
     font-size: 18px;
     /* Adjust this value for the calendar reward only */
+}
+
+#battery-status.claimable {
+    color: #FFD700;
+    /* Gold color */
+    font-weight: bold;
+    animation: pulse-ready 1.5s infinite;
+    /* Re-use existing pulse animation */
+    cursor: pointer;
+}
+
+img {
+    /* Prevents the menu from appearing on long press (especially on iOS) */
+    -webkit-touch-callout: none;
+
+    /* Prevents the user from being able to select the image text/element */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* --- New Level-Up Popup Styles --- */
+.levelup-title {
+    font-size: 28px;
+    /* Keeps the title big and exciting */
+    font-weight: bold;
+}
+
+.levelup-reward {
+    font-size: 18px;
+    /* Makes the reward text smaller */
+    color: #87CEEB;
+    /* Uses the crystal dust color */
+    text-shadow: 0 0 5px #00BFFF;
+    /* Adds a blue glow */
+    margin-top: 8px;
+    /* Adds space between the lines */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 @keyframes shine {

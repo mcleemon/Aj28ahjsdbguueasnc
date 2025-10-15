@@ -1,6 +1,6 @@
 :root {
     --tg-theme-bg-color: #222;
-    --tg-theme-text-color: #eee;
+    --universal-text-color: #f0f0f0;
     --progress-bar-color: #6a5acd;
     --checked-in-color: #3e8e41;
     --geode-common-color: #ffffff;
@@ -14,7 +14,7 @@ body {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true');
     background-size: cover;
     background-position: center;
-    color: var(--tg-theme-text-color);
+    color: var(--universal-text-color);
     font-family: 'Nunito', sans-serif;
     display: flex;
     justify-content: center;
@@ -337,7 +337,7 @@ button:active {
     /* Crystal dust blue color */
     text-shadow: 0 0 5px #00BFFF;
     /* Blue glow */
-    animation: float-up 3s ease-out forwards;
+    animation: float-up 4s ease-out forwards;
     /* Slower 3-second animation */
 }
 
@@ -1274,11 +1274,25 @@ button:active {
 
 #battery-status.claimable {
     color: #FFD700;
-    /* Gold color */
     font-weight: bold;
     animation: pulse-ready 1.5s infinite;
-    /* Re-use existing pulse animation */
     cursor: pointer;
+
+    /* --- NEW STYLES TO ADD --- */
+    background-color: rgba(255, 215, 0, 0.25);
+    /* A semi-transparent gold */
+    padding: 1px 3px;
+    /* Adds some space around the text */
+    border-radius: 5px;
+    /* Rounds the corners */
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    /* A subtle gold border */
+    transition: background-color 0.3s ease;
+    /* Smooth transition */
+    position: relative;
+    /* Allows us to shift the element */
+    left: 8px;
+    /* Shifts the element 8px to the right */
 }
 
 img {

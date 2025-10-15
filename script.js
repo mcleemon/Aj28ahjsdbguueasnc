@@ -795,6 +795,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => effect.remove(), 1000);
     });
 
+    // New, more reliable save event for mobile devices
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            saveGame();
+        }
+    });
+
     // --- New: Press and Hold to Hatch Logic ---
 
     function startHatchHold() {
@@ -1044,6 +1051,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2500);
         tg.HapticFeedback.notificationOccurred('success');
         document.getElementById('hatch-overlay').classList.add('hidden');
+
+        saveGame();
     }
 
     // This is the existing block for the "Welcome Back" modal

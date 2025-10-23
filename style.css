@@ -42,8 +42,17 @@ button:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 15px;
-    padding-bottom: calc(15px + env(safe-area-inset-bottom));
+
+    /* === MODIFIED PADDING === */
+    /* We removed 'padding: 15px;' and set them individually */
+    padding-top: 100px;
+    /* Increase this (was 15px) to move top elements DOWN */
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    /* Increase this (was 15px) to move bottom elements UP */
+    /* === END MODIFICATION === */
+
     box-sizing: border-box;
     justify-content: space-between;
 }

@@ -45,11 +45,11 @@ button:active {
 
     /* === MODIFIED PADDING === */
     /* We removed 'padding: 15px;' and set them individually */
-    padding-top: 100px;
+    padding-top: 85px;
     /* Increase this (was 15px) to move top elements DOWN */
     padding-left: 15px;
     padding-right: 15px;
-    padding-bottom: calc(50px + env(safe-area-inset-bottom));
+    padding-bottom: calc(25px + env(safe-area-inset-bottom));
     /* Increase this (was 15px) to move bottom elements UP */
     /* === END MODIFICATION === */
 
@@ -496,18 +496,25 @@ button:active {
 
 .temporary-message {
     position: absolute;
-    bottom: 120px;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(231, 76, 60, 0.9);
-    color: white;
+    background-color: rgba(255, 193, 7, 0.8);
+    color: #000;
+    box-shadow: 0 0 10px #ffc107;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
     padding: 10px 20px;
     border-radius: 20px;
-    font-size: 14px;
     font-weight: bold;
     z-index: 110;
     pointer-events: none;
-    animation: fade-in-fall-out 2.5s ease-in-out forwards;
+}
+
+/* This class will trigger the fade-in */
+.temporary-message.show {
+    opacity: 1;
 }
 
 .egg-wobble {
@@ -921,15 +928,72 @@ button:active {
 }
 
 .settings-modal-content {
-    background-color: #3e4a61;
-    padding: 20px;
-    border-radius: 15px;
-    width: 85%;
-    max-width: 320px;
     position: relative;
+    width: min(90vw, 540px);
+    aspect-ratio: 2 / 3;
+    /* Using the same vertical ratio as calendar */
+
+    /* === PLACEHOLDER IMAGE === */
+    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true") center/contain no-repeat;
+
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+    padding: 0;
+
+    /* These override generic .modal-content styles */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 400px;
+    max-height: 400px;
+}
+
+/* This positions the content inside the new settings frame */
+#settings-modal .modal-inner {
+    position: absolute;
+    top: 35%;
+    left: 17%;
+    width: 66%;
+    height: 81%;
     text-align: center;
-    border: 2px solid #a9c1d9;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    /* Adds space between the title and buttons */
+}
+
+/* New style for your custom image buttons */
+.settings-img-button {
+    /* Set the width; 160px is a good start */
+    width: 190px;
+    height: auto;
+    /* Maintain aspect ratio */
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.settings-img-button:active {
+    /* Adds a simple 'press' effect */
+    transform: scale(0.95);
+}
+
+/* This styles the settings close button */
+#close-settings-button {
+    z-index: 10;
+    left: 82%;
+    transform: translateX(-50%);
+    top: 28%;
+    /* Positioned at 88% from the top */
+    width: 30px;
+    height: 29px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    font-size: 0;
 }
 
 .game-container {
@@ -1418,33 +1482,6 @@ img {
 
     75% {
         transform: translateX(-1px) rotate(0deg);
-    }
-}
-
-@keyframes fade-in-fall-out {
-    0% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(10px);
-    }
-
-    20% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    70% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    90% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(20px);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
     }
 }
 

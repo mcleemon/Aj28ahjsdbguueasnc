@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotReels = document.querySelectorAll(".symbols");
 
     let slotActive = false;
+    let frenzyAccumulatedDust = 0;
     let hatchHoldTimer = null;
     let activeTreasureBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 50;
@@ -673,6 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         golemEgg.classList.add('egg-frenzy');
         gameState.isFrenzyMode = true;
+        frenzyAccumulatedDust = 0;
 
         let timeLeft = 15;
         frenzyTimerContainer.classList.remove('hidden');
@@ -702,6 +704,24 @@ document.addEventListener('DOMContentLoaded', () => {
         frenzyTimerContainer.classList.add('hidden');
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 120000; // 2-minute cooldown
+        if (frenzyAccumulatedDust > 0) {
+            const iconHtml = `<img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">`;
+            temporaryMessage.innerHTML = `You got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
+
+            // 1. Make it visible and fade it IN
+            temporaryMessage.classList.remove('hidden'); // Removes display:none
+            temporaryMessage.classList.add('show');     // Fades opacity to 1
+
+            // 2. Set a timer to fade it OUT after 2.7s
+            setTimeout(() => {
+                temporaryMessage.classList.remove('show'); // Fades opacity to 0
+            }, 2700); // 2.7 seconds
+
+            // 3. Set a final timer to HIDE it after 3s total
+            setTimeout(() => {
+                temporaryMessage.classList.add('hidden'); // Sets display:none
+            }, 3000); // 3 seconds
+        }
         particleSystem.mode = "normal";
         startParticleLoop(particleSystem.baseRate);
         updateUI();
@@ -731,6 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.isFrenzyMode) {
             isCritical = true;
             dustEarned *= 2;
+            frenzyAccumulatedDust += dustEarned;
         } else {
             // 0.5% chance to trigger frenzy mode
             if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005) {

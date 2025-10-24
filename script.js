@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     if (typeof tg.expand === 'function') tg.expand();
+    if (typeof tg.enableClosingConfirmation === 'function') {
+        tg.enableClosingConfirmation();
+    }
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
@@ -54,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let slotActive = false;
     let frenzyAccumulatedDust = 0;
+    let saveTimer = null;
     let hatchHoldTimer = null;
     let activeTreasureBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 50;
@@ -729,7 +733,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
-        // --- NEW: Anti-Macro Tap Cooldown ---
+        clearTimeout(saveTimer); // Clear any existing save timer
+        saveTimer = setTimeout(saveGame, 4000); // Set a new 3-second timer
         const now = Date.now();
         const COOLDOWN_DURATION = 100; // 1000ms / 5 taps per second = 200ms
 
@@ -1147,7 +1152,6 @@ document.addEventListener('DOMContentLoaded', () => {
     handleDailyLogin();
     updateUI();
     setInterval(gameLoop, 1000);
-    setInterval(saveGame, 10000);
     window.addEventListener('beforeunload', saveGame);
     particleSpawnInterval = setInterval(spawnParticle, 500);
     // === DEVELOPER CHEATS ===

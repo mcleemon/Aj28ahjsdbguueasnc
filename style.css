@@ -1395,6 +1395,11 @@ img {
     font-size: 20px;
 }
 
+/* Removes tap highlight from all images */
+img {
+    -webkit-tap-highlight-color: transparent;
+}
+
 @keyframes shine {
     0% {
         background-position: -100% 0;

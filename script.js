@@ -13,16 +13,28 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.enableClosingConfirmation();
     }
     try {
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
-            const playerNameElement = document.getElementById('player-name');
-            if (playerNameElement) {
-                // Use the user's Telegram first name
-                playerNameElement.innerText = tg.initDataUnsafe.user.first_name;
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+
+            // Load the user's name (like before)
+            if (tg.initDataUnsafe.user.first_name) {
+                const playerNameElement = document.getElementById('player-name');
+                if (playerNameElement) {
+                    playerNameElement.innerText = tg.initDataUnsafe.user.first_name;
+                }
             }
+
+            // --- NEW: Load Profile Picture ---
+            if (tg.initDataUnsafe.user.photo_url) {
+                const avatarFrame = document.querySelector('.avatar-frame');
+                if (avatarFrame) {
+                    // Set the background image of the div to the user's photo
+                    avatarFrame.style.backgroundImage = `url(${tg.initDataUnsafe.user.photo_url})`;
+                }
+            }
+            // --- END OF NEW CODE ---
         }
     } catch (error) {
         console.error("Failed to load user info:", error);
-        // The name will just stay "Test-User" if this fails
     }
 
     // --- DOM ELEMENTS ---
@@ -796,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS ---
     golemEgg.addEventListener('click', () => {
         clearTimeout(saveTimer); // Clear any existing save timer
-        saveTimer = setTimeout(saveGame, 4000); // Set a new 3-second timer
+        saveTimer = setTimeout(saveGame, 3000); // Set a new 3-second timer
         const now = Date.now();
         const COOLDOWN_DURATION = 100; // 1000ms / 5 taps per second = 200ms
 
@@ -1216,6 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         handleDailyLogin();
         updateUI();
         setInterval(gameLoop, 1000);
+        setInterval(saveGame, 5000);
         // We keep the idle save timer we made
         window.addEventListener('beforeunload', saveGame);
         particleSpawnInterval = setInterval(spawnParticle, 500);

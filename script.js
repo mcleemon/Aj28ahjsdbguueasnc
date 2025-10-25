@@ -951,6 +951,16 @@ document.addEventListener('DOMContentLoaded', () => {
             upgradeModal.classList.remove('closing');
         }, 300);
     });
+
+    // --- This is your original 'open' listener, with two lines added ---
+    upgradeButton.addEventListener('click', () => {
+        upgradeModal.classList.remove('hidden');
+        tg.BackButton.show(); // ✨ Show the back button
+        tg.BackButton.onClick(closeUpgrade); // ✨ Tell it to use closeUpgrade
+    });
+
+    // --- Make your 'X' button use the new function ---
+    closeUpgradeButton.addEventListener('click', closeUpgrade);
     calendarButton.addEventListener('click', () => {
         updateCalendarModal();
         calendarModal.classList.remove('hidden');

@@ -80,7 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let saveTimer = null;
     let hatchHoldTimer = null;
     let activeTreasureBox = null;
+    let activeGeodeBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 50;
+    const MIN_TAPS_BETWEEN_GEODES = 50;
 
     // --- GAME STATE ---
     let gameState = {
@@ -107,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isFrenzyMode: false,
         frenzyCooldownUntil: 0,
         tapsSinceLastSpin: 0,
+        tapsSinceLastGeode: 0,
         lastTapTimestamp: 0 // ✨ ADD THIS LINE
     };
 
@@ -312,6 +315,20 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTreasureBox = null;
     }
 
+    function removeGeodeBox() {
+        if (!activeGeodeBox) return;
+        try {
+            if (activeGeodeBox._geoClickHandler) {
+                // Use the new handler name we'll create
+                activeGeodeBox.removeEventListener('click', activeGeodeBox._geoClickHandler);
+            }
+        } catch (e) {
+        }
+        // We won't add particles to the geode, so we just remove the box
+        activeGeodeBox.remove();
+        activeGeodeBox = null;
+    }
+
     function isAnyModalOpen() {
         const modals = document.querySelectorAll('.modal');
         for (const modal of modals) {
@@ -389,6 +406,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             spawnTreasureParticle(box);
         }, 700);
+    }
+
+    function spawnGeode() {
+        // Prevent spawning if a box (of either type) or modal is already open
+        if (activeGeodeBox || slotActive || gameState.isFrenzyMode) return;
+        if (isAnyModalOpen()) return;
+
+        const container = document.querySelector('.game-container');
+        if (!container) return;
+
+        // 1. Create the geode box element
+        const box = document.createElement('div');
+        box.className = 'geode-box'; // Use our new CSS class
+        const inner = document.createElement('div');
+        inner.className = 'geode-box-inner'; // Use the inner class for shaking
+        const img = document.createElement('img');
+        // 2. Use the geode image
+        img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true';
+        img.alt = 'Geode';
+        inner.appendChild(img);
+        box.appendChild(inner);
+
+        // 3. Define the click handler
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            removeGeodeBox();     // Remove this geode
+            handleGeodeEvent();   // Call your existing reward function!
+        };
+        box._geoClickHandler = clickHandler; // Use the new handler name
+        box.addEventListener('click', clickHandler, { passive: true });
+
+        container.appendChild(box);
+        activeGeodeBox = box; // Set the global variable
+
+        // 4. Position it randomly (same logic as treasure box)
+        const header = document.querySelector('.header-container');
+        const bottomBar = document.querySelector('.button-bar');
+        const containerRect = container.getBoundingClientRect();
+        const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
+        const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
+
+        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50);
+        const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
+        const safeLeftMin = 16;
+        const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
+
+        const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
+        const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
+
+        box.style.left = `${randLeft + box.clientWidth / 2}px`;
+        box.style.top = `${randTop + box.clientHeight / 2}px`;
+
+        // No particle interval for the geode, we'll keep it simple
     }
 
     function formatCooldownTime(totalSeconds) {
@@ -669,20 +739,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fixed base reward (you can tune this easily)
         const baseReward = 1000;
 
-        if (prizeRoll < 0.01) {
+        if (prizeRoll < 0.02) {
             // 🎇 EPIC GEODE!
             rarity = "EPIC GEODE!";
             rarityClass = 'epic';
             reward = baseReward * 500; // 500k dust
-            rewardText = `+ ${formatNumber(reward)} Dust & 💠 1 Gem Shard!`;
-            gameState.gemShards += 1;
+            rewardText = `+ ${formatNumber(reward)} Dust & 💠 3 Gem Shard!`;
+            gameState.gemShards += 3;
             gameState.dust += reward;
 
-        } else if (prizeRoll < 0.05) {
+        } else if (prizeRoll < 0.10) {
             // 💎 Rare Geode!
             rarity = "Rare Geode!";
             rarityClass = 'rare';
-            reward = baseReward * 50; // 50k dust
+            reward = baseReward * 100;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
             gameState.dust += reward;
 
@@ -690,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 🟣 Uncommon Geode!
             rarity = "Uncommon Geode!";
             rarityClass = 'uncommon';
-            reward = baseReward * 10; // 10k dust
+            reward = baseReward * 50;
             rewardText = `+ ${formatNumber(reward)} Dust!`;
             gameState.dust += reward;
 
@@ -698,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // ⚪ Common Geode
             rarity = "Common Geode";
             rarityClass = 'common';
-            reward = baseReward * 3; // 3k dust
+            reward = baseReward * 5; // 5k dust
             rewardText = `+ ${formatNumber(reward)} Dust!`;
             gameState.dust += reward;
         }
@@ -711,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             geodeMessage.remove();
-        }, 3000);
+        }, 4000);
 
         // 🔔 Feedback
         tg?.HapticFeedback?.notificationOccurred('success');
@@ -807,10 +877,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 startFrenzyMode();
                 return;
             }
-            // small chance to spawn a geode
-            if (Math.random() < getGeodeChance()) {
-                handleGeodeEvent();
-                return;
+            gameState.tapsSinceLastGeode = (gameState.tapsSinceLastGeode || 0) + 1;
+            const geodeRoll = Math.random();
+
+            // 2. Check if taps are met AND the random roll passes
+            if (gameState.tapsSinceLastGeode >= MIN_TAPS_BETWEEN_GEODES && geodeRoll < getGeodeChance()) {
+                // 3. Reset counter and spawn
+                gameState.tapsSinceLastGeode = 0;
+                spawnGeode();
+                return; // Stop the rest of the tap logic
             }
             // 10% chance of critical tap (double dust + wobble)
             if (Math.random() < 0.10) {
@@ -1041,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (winningSymbolName === 'crystaldust') {
                 // 🔹 Fixed Crystal Dust reward
-                const dustReward = 30000;
+                const dustReward = 50000;
                 gameState.dust += dustReward;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
 
@@ -1065,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             // ❌ Lose case
-            let dustReward = 5000;
+            let dustReward = 10000;
             gameState.dust += dustReward;
             const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
@@ -1189,6 +1264,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGame((isNewPlayer) => {
         if (typeof gameState.tapsSinceLastSpin !== 'number') {
             gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
+        }
+        if (typeof gameState.tapsSinceLastGeode !== 'number') {
+            gameState.tapsSinceLastGeode = MIN_TAPS_BETWEEN_GEODES;
         }
         if (isNewPlayer) {
             saveGame();

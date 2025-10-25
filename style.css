@@ -418,8 +418,16 @@ button:active {
     font-size: 20px;
     font-weight: bold;
     pointer-events: none;
-    animation: float-up-geode 2s ease-out forwards;
+    animation: float-up-geode 3s ease-out forwards;
     text-shadow: 0 0 5px black;
+    text-align: center;
+    /* This centers the text */
+    transform: translateX(-50%);
+    /* This helps center the whole box */
+    /* We use 'fixed' so it floats over everything, even if the page scrolls */
+    position: fixed;
+    z-index: 200;
+    /* Make sure it's on top */
 }
 
 .geode-effect.common {
@@ -866,7 +874,7 @@ button:active {
 
 .slot-popup {
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
@@ -1074,6 +1082,39 @@ button:active {
 }
 
 .treasure-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.geode-box {
+    position: absolute;
+    z-index: 80;
+    width: 50px;
+    /* Geodes are a bit smaller */
+    height: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    /* Optional: Add a glow */
+    filter: drop-shadow(0 0 10px rgba(180, 180, 255, 0.7));
+}
+
+.geode-box-inner {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform-origin: 50% 50%;
+    animation: tb-shake 1s ease-in-out infinite;
+    /* Re-use the same shake animation */
+}
+
+.geode-box img {
     width: 100%;
     height: auto;
     display: block;

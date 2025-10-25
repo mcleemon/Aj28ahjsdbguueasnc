@@ -920,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     settingsButton.addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
-        tg.BackButton.show();
     });
 
     const closeSettingsButton = document.getElementById('close-settings-button');
@@ -931,12 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsModal.classList.remove('closing');
         }, 300);
     });
-
-    // Make your 'X' button use this new function
-    closeSettingsButton.addEventListener('click', closeSettings);
-
-    // ✨ ADD THIS LINE to make the Back Button work
-    tg.BackButton.onClick(closeSettings);
 
     upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
     closeUpgradeButton.addEventListener('click', () => {

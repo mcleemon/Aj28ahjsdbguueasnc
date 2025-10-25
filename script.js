@@ -37,39 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Failed to load user info:", error);
     }
 
-    // --- ✨ NEW DYNAMIC PADDING LOGIC ---
-
-    const gameContainer = document.querySelector('.game-container');
-
-    // Function to check viewport and apply padding
-    function adjustTopPadding() {
-        if (!tg || !tg.viewportHeight || !tg.viewportStableHeight || !gameContainer) {
-            // If API isn't ready or element not found, do nothing
-            return;
-        }
-
-        // Check if the current height is very close to the max possible height
-        // (Using a small tolerance like 5px for potential minor variations)
-        const isExpanded = tg.viewportHeight >= tg.viewportStableHeight - 5;
-
-        if (isExpanded) {
-            // Add the class for larger padding if expanded
-            gameContainer.classList.add('fullscreen-padding');
-        } else {
-            // Remove the class for smaller padding if not expanded
-            gameContainer.classList.remove('fullscreen-padding');
-        }
-    }
-
-    // Listen for viewport changes (like after tg.expand() finishes)
-    if (tg.onEvent) {
-        tg.onEvent('viewportChanged', adjustTopPadding);
-    }
-
-    // Run the check once immediately on load as well
-    // Use a small delay to allow initial viewport values to settle
-    setTimeout(adjustTopPadding, 100);
-
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');

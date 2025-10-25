@@ -8,30 +8,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 impactOccurred: () => { }
             }
         };
-    if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
-    if (typeof tg.enableClosingConfirmation === 'function') {
-        tg.enableClosingConfirmation();
-    }
     try {
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-
-            // Load the user's name (like before)
+            if (typeof tg.requestFullscreen === 'function') {
+                tg.requestFullscreen();
+            }
+            if (typeof tg.enableClosingConfirmation === 'function') {
+                tg.enableClosingConfirmation();
+            }
             if (tg.initDataUnsafe.user.first_name) {
                 const playerNameElement = document.getElementById('player-name');
                 if (playerNameElement) {
                     playerNameElement.innerText = tg.initDataUnsafe.user.first_name;
                 }
             }
-
-            // --- NEW: Load Profile Picture ---
             if (tg.initDataUnsafe.user.photo_url) {
                 const avatarFrame = document.querySelector('.avatar-frame');
                 if (avatarFrame) {
-                    // Set the background image of the div to the user's photo
                     avatarFrame.style.backgroundImage = `url(${tg.initDataUnsafe.user.photo_url})`;
                 }
             }
-            // --- END OF NEW CODE ---
         }
     } catch (error) {
         console.error("Failed to load user info:", error);
@@ -406,7 +402,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CORE FUNCTIONS ---
     function saveGame() {
         try {
-            // We still use localStorage for the backup, which is fine
             const currentSave = localStorage.getItem('golemEggGameState');
             if (currentSave) {
                 localStorage.setItem('golemEggGameState_previous', currentSave);
@@ -416,33 +411,23 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.checksum = generateChecksum(gameState);
             const saveString = JSON.stringify(gameState);
 
-            // --- NEW CLOUD STORAGE LOGIC ---
-            if (tg && tg.CloudStorage) {
-                // 1. Save the main file to the cloud
+            if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 tg.CloudStorage.setItem('golemEggGameState', saveString, (err) => {
                     if (err) {
                         console.error("Cloud save failed:", err);
-                        // Fallback: save to localStorage if cloud fails
                         localStorage.setItem('golemEggGameState', saveString);
                     } else {
-                        // console.log("Game saved to cloud!");
                     }
                 });
             } else {
-                // Fallback: save to localStorage if cloud isn't available
                 localStorage.setItem('golemEggGameState', saveString);
             }
-            // --- END NEW LOGIC ---
 
         } catch (error) {
             console.error("Failed to save game:", error);
         }
     }
-    // We add a 'callback' argument. This is the code that will run
-    // AFTER we finish loading.
     function loadGame(onLoadComplete) {
-
-        // This is your old helper function, it's still useful.
         const tryLoadingState = (savedJSON) => {
             if (!savedJSON) return false;
             const savedState = JSON.parse(savedJSON);
@@ -458,26 +443,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         };
 
-        // --- NEW CLOUD STORAGE LOGIC ---
-        if (tg && tg.CloudStorage) {
-            // 1. Try to get the cloud save file
+        if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
                 let isNew = true;
                 if (err) {
                     console.warn("Cloud load failed, trying localStorage...", err);
-                    // If cloud fails, try to load from localStorage as a backup
                     isNew = !tryLoadingState(localStorage.getItem('golemEggGameState'));
                 } else if (tryLoadingState(cloudSaveString)) {
-                    // 2. Success! We loaded from the cloud.
                     isNew = false;
                     console.log("Game loaded from cloud.");
                 } else {
-                    // 3. Cloud data was empty or corrupt, try localStorage backup
                     console.warn("Cloud data corrupt, trying localStorage...");
                     isNew = !tryLoadingState(localStorage.getItem('golemEggGameState_previous'));
                 }
-
-                // --- Handle offline progress (moved from old function) ---
                 if (!isNew) {
                     const now = Date.now();
                     const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
@@ -486,12 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     gameState.dustPerTap = gameState.chiselLevel || 1;
                 }
-
-                // 4. Finally, run the callback function with the result
                 onLoadComplete(isNew);
             });
         } else {
-            // --- FALLBACK: No CloudStorage, use old localStorage logic ---
             console.log("No cloud storage, using localStorage.");
             let isNew = true;
             try {
@@ -512,29 +487,24 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Critical error during local load:", error);
             }
-            // Run the callback with the result
             onLoadComplete(isNew);
         }
     }
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        // show egg progress and level instead of old hatch progress
         progressText.innerText = `${formatWithCommas(gameState.egg.progress)} / ${formatWithCommas(gameState.egg.goal)}`;
         const eggLevelText = document.getElementById('egg-level-text');
         if (eggLevelText) eggLevelText.innerText = `Lv. ${gameState.egg.level}`;
-        // --- New Drone Cooldown UI ---
         if (gameState.droneLevel === 0) {
             batteryStatus.innerText = '--:--';
             batteryStatus.classList.remove('claimable');
         } else {
             const now = Date.now();
             if (now >= gameState.droneCooldownEndTimestamp) {
-                // Cooldown is finished, ready to claim
                 batteryStatus.innerText = 'Claim';
                 batteryStatus.classList.add('claimable');
             } else {
-                // Cooldown is active, show the timer
                 const timeLeftInSeconds = Math.ceil((gameState.droneCooldownEndTimestamp - now) / 1000);
                 batteryStatus.innerText = formatCooldownTime(timeLeftInSeconds);
                 batteryStatus.classList.remove('claimable');
@@ -1217,24 +1187,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZE GAME ---
 
     loadGame((isNewPlayer) => {
-        // This is all your old code, just moved inside
         if (typeof gameState.tapsSinceLastSpin !== 'number') {
             gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
         }
         if (isNewPlayer) {
-            saveGame(); // Save the new game to the cloud
+            saveGame();
         }
 
         handleDailyLogin();
         updateUI();
+        if (typeof tg.ready === 'function') {
+            tg.ready();
+        }
         setInterval(gameLoop, 1000);
         setInterval(saveGame, 5000);
-        // We keep the idle save timer we made
         window.addEventListener('beforeunload', saveGame);
         particleSpawnInterval = setInterval(spawnParticle, 500);
 
         console.log("Game initialized.");
     });
+
     // === DEVELOPER CHEATS ===
     document.addEventListener('keydown', (e) => {
         if (!e.key) return;

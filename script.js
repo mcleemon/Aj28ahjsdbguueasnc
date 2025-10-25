@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 impactOccurred: () => { }
             }
         };
-    if (typeof tg.expand === 'function') tg.expand();
+    if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
     if (typeof tg.enableClosingConfirmation === 'function') {
         tg.enableClosingConfirmation();
     }

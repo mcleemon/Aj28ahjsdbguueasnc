@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof tg.enableClosingConfirmation === 'function') {
         tg.enableClosingConfirmation();
     }
+    try {
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
+            const playerNameElement = document.getElementById('player-name');
+            if (playerNameElement) {
+                // Use the user's Telegram first name
+                playerNameElement.innerText = tg.initDataUnsafe.user.first_name;
+            }
+        }
+    } catch (error) {
+        console.error("Failed to load user info:", error);
+        // The name will just stay "Test-User" if this fails
+    }
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
@@ -382,65 +394,115 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CORE FUNCTIONS ---
     function saveGame() {
         try {
+            // We still use localStorage for the backup, which is fine
             const currentSave = localStorage.getItem('golemEggGameState');
             if (currentSave) {
                 localStorage.setItem('golemEggGameState_previous', currentSave);
             }
+
             gameState.lastSavedTimestamp = Date.now();
             gameState.checksum = generateChecksum(gameState);
-            localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
+            const saveString = JSON.stringify(gameState);
+
+            // --- NEW CLOUD STORAGE LOGIC ---
+            if (tg && tg.CloudStorage) {
+                // 1. Save the main file to the cloud
+                tg.CloudStorage.setItem('golemEggGameState', saveString, (err) => {
+                    if (err) {
+                        console.error("Cloud save failed:", err);
+                        // Fallback: save to localStorage if cloud fails
+                        localStorage.setItem('golemEggGameState', saveString);
+                    } else {
+                        // console.log("Game saved to cloud!");
+                    }
+                });
+            } else {
+                // Fallback: save to localStorage if cloud isn't available
+                localStorage.setItem('golemEggGameState', saveString);
+            }
+            // --- END NEW LOGIC ---
+
         } catch (error) {
             console.error("Failed to save game:", error);
         }
     }
-    function loadGame() {
-        let isNew = true;
-        try {
-            const tryLoadingState = (stateKey) => {
-                const savedJSON = localStorage.getItem(stateKey);
-                if (!savedJSON) return false;
-                isNew = false;
-                const savedState = JSON.parse(savedJSON);
-                const expectedChecksum = generateChecksum(savedState);
-                if (savedState.checksum === expectedChecksum) {
-                    gameState = Object.assign(gameState, savedState);
-                    gameState.isFrenzyMode = false;
-                    if (gameState.hatchProgress > gameState.hatchGoal) {
-                        gameState.hatchProgress = gameState.hatchGoal;
+    // We add a 'callback' argument. This is the code that will run
+    // AFTER we finish loading.
+    function loadGame(onLoadComplete) {
+
+        // This is your old helper function, it's still useful.
+        const tryLoadingState = (savedJSON) => {
+            if (!savedJSON) return false;
+            const savedState = JSON.parse(savedJSON);
+            const expectedChecksum = generateChecksum(savedState);
+            if (savedState.checksum === expectedChecksum) {
+                gameState = Object.assign(gameState, savedState);
+                gameState.isFrenzyMode = false;
+                if (gameState.hatchProgress > gameState.hatchGoal) {
+                    gameState.hatchProgress = gameState.hatchGoal;
+                }
+                return true;
+            }
+            return false;
+        };
+
+        // --- NEW CLOUD STORAGE LOGIC ---
+        if (tg && tg.CloudStorage) {
+            // 1. Try to get the cloud save file
+            tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
+                let isNew = true;
+                if (err) {
+                    console.warn("Cloud load failed, trying localStorage...", err);
+                    // If cloud fails, try to load from localStorage as a backup
+                    isNew = !tryLoadingState(localStorage.getItem('golemEggGameState'));
+                } else if (tryLoadingState(cloudSaveString)) {
+                    // 2. Success! We loaded from the cloud.
+                    isNew = false;
+                    console.log("Game loaded from cloud.");
+                } else {
+                    // 3. Cloud data was empty or corrupt, try localStorage backup
+                    console.warn("Cloud data corrupt, trying localStorage...");
+                    isNew = !tryLoadingState(localStorage.getItem('golemEggGameState_previous'));
+                }
+
+                // --- Handle offline progress (moved from old function) ---
+                if (!isNew) {
+                    const now = Date.now();
+                    const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                    if (timePassedInSeconds > 300) {
+                        offlineProgressModal.classList.remove('hidden');
                     }
-                    return true;
+                    gameState.dustPerTap = gameState.chiselLevel || 1;
                 }
-                return false;
-            };
-            if (tryLoadingState('golemEggGameState')) {
-                const now = Date.now();
-                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-                // If the player was away for more than 5 minutes (300 seconds), show the welcome back modal.
-                if (timePassedInSeconds > 300) {
-                    offlineProgressModal.classList.remove('hidden');
+
+                // 4. Finally, run the callback function with the result
+                onLoadComplete(isNew);
+            });
+        } else {
+            // --- FALLBACK: No CloudStorage, use old localStorage logic ---
+            console.log("No cloud storage, using localStorage.");
+            let isNew = true;
+            try {
+                if (tryLoadingState(localStorage.getItem('golemEggGameState'))) {
+                    isNew = false;
+                } else if (tryLoadingState(localStorage.getItem('golemEggGameState_previous'))) {
+                    console.warn("Main save corrupt, loaded backup.");
+                    isNew = false;
                 }
-                // 🔹 Ensure consistency between chisel and tap power
-                gameState.dustPerTap = gameState.chiselLevel || 1;
-                return false;
-            }
-            console.warn("Main save file corrupt or tampered. Trying backup.");
-            if (tryLoadingState('golemEggGameState_previous')) {
-                const now = Date.now();
-                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-                // If the player was away for more than 5 minutes (300 seconds), show the welcome back modal.
-                if (timePassedInSeconds > 300) {
-                    offlineProgressModal.classList.remove('hidden');
+                if (!isNew) {
+                    const now = Date.now();
+                    const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                    if (timePassedInSeconds > 300) {
+                        offlineProgressModal.classList.remove('hidden');
+                    }
+                    gameState.dustPerTap = gameState.chiselLevel || 1;
                 }
-                return false;
+            } catch (error) {
+                console.error("Critical error during local load:", error);
             }
-            if (localStorage.getItem('golemEggGameState')) {
-                console.error("Both save files are corrupt or have been tampered with.");
-                cheatModal.classList.remove('hidden');
-            }
-        } catch (error) {
-            console.error("Critical error during game load:", error);
+            // Run the callback with the result
+            onLoadComplete(isNew);
         }
-        return isNew;
     }
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
@@ -858,6 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     settingsButton.addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
+        tg.BackButton.show();
     });
 
     const closeSettingsButton = document.getElementById('close-settings-button');
@@ -868,6 +931,12 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsModal.classList.remove('closing');
         }, 300);
     });
+
+    // Make your 'X' button use this new function
+    closeSettingsButton.addEventListener('click', closeSettings);
+
+    // ✨ ADD THIS LINE to make the Back Button work
+    tg.BackButton.onClick(closeSettings);
 
     upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
     closeUpgradeButton.addEventListener('click', () => {
@@ -1142,18 +1211,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZE GAME ---
 
-    const isNewPlayer = loadGame();
-    if (typeof gameState.tapsSinceLastSpin !== 'number') {
-        gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
-    }
-    if (isNewPlayer) {
-        saveGame();
-    }
-    handleDailyLogin();
-    updateUI();
-    setInterval(gameLoop, 1000);
-    window.addEventListener('beforeunload', saveGame);
-    particleSpawnInterval = setInterval(spawnParticle, 500);
+    loadGame((isNewPlayer) => {
+        // This is all your old code, just moved inside
+        if (typeof gameState.tapsSinceLastSpin !== 'number') {
+            gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
+        }
+        if (isNewPlayer) {
+            saveGame(); // Save the new game to the cloud
+        }
+
+        handleDailyLogin();
+        updateUI();
+        setInterval(gameLoop, 1000);
+        // We keep the idle save timer we made
+        window.addEventListener('beforeunload', saveGame);
+        particleSpawnInterval = setInterval(spawnParticle, 500);
+
+        console.log("Game initialized.");
+    });
     // === DEVELOPER CHEATS ===
     document.addEventListener('keydown', (e) => {
         if (!e.key) return;

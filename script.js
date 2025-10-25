@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 impactOccurred: () => { }
             }
         };
+    if (typeof tg.expand === 'function') tg.expand();
     if (typeof tg.enableClosingConfirmation === 'function') {
         tg.enableClosingConfirmation();
     }

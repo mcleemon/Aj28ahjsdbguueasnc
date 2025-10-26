@@ -1317,7 +1317,7 @@ button:active {
 #upgrade-button,
 #new-shop-button,
 #friends-button,
-#calendar-button {
+#grotto-button {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true');
     background-size: contain;
     background-position: center;
@@ -1335,7 +1335,7 @@ button:active {
 #upgrade-button,
 #new-shop-button,
 #friends-button,
-#calendar-button {
+#grotto-button {
     color: #dfc117;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
@@ -1490,6 +1490,57 @@ img {
 /* Removes tap highlight from all images */
 img {
     -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Horizontal Scroll Menu --- */
+.scroll-menu-container {
+    width: 100%;
+    margin: 10px 0;
+    /* Adds a bit of space above and below */
+    -webkit-tap-highlight-color: transparent;
+    /* Disables tap flash on menu items */
+}
+
+.scroll-menu {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Forces all items into a single line */
+    overflow-x: auto;
+    /* Enables horizontal scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Adds smooth "momentum" scrolling on iOS */
+    padding: 5px 0 10px 10px;
+    /* Adds some spacing */
+    scrollbar-width: none;
+    /* Hides scrollbar on Firefox */
+    -ms-overflow-style: none;
+    /* Hides scrollbar on IE/Edge */
+}
+
+/* Hides scrollbar on Chrome/Safari/Webkit */
+.scroll-menu::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-menu-icon {
+    flex-shrink: 0;
+    /* Prevents icons from shrinking */
+    width: 60px;
+    /* Width of your square icon */
+    height: 60px;
+    /* Height of your square icon */
+    margin-right: 10px;
+    /* Space between icons */
+    cursor: pointer;
+    object-fit: contain;
+    /* Ensures the image scales nicely */
+    transition: transform 0.1s ease;
+    /* Adds a press effect */
+}
+
+.scroll-menu-icon:active {
+    transform: scale(0.9);
+    /* Simple press effect */
 }
 
 @keyframes shine {

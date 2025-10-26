@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.26">
+    <link rel="stylesheet" href="style.css?v=2.13.27">
 </head>
 
 <body>
@@ -84,11 +84,24 @@
             </div>
 
         </div>
+
+        <div class="scroll-menu-container">
+            <div class="scroll-menu">
+                <img id="scroll-calendar-button" class="scroll-menu-icon"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true"
+                    alt="Calendar">
+                <div class="scroll-menu-item"></div>
+                <div class="scroll-menu-item"></div>
+                <div class="scroll-menu-item"></div>
+                <div class="scroll-menu-item"></div>
+                <div class="scroll-menu-item"></div>
+            </div>
+        </div>
         <div class="button-bar">
             <button id="upgrade-button">Upgrade</button>
             <button id="new-shop-button" disabled>Shop</button>
             <button id="friends-button" disabled>Friends</button>
-            <button id="calendar-button">Calendar</button>
+            <button id="grotto-button" disabled>Grotto</button>
         </div>
     </div>
     <div id="upgrade-modal" class="modal hidden">
@@ -99,8 +112,8 @@
                 <div class="upgrade-item">
                     <h3>Crystal Chisel</h3>
                     <p>Level: <span id="chisel-level">1</span></p>
-                    <p>More Dust per Tap</p>
-                    <p>Rate: <span id="chisel-effect">+1</span> Dust/Tap</p>
+                    <p>Increase Tap Power</p>
+                    <p>Rate: <span id="chisel-effect">+1</span> Power</p>
                     <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p> <button
                         id="buy-chisel-button">
                         Upgrade (Cost: <span id="chisel-cost">100</span>)
@@ -151,7 +164,7 @@
             <span id="close-calendar-button" class="close-button"></span>
             <div class="modal-inner">
                 <img id="calendar-title-img"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak2.png?raw=true"
                     alt="Daily Streak">
                 <p id="calendar-streak-count">0 Days</p>
                 <div id="calendar-next-reward">
@@ -218,7 +231,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.26"></script>
+    <script src="script.js?v=2.13.27"></script>
 
 </body>
 

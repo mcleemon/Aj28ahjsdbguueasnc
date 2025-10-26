@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
     const frenzyTimer = document.getElementById('frenzy-timer');
     const upgradeButton = document.getElementById('upgrade-button');
-    const calendarButton = document.getElementById('calendar-button');
     const upgradeModal = document.getElementById('upgrade-modal');
     const loginRewardModal = document.getElementById('login-reward-modal');
+    const scrollCalendarButton = document.getElementById('scroll-calendar-button');
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let hatchHoldTimer = null;
     let activeTreasureBox = null;
     let activeGeodeBox = null;
-    const MIN_TAPS_BETWEEN_SPINS = 50;
-    const MIN_TAPS_BETWEEN_GEODES = 50;
+    const MIN_TAPS_BETWEEN_SPINS = 150;
+    const MIN_TAPS_BETWEEN_GEODES = 120;
 
     // --- GAME STATE ---
     let gameState = {
@@ -996,10 +996,12 @@ document.addEventListener('DOMContentLoaded', () => {
             upgradeModal.classList.remove('closing');
         }, 300);
     });
-    calendarButton.addEventListener('click', () => {
-        updateCalendarModal();
-        calendarModal.classList.remove('hidden');
-    });
+    if (scrollCalendarButton) {
+        scrollCalendarButton.addEventListener('click', () => {
+            updateCalendarModal();
+            calendarModal.classList.remove('hidden');
+        });
+    }
     closeCalendarButton.addEventListener('click', () => {
         calendarModal.classList.add('closing');
         setTimeout(() => {

@@ -1529,7 +1529,7 @@ img {
     /* Width of your square icon */
     height: 60px;
     /* Height of your square icon */
-    margin-right: 10px;
+    margin-right: 20px;
     /* Space between icons */
     cursor: pointer;
     object-fit: contain;

@@ -73,17 +73,11 @@ button:active {
     width: 45px;
     height: 45px;
     background-color: #444;
-    /* This is a fallback color */
     border: 2px solid #666;
     border-radius: 50%;
-
-    /* --- NEW STYLES TO ADD --- */
     background-size: cover;
-    /* Ensures the image fills the circle */
     background-position: center;
-    /* Centers the image */
     background-repeat: no-repeat;
-    /* Prevents it from tiling */
 }
 
 .player-details {
@@ -128,7 +122,27 @@ button:active {
 .progress-container,
 .level-display {
     text-align: center;
-    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    position: relative;
+    /* ✨ ADD THIS LINE */
+    /* Optional: Add some padding at the bottom to make space for the button */
+    padding-bottom: 12px;
+    /* ✨ ADD THIS (Adjust 70px as needed) */
+}
+
+.level-up-container {
+    position: absolute;
+    /* ✨ Takes it out of the flow */
+    bottom: -50px;
+    /* ✨ Position 10px from the bottom of .level-display */
+    left: 50%;
+    /* ✨ Center horizontally */
+    transform: translateX(-50%);
+    /* ✨ Fine-tune centering */
+    width: auto;
 }
 
 .label {
@@ -247,7 +261,7 @@ button:active {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .modal-content {
@@ -278,17 +292,10 @@ button:active {
 
 #close-upgrade-button {
     position: absolute;
-    /* Ensures positioning context */
     z-index: 10;
-    /* Keeps it on top */
-
-    /* --- New Responsive Positioning --- */
     left: 50%;
     transform: translateX(-50%);
     top: 92%;
-    /* Position it 90% of the way down */
-
-    /* ...image and size styles... */
     width: 30px;
     height: 29px;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -326,7 +333,6 @@ button:active {
     margin-bottom: 12px;
 }
 
-/* This is the original, fast style for normal taps */
 .click-effect {
     position: absolute;
     font-size: 24px;
@@ -336,20 +342,15 @@ button:active {
     animation: float-up 1s ease-out forwards;
 }
 
-/* This is our new, slower, blue style ONLY for the drone claim */
 .drone-claim-effect {
     position: fixed;
-    /* Use fixed for better positioning relative to the screen */
     font-size: 24px;
     font-weight: bold;
     transform: translateX(-50%);
     pointer-events: none;
     color: #87CEEB;
-    /* Crystal dust blue color */
     text-shadow: 0 0 5px #00BFFF;
-    /* Blue glow */
     animation: float-up 4s ease-out forwards;
-    /* Slower 3-second animation */
 }
 
 @keyframes float-up {
@@ -371,29 +372,22 @@ button:active {
     text-shadow: 0 0 5px #ffc400;
 }
 
-/* --- New Styles for Calendar Modal --- */
 #calendar-streak-count {
     font-size: 40px;
-    /* Makes the number big and prominent */
     font-weight: bold;
     color: #FFD700;
-    /* A nice gold color */
     margin: 10px 0;
 }
 
-/* Styling for the "Next Reward" label */
 #next-reward-label {
     display: block;
-    /* This forces a line break */
     font-size: 18px;
     opacity: 0.8;
     margin-top: 20px;
 }
 
-/* Styling for the reward value below it */
 #next-reward-value {
     display: block;
-    /* This forces a line break */
     font-size: 20px;
     font-weight: bold;
     margin-top: 5px;
@@ -421,13 +415,9 @@ button:active {
     animation: float-up-geode 3s ease-out forwards;
     text-shadow: 0 0 5px black;
     text-align: center;
-    /* This centers the text */
     transform: translateX(-50%);
-    /* This helps center the whole box */
-    /* We use 'fixed' so it floats over everything, even if the page scrolls */
     position: fixed;
     z-index: 200;
-    /* Make sure it's on top */
 }
 
 .geode-effect.common {
@@ -464,32 +454,19 @@ button:active {
     position: absolute;
     top: 10px;
     z-index: 10;
-
-    /* --- Background Image --- */
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
-
-    /* --- Adjust Size (tune these values) --- */
     width: 180px;
-    /* Adjust width */
     height: 50px;
-    /* Adjust height */
-
-    /* --- Simpler Text Styling --- */
     text-align: center;
-    /* Center text horizontally */
     line-height: 50px;
-    /* Vertically center text (match height) */
     font-size: 16px;
     font-weight: bold;
     color: #4A3000;
-    /* Dark brown text */
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
-
-    /* --- Remove old box styles --- */
     border-radius: 0;
     box-shadow: none;
     padding: 0;
@@ -529,49 +506,31 @@ button:active {
 .temporary-message {
     position: absolute;
     top: 70px;
-    /* Adjusted slightly lower */
     left: 50%;
     transform: translateX(-50%);
     z-index: 110;
     pointer-events: none;
-
-    /* --- Background Image --- */
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
-
-    /* --- Adjust Size (tune these values) --- */
     width: 280px;
-    /* Wider */
     height: 60px;
-    /* Adjust height */
-
-    /* --- Simpler Text Styling --- */
     text-align: center;
-    /* Center text horizontally */
     line-height: 60px;
-    /* Vertically center text (match height) */
     font-size: 16px;
     font-weight: bold;
     color: #4A3000;
-    /* Dark brown text */
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
-
-    /* --- Fade Transition --- */
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-
-    /* --- Remove old box styles --- */
     border-radius: 0;
     box-shadow: none;
     padding: 0 10px;
-    /* Keep slight horizontal padding */
     box-sizing: border-box;
 }
 
-/* This class will trigger the fade-in */
 .temporary-message.show {
     opacity: 1;
 }
@@ -584,7 +543,6 @@ button:active {
     animation: wobble 0.5s ease-in-out infinite;
 }
 
-/* --- READY TO HATCH OVERLAY --- */
 .hatch-overlay {
     position: absolute;
     top: 50%;
@@ -607,7 +565,6 @@ button:active {
     opacity: 1;
 }
 
-/* --- LEVEL-UP POPUP --- */
 .levelup-popup {
     position: absolute;
     top: 40%;
@@ -720,8 +677,6 @@ button:active {
         0 0 60px rgba(255, 40, 0, 0.6),
         0 0 90px rgba(255, 20, 0, 0.4);
 }
-
-/* === MINI SLOT STYLES === */
 
 #slot-overlay {
     position: fixed;
@@ -990,17 +945,11 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    /* Using the same vertical ratio as calendar */
-
-    /* === PLACEHOLDER IMAGE === */
     background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true") center/contain no-repeat;
-
     background-color: transparent;
     border: none;
     overflow: hidden;
     padding: 0;
-
-    /* These override generic .modal-content styles */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1008,7 +957,6 @@ button:active {
     max-height: 400px;
 }
 
-/* This positions the content inside the new settings frame */
 #settings-modal .modal-inner {
     position: absolute;
     top: 35%;
@@ -1022,31 +970,24 @@ button:active {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    /* Adds space between the title and buttons */
 }
 
-/* New style for your custom image buttons */
 .settings-img-button {
-    /* Set the width; 160px is a good start */
     width: 190px;
     height: auto;
-    /* Maintain aspect ratio */
     cursor: pointer;
     transition: transform 0.1s ease;
 }
 
 .settings-img-button:active {
-    /* Adds a simple 'press' effect */
     transform: scale(0.95);
 }
 
-/* This styles the settings close button */
 #close-settings-button {
     z-index: 10;
     left: 82%;
     transform: translateX(-50%);
     top: 28%;
-    /* Positioned at 88% from the top */
     width: 30px;
     height: 29px;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -1092,7 +1033,6 @@ button:active {
     position: absolute;
     z-index: 80;
     width: 50px;
-    /* Geodes are a bit smaller */
     height: auto;
     left: 50%;
     top: 50%;
@@ -1101,7 +1041,6 @@ button:active {
     user-select: none;
     pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
-    /* Optional: Add a glow */
     filter: drop-shadow(0 0 10px rgba(180, 180, 255, 0.7));
 }
 
@@ -1111,7 +1050,6 @@ button:active {
     display: block;
     transform-origin: 50% 50%;
     animation: tb-shake 1s ease-in-out infinite;
-    /* Re-use the same shake animation */
 }
 
 .geode-box img {
@@ -1159,28 +1097,17 @@ button:active {
 }
 
 .upgrade-item {
-    /* 1. Set your new custom background image */
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true');
     background-size: 100% 100%;
-    /* Stretches the image to fill the box */
     background-position: center;
     background-repeat: no-repeat;
-
-    /* 2. Remove the old default styles */
     border: none;
     box-shadow: none;
     background-color: transparent;
-    /* Make sure old color is gone */
-
-    /* 3. Adjust padding to fit the text nicely inside the new frame */
     padding: 45px;
-    /* You might need to adjust this value */
-
     width: 95%;
-    /* Let's make it a bit wider */
     margin: 0 auto 10px;
     box-sizing: border-box;
-    /* Ensures padding is calculated correctly */
 }
 
 .upgrade-item h3 {
@@ -1190,14 +1117,10 @@ button:active {
     font-size: 16px;
 }
 
-/* Add this new rule to your style.css */
 .upgrade-item p {
     font-size: 14px;
-    /* Adjust this for text size */
     color: #ffffff;
-    /* Change the color if you want */
     margin: 10px 0;
-    /* Adjust the spacing between lines */
 }
 
 .upgrade-item button {
@@ -1267,27 +1190,21 @@ button:active {
     margin-bottom: 0px;
 }
 
-/* --- Styles for the Daily Login Custom Frame --- */
-
-/* 1. The main container. It acts as a positioning stage. */
 #login-reward-modal .modal-content {
     position: relative;
     background: none;
     border: none;
     padding: 0;
     width: min(90vw, 438px);
-    /* Uses the same size as your welcome frame */
     line-height: 1;
 }
 
-/* 2. The frame image itself. */
 #login-frame-img {
     width: 100%;
     height: auto;
     display: block;
 }
 
-/* 3. The text content, centered on top of the image. */
 #login-reward-modal .modal-text-content {
     position: absolute;
     top: 50%;
@@ -1300,9 +1217,7 @@ button:active {
 
 .dust-amount-color {
     color: #87CEEB;
-    /* A nice crystal-like sky blue */
     text-shadow: 0 0 5px #00BFFF;
-    /* Adds a blue glow */
     font-weight: bold;
 }
 
@@ -1340,21 +1255,15 @@ button:active {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* --- Custom Vertical Frame for Calendar Modal --- */
-
-/* 1. This styles the main frame container */
 #calendar-modal .modal-content {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    /* This makes it vertical */
     background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true") center/contain no-repeat;
     background-color: transparent;
     border: none;
     overflow: hidden;
     padding: 0;
-
-    /* These styles below are to override the generic .modal-content styles */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1362,7 +1271,6 @@ button:active {
     max-height: 400px;
 }
 
-/* 2. This positions the text inside the transparent part of the frame */
 #calendar-modal .modal-inner {
     position: absolute;
     top: 20%;
@@ -1387,29 +1295,22 @@ button:active {
     font-size: 0;
 }
 
-/* --- Styling for the new Calendar title image --- */
 #calendar-title-img {
     width: 70%;
-    /* Controls how wide the title image is */
     max-width: 280px;
-    /* Prevents it from getting too large */
     height: auto;
-    /* Keeps the correct aspect ratio */
     margin-bottom: 0px;
-    /* Adds a nice space below the title */
     margin-top: 10px
 }
 
 .streak-unit-font {
     font-family: 'Oswald', sans-serif;
     font-size: 30px;
-    /* Makes 'Day(s)' smaller than the number */
     opacity: 0.8;
 }
 
 #next-reward-value .dust-amount-color {
     font-size: 18px;
-    /* Adjust this value for the calendar reward only */
 }
 
 #battery-status.claimable {
@@ -1417,22 +1318,13 @@ button:active {
     font-weight: bold;
     animation: pulse-ready 1.5s infinite;
     cursor: pointer;
-
-    /* --- NEW STYLES TO ADD --- */
     background-color: rgba(255, 215, 0, 0.25);
-    /* A semi-transparent gold */
     padding: 1px 3px;
-    /* Adds some space around the text */
     border-radius: 5px;
-    /* Rounds the corners */
     border: 1px solid rgba(255, 215, 0, 0.5);
-    /* A subtle gold border */
     transition: background-color 0.3s ease;
-    /* Smooth transition */
     position: relative;
-    /* Allows us to shift the element */
     left: 8px;
-    /* Shifts the element 8px to the right */
 }
 
 img {
@@ -1443,29 +1335,22 @@ img {
     user-select: none;
 }
 
-/* --- New Level-Up Popup Styles --- */
 .levelup-title {
     font-size: 28px;
-    /* Keeps the title big and exciting */
     font-weight: bold;
 }
 
 .levelup-reward {
     font-size: 18px;
-    /* Makes the reward text smaller */
     color: #87CEEB;
-    /* Uses the crystal dust color */
     text-shadow: 0 0 5px #00BFFF;
-    /* Adds a blue glow */
     margin-top: 8px;
-    /* Adds space between the lines */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
 }
 
-/* --- New Daily Login Modal Text Styles --- */
 #daily-login-title {
     width: 80%;
     max-width: 250px;
@@ -1478,7 +1363,6 @@ img {
     font-size: 24px;
     font-weight: bold;
     color: #FFD700;
-    /* Gold color */
     margin-bottom: 10px;
 }
 
@@ -1487,60 +1371,90 @@ img {
     font-size: 20px;
 }
 
-/* Removes tap highlight from all images */
 img {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* --- Horizontal Scroll Menu --- */
 .scroll-menu-container {
     width: 100%;
     margin: 10px 0;
-    /* Adds a bit of space above and below */
     -webkit-tap-highlight-color: transparent;
-    /* Disables tap flash on menu items */
 }
 
 .scroll-menu {
     display: flex;
     flex-wrap: nowrap;
-    /* Forces all items into a single line */
     overflow-x: auto;
-    /* Enables horizontal scrolling */
     -webkit-overflow-scrolling: touch;
-    /* Adds smooth "momentum" scrolling on iOS */
     padding: 5px 0 10px 10px;
-    /* Adds some spacing */
     scrollbar-width: none;
-    /* Hides scrollbar on Firefox */
     -ms-overflow-style: none;
-    /* Hides scrollbar on IE/Edge */
 }
 
-/* Hides scrollbar on Chrome/Safari/Webkit */
 .scroll-menu::-webkit-scrollbar {
     display: none;
 }
 
 .scroll-menu-icon {
     flex-shrink: 0;
-    /* Prevents icons from shrinking */
     width: 60px;
-    /* Width of your square icon */
     height: 60px;
-    /* Height of your square icon */
     margin-right: 20px;
-    /* Space between icons */
     cursor: pointer;
     object-fit: contain;
-    /* Ensures the image scales nicely */
     transition: transform 0.1s ease;
-    /* Adds a press effect */
 }
 
 .scroll-menu-icon:active {
     transform: scale(0.9);
-    /* Simple press effect */
+}
+
+#level-up-button {
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: 220px;
+    height: 65px;
+    padding-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+#level-up-button:active {
+    transform: scale(0.95);
+}
+
+#level-up-button:disabled {
+    filter: grayscale(80%) opacity(0.6);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.level-up-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4A3000;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+    margin-top: 1px;
+    margin-bottom: 0px;
+}
+
+.level-up-cost-text {
+    font-size: 12px;
+    font-weight: bold;
+    color: #87CEEB;
+    text-shadow: 0 0 3px black, 0 0 5px #00BFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
 
 @keyframes shine {

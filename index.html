@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.28">
+    <link rel="stylesheet" href="style.css?v=2.13.29">
 </head>
 
 <body>
@@ -60,7 +60,6 @@
             <div class="egg-image-wrapper">
                 <div id="particle-container"></div>
                 <div id="golem-egg" class="golem-egg egg-image"></div>
-                <div id="hatch-overlay" class="hatch-overlay hidden">Hatch!<br>Press and Hold!</div>
                 <div id="levelup-popup" class="levelup-popup hidden"></div>
             </div>
             <div id="click-effect-container"></div>
@@ -81,6 +80,14 @@
             <div class="level-display">
                 <span class="label">Egg Level</span>
                 <div id="egg-level-text" style="font-weight:bold; margin-top:4px;">Lv. 1</div>
+
+                <div id="level-up-container" class="level-up-container hidden">
+                    <button id="level-up-button">
+                        <span class="level-up-text">Level Up</span>
+                        <span id="level-up-cost" class="level-up-cost-text">
+                        </span>
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -102,10 +109,10 @@
             </div>
         </div>
         <div class="button-bar">
-            <button id="upgrade-button">Upgrade</button>
-            <button id="new-shop-button" disabled>Shop</button>
-            <button id="friends-button" disabled>Friends</button>
-            <button id="grotto-button" disabled>Grotto</button>
+            <button id="upgrade-button">UPGRADE</button>
+            <button id="new-shop-button" disabled>SHOP</button>
+            <button id="friends-button" disabled>FRIENDS</button>
+            <button id="grotto-button" disabled>GROTTO</button>
         </div>
     </div>
     <div id="upgrade-modal" class="modal hidden">
@@ -235,7 +242,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.28"></script>
+    <script src="script.js?v=2.13.29"></script>
 
 </body>
 

@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
     const progressText = document.getElementById('progress-text');
+    const levelUpContainer = document.getElementById('level-up-container'); // ✨ ADD
+    const levelUpButton = document.getElementById('level-up-button');       // ✨ ADD
+    const levelUpCostText = document.getElementById('level-up-cost');       // ✨ ADD
     const clickEffectContainer = document.getElementById('click-effect-container');
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
     const frenzyTimer = document.getElementById('frenzy-timer');
@@ -84,14 +87,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_TAPS_BETWEEN_SPINS = 150;
     const MIN_TAPS_BETWEEN_GEODES = 120;
 
+    const EGG_NAMES = [
+        "Default Egg", "Copper Egg", "Iron Egg", "Silver Egg", "Golden Egg",
+        "Obsidian Egg", "Sapphire Egg", "Emerald Egg", "Ruby Egg", "Diamond Egg"
+    ];
+
+    // Defines the balancing for each tier
+    const EGG_TIERS = {
+        "Default Egg": { maxLevel: 10, baseTaps: 100, tapsPerLevel: 25, baseCost: 100 },
+        "Copper Egg": { maxLevel: 20, baseTaps: 500, tapsPerLevel: 50, baseCost: 1000 },
+        "Iron Egg": { maxLevel: 30, baseTaps: 1500, tapsPerLevel: 100, baseCost: 10000 },
+        "Silver Egg": { maxLevel: 40, baseTaps: 4500, tapsPerLevel: 200, baseCost: 100000 },
+        "Golden Egg": { maxLevel: 50, baseTaps: 12500, tapsPerLevel: 300, baseCost: 1000000 },
+        "Obsidian Egg": { maxLevel: 60, baseTaps: 27500, tapsPerLevel: 450, baseCost: 10000000 },
+        "Sapphire Egg": { maxLevel: 70, baseTaps: 55000, tapsPerLevel: 650, baseCost: 100000000 },
+        "Emerald Egg": { maxLevel: 80, baseTaps: 100000, tapsPerLevel: 900, baseCost: 1000000000 },
+        "Ruby Egg": { maxLevel: 90, baseTaps: 175000, tapsPerLevel: 1200, baseCost: 10000000000 },
+        "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 100000000000 }
+    };
+
+    // Growth rate for the Dust Fee (5%)
+    const DUST_FEE_GROWTH_RATE = 1.05;
+
     // --- GAME STATE ---
     let gameState = {
         dust: 0,
         dustPerTap: 1,
-        hatchProgress: 0,
-        hatchGoal: 10000,
         chiselLevel: 1,
         chiselBaseCost: 100,
+        egg: {
+            name: "Default Egg", // Default starting egg
+            level: 1,            // Default starting level
+            progress: 0,         // Start with 0 progress
+            goal: 100            // Initial placeholder goal, calculated on load
+        },
         dustPerSecond: 0,
         droneLevel: 0,
         droneBaseCost: 250,
@@ -111,28 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tapsSinceLastSpin: 0,
         tapsSinceLastGeode: 0,
         lastTapTimestamp: 0 // ✨ ADD THIS LINE
-    };
-
-    // --- Default Egg configuration ---
-    const DEFAULT_EGG_LEVELS = [
-        { level: 1, tapsRequired: 1000, rewardDust: 2500 },
-        { level: 2, tapsRequired: 5000, rewardDust: 12000 },
-        { level: 3, tapsRequired: 10000, rewardDust: 30000 },
-        { level: 4, tapsRequired: 25000, rewardDust: 75000 },
-        { level: 5, tapsRequired: 50000, rewardDust: 160000 },
-        { level: 6, tapsRequired: 100000, rewardDust: 350000 },
-        { level: 7, tapsRequired: 250000, rewardDust: 900000 },
-        { level: 8, tapsRequired: 500000, rewardDust: 2000000 },
-        { level: 9, tapsRequired: 750000, rewardDust: 3500000 },
-        { level: 10, tapsRequired: 1000000, rewardDust: 5000000 }
-    ];
-
-    // --- Add egg data to gameState ---
-    gameState.egg = {
-        name: "Default Egg",
-        level: 1,
-        progress: 0,
-        goal: DEFAULT_EGG_LEVELS[0].tapsRequired,
     };
 
     const slotSymbols = [
@@ -513,6 +520,58 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         };
 
+        // ✨ --- NEW IMAGE PRELOADER FUNCTION --- ✨
+        function preloadImages() {
+            const imageUrls = [
+                // Main UI & Background
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
+
+                // Icons
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
+
+                // Bottom Buttons
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
+
+                // Scroll Menu Icons
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/rouletteicon.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/sloticon.png?raw=true',
+
+                // Modals & Frames
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true',
+
+                // Settings Modal
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/achievement.png?raw=true',
+
+                // Objects & Popups
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true'
+            ];
+
+            console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
+            imageUrls.forEach(url => {
+                const img = new Image();
+                img.src = url;
+            });
+        }
+        // ✨ --- END OF NEW FUNCTION --- ✨
+
         if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
                 let isNew = true;
@@ -561,11 +620,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     function updateUI() {
+        // --- 1. ALWAYS UPDATE TOP STATS ---
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        progressText.innerText = `${formatWithCommas(gameState.egg.progress)} / ${formatWithCommas(gameState.egg.goal)}`;
-        const eggLevelText = document.getElementById('egg-level-text');
-        if (eggLevelText) eggLevelText.innerText = `Lv. ${gameState.egg.level}`;
+
+        // --- 2. UPDATE DRONE BATTERY ---
         if (gameState.droneLevel === 0) {
             batteryStatus.innerText = '--:--';
             batteryStatus.classList.remove('claimable');
@@ -581,91 +640,176 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Chisel
+        // --- 3. UPDATE EGG LEVEL ---
+        const config = getCurrentEggConfig();
+        const eggLevelText = document.getElementById('egg-level-text');
+        if (eggLevelText) {
+            const currentLevel = gameState.egg?.level || 1;
+            const maxLevel = config?.maxLevel || 10;
+            const displayLevel = Math.min(currentLevel, maxLevel);
+            // Check if element exists before setting innerText
+            if (document.getElementById('egg-level-text')) {
+                document.getElementById('egg-level-text').innerText = `Lv. ${displayLevel} / ${maxLevel}`;
+            }
+        }
+
+        // --- 4. SHOW/HIDE PROGRESS BAR vs LEVEL UP BUTTON (REVISED LOGIC V4 - Prestige Ready) ---
+        const progressContainer = progressText.parentElement;
+        gameState.egg.goal = getTapGoal(); // Calculate goal first
+
+        // **Update progress text FIRST, ALWAYS**
+        const displayProgress = Math.min(gameState.egg.progress, gameState.egg.goal);
+        progressText.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`;
+
+        // **Default state:** Show progress, hide button, remove shake (unless frenzy)
+        progressContainer.classList.remove('hidden'); // Always ensure progress bar container is visible initially
+        levelUpContainer.classList.add('hidden');    // Hide button by default
+        if (!gameState.isFrenzyMode) {
+            golemEgg.classList.remove('egg-frenzy');
+        }
+
+        // **Determine button state based on conditions:**
+        const isProgressBarFull = gameState.egg.progress >= gameState.egg.goal;
+        const isAtMaxLevelForCurrentEgg = gameState.egg.level >= config.maxLevel;
+        const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+        // Correct check for the last egg (index is length - 1)
+        const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
+
+        if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
+            // Condition 1: Player is at the MAX level of the FINAL egg AND progress is full
+            // (In the future, this might show Ascension button or similar)
+            levelUpContainer.classList.remove('hidden'); // SHOW button
+            levelUpCostText.innerText = "Max Level";
+            levelUpButton.disabled = true;
+            golemEgg.classList.remove('egg-frenzy');     // No shake
+
+        } else if (isProgressBarFull) {
+            // Condition 2: Progress bar is full (ready for normal level up OR prestige to next egg)
+            levelUpContainer.classList.remove('hidden'); // SHOW button
+            golemEgg.classList.add('egg-frenzy');         // Add "ready" shake
+
+            const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
+            if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
+                // If at max level AND it's NOT the final egg, show "Evolve"
+                if (mainButtonTextElement) mainButtonTextElement.innerText = "Evolve";
+            } else {
+                // Otherwise, show "Level Up"
+                if (mainButtonTextElement) mainButtonTextElement.innerText = "Level Up";
+            }
+
+            // Calculate the cost. getDustFee calculates based on the CURRENT level.
+            // The click handler will check level > maxLevel AFTER incrementing.
+            const cost = getDustFee();
+            levelUpCostText.innerHTML = `
+                ${formatNumber(cost)}
+                <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">
+            `;
+            // Button should be enabled if progress is full, unless dust is insufficient
+            levelUpButton.disabled = gameState.dust < cost;
+
+        }
+        // Else: (Progress bar is not full) - Button remains hidden (handled by default state)
+
+        // --- 5. UPDATE UPGRADE SHOP (CHISEL) ---
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
+        // Ensure dustPerTap is calculated correctly including potential prestige bonus
+        //const currentEggIndex = EGG_NAMES.indexOf(gameState.egg?.name || "Default Egg");
         chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
+
         if (gameState.chiselLevel >= 10) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
-            chiselNextEffect.parentElement.style.display = 'none';
-        }
-        else {
+            if (chiselNextEffect && chiselNextEffect.parentElement) {
+                chiselNextEffect.parentElement.style.display = 'none';
+            }
+        } else {
             const cost = getChiselCost();
-            const nextEffect = gameState.dustPerTap + 1;
-            chiselNextEffect.innerText = `+${formatWithCommas(nextEffect)} Dust/Tap`;
-            chiselNextEffect.parentElement.style.display = 'block';
+            // Calculate next effect correctly
+            const nextChiselLevelEffect = (gameState.chiselLevel + 1) + (currentEggIndex * 5);
+            if (chiselNextEffect) {
+                chiselNextEffect.innerText = `+${formatWithCommas(nextChiselLevelEffect)} Dust/Tap`;
+                if (chiselNextEffect.parentElement) {
+                    chiselNextEffect.parentElement.style.display = 'block';
+                }
+            }
             buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyChiselButton.disabled = gameState.dust < cost;
         }
 
-        // Drone
+        // --- 6. UPDATE UPGRADE SHOP (DRONE) ---
         const droneNextEffect = document.getElementById('drone-next-effect');
         droneLevelText.innerText = gameState.droneLevel;
         droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
         if (gameState.droneLevel >= 10) {
             buyDroneButton.innerText = "Max Level";
             buyDroneButton.disabled = true;
-            droneNextEffect.parentElement.style.display = 'none';
+            if (droneNextEffect && droneNextEffect.parentElement) {
+                droneNextEffect.parentElement.style.display = 'none';
+            }
         } else {
             const cost = getDroneCost();
             const nextEffect = gameState.dustPerSecond + 1;
-            droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`;
-            droneNextEffect.parentElement.style.display = 'block';
+            if (droneNextEffect) {
+                droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`;
+                if (droneNextEffect.parentElement) {
+                    droneNextEffect.parentElement.style.display = 'block';
+                }
+            }
             buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyDroneButton.disabled = gameState.dust < cost;
         }
 
-        // Battery
+        // --- 7. UPDATE UPGRADE SHOP (BATTERY) ---
         const batteryNextCapacity = document.getElementById('battery-next-capacity');
         batteryLevelText.innerText = gameState.batteryLevel;
         batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
-
-        // This is the NEW check for the drone's level
         if (gameState.droneLevel === 0) {
             buyBatteryButton.innerText = "Requires Drone";
             buyBatteryButton.disabled = true;
-            batteryNextCapacity.parentElement.style.display = 'none';
-        }
-        // This is the existing check for max level
-        else if (gameState.batteryLevel >= batteryLevels.length) {
+            if (batteryNextCapacity && batteryNextCapacity.parentElement) {
+                batteryNextCapacity.parentElement.style.display = 'none';
+            }
+        } else if (gameState.batteryLevel >= batteryLevels.length) {
             buyBatteryButton.innerText = "Max Level";
             buyBatteryButton.disabled = true;
-            batteryNextCapacity.parentElement.style.display = 'none';
-        }
-        // This is the existing check for cost
-        else {
+            if (batteryNextCapacity && batteryNextCapacity.parentElement) {
+                batteryNextCapacity.parentElement.style.display = 'none';
+            }
+        } else {
             const cost = getBatteryCost();
             const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
             const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
-            batteryNextCapacity.innerText = nextCapacityText;
-            batteryNextCapacity.parentElement.style.display = 'block';
+            if (batteryNextCapacity) {
+                batteryNextCapacity.innerText = nextCapacityText;
+                if (batteryNextCapacity.parentElement) {
+                    batteryNextCapacity.parentElement.style.display = 'block';
+                }
+            }
             buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyBatteryButton.disabled = gameState.dust < cost;
         }
-
-        progressText.innerText = `${formatWithCommas(gameState.egg.progress)} / ${formatWithCommas(gameState.egg.goal)}`;
-        eggLevelText.innerText = `Lv. ${gameState.egg.level}`;
-
-        // --- Handle Ready to Hatch overlay & egg shaking ---
-        const hatchOverlay = document.getElementById('hatch-overlay');
-
-        if (gameState.egg.progress >= gameState.egg.goal) {
-            hatchOverlay.classList.add('active');
-            hatchOverlay.classList.remove('hidden');
-            golemEgg.classList.add('egg-frenzy'); // ✨ ADD THIS LINE
-        } else {
-            hatchOverlay.classList.remove('active');
-            hatchOverlay.classList.add('hidden');
-            // Only remove the shaking class if we are NOT in frenzy mode
-            if (!gameState.isFrenzyMode) {
-                golemEgg.classList.remove('egg-frenzy');
-            }
-        }
-    }
+    } // End of updateUI function
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
+    function getCurrentEggConfig() {
+        const eggName = gameState.egg?.name || "Default Egg";
+        return EGG_TIERS[eggName] || EGG_TIERS["Default Egg"];
+    }
+    function getTapGoal() {
+        const config = getCurrentEggConfig();
+        const currentLevel = gameState.egg?.level || 1;
+        const levelMultiplier = Math.max(0, currentLevel - 1);
+        const tapGoal = config.baseTaps + (config.tapsPerLevel * levelMultiplier);
+        return Math.floor(tapGoal);
+    }
+    function getDustFee() {
+        const config = getCurrentEggConfig();
+        const currentLevel = gameState.egg?.level || 1;
+        const dustFee = config.baseCost * Math.pow(DUST_FEE_GROWTH_RATE, currentLevel);
+        return Math.max(1, Math.floor(dustFee));
+    }
     function gameLoop() {
         updateUI();
     }
@@ -846,6 +990,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
+    levelUpButton.addEventListener('click', () => {
+        const config = getCurrentEggConfig();
+        const cost = getDustFee();
+
+        // --- Guard Clauses ---
+        if (!gameState.egg || gameState.egg.level > config.maxLevel) {
+            console.log("Cannot level up: Already at max level or egg state invalid.");
+            return;
+        }
+        if (gameState.egg.progress < gameState.egg.goal) {
+            console.log("Cannot level up: Progress bar not full.");
+            return;
+        }
+        if (gameState.dust < cost) {
+            triggerHaptic('notification', 'error');
+            console.log("Cannot level up: Not enough dust.");
+            return;
+        }
+
+        // --- Proceed with Level Up ---
+        gameState.dust -= cost;
+        gameState.egg.level++;
+        gameState.egg.progress = 0; // Reset progress bar
+
+        // --- CHECK FOR PRESTIGE (UNLOCKING NEXT EGG) ---
+        // This runs *after* gameState.egg.level++
+        if (gameState.egg.level > config.maxLevel) {
+            // We exceeded the max level for the current egg, time to prestige!
+
+            // Find the index of the egg we just finished
+            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+            const nextEggIndex = currentEggIndex + 1;
+
+            // Check if there IS a next egg in the EGG_NAMES array
+            if (nextEggIndex < EGG_NAMES.length) {
+                // Yes, there is a next egg!
+                const newEggName = EGG_NAMES[nextEggIndex];
+                console.log(`PRESTIGE! Unlocking ${newEggName}`);
+
+                // Update game state for the new egg
+                gameState.egg.name = newEggName;
+                gameState.egg.level = 1;      // Start the new egg at level 1
+                gameState.egg.progress = 0;   // Reset progress
+
+                // ✨ APPLY THE +5 TAP POWER BONUS ✨
+                // Bonus is +5 for Copper (index 1), +10 for Iron (index 2), etc.
+                gameState.dustPerTap = gameState.chiselLevel + (nextEggIndex * 5);
+
+                // TODO: Add a nice visual popup/notification here later
+
+                triggerHaptic('notification', 'success'); // Extra success feedback
+
+            } else {
+                // No more eggs! This was the final one (Diamond Egg)
+                console.log("Congratulations! Reached max level on the final egg!");
+                // Keep the player at the max level of the final egg
+                gameState.egg.level = config.maxLevel;
+                gameState.egg.progress = 0; // Ensure progress is reset/zeroed
+                // TODO: Maybe show a "Game Complete" message or unlock something special
+            }
+
+        } else if (gameState.egg.level === config.maxLevel) {
+            // If they just hit the max level EXACTLY (didn't exceed it)
+            // We don't prestige yet, just log it. Prestige happens on the NEXT level up attempt.
+            console.log(`Reached Max Level ${config.maxLevel} for ${gameState.egg.name}. Next level up will prestige.`);
+            // Ensure progress is visually capped if needed (it should be 0 already)
+            if (gameState.egg.progress !== 0) gameState.egg.progress = 0;
+        }
+        // If level is less than max level, do nothing extra here.
+        // --- END OF PRESTIGE LOGIC ---
+
+        // --- Update Goal & Give Feedback ---
+        gameState.egg.goal = getTapGoal(); // Set the tap goal for the new level
+
+        const levelupPopup = document.getElementById('levelup-popup');
+        levelupPopup.innerHTML = `<div class="levelup-title">🌟 Level Up! 🌟</div>`;
+        levelupPopup.classList.remove('hidden');
+        levelupPopup.classList.add('show');
+        setTimeout(() => {
+            levelupPopup.classList.remove('show');
+            setTimeout(() => levelupPopup.classList.add('hidden'), 600);
+        }, 2500);
+
+        triggerHaptic('notification', 'success');
+        saveGame(); // Immediately save the new level and dust
+        updateUI(); // Refresh the entire UI
+    });
+    // ✨ --- END OF NEW LISTENER --- ✨
+
     golemEgg.addEventListener('click', () => {
         clearTimeout(saveTimer); // Clear any existing save timer
         saveTimer = setTimeout(saveGame, 3000); // Set a new 3-second timer
@@ -858,11 +1091,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // If the tap is allowed, update the timestamp to the current time.
         gameState.lastTapTimestamp = now;
-        // ✨ --- NEW GUARD CLAUSE --- ✨
-        // If the egg is ready to hatch, stop all tap actions immediately.
-        if (gameState.egg.progress >= gameState.egg.goal) {
-            return; // Do nothing.
-        }
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
@@ -907,21 +1135,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION ---
-        // The 'dustEarned' variable already has the correct value,
-        // whether it's a normal, critical, or frenzy tap.
-        // So we use it for everything.
+        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION (NEW HYBRID MODEL) ---
+        // 'dustEarned' is the (potentially buffed) dust from frenzy/crit
 
-        // --- Progress and rewards ---
-        if (gameState.egg.progress < gameState.egg.goal) {
-            gameState.egg.progress += dustEarned; // Use the correct value
+        // 1. ALWAYS give the player the dust they earned.
+        gameState.dust += dustEarned;
+
+        // 2. ONLY add to progress if the bar is NOT full.
+        // Ensure gameState.egg exists before accessing progress/goal
+        if (gameState.egg && gameState.egg.progress < gameState.egg.goal) {
+
+            // We use 'gameState.dustPerTap' for progress.
+            // Ensure dustPerTap exists, default to 1 if not
+            const tapPower = gameState.dustPerTap || 1;
+            gameState.egg.progress += tapPower;
+
+            // Clamp the progress to the goal
             if (gameState.egg.progress > gameState.egg.goal) {
                 gameState.egg.progress = gameState.egg.goal;
             }
-            // Gain dust equal to the correct value
-            gameState.dust += dustEarned;
-            updateUI();
         }
+
+        // 3. Update the UI to show the new dust and progress.
+        updateUI();
 
         // --- HAPTIC FEEDBACK ---
         if (isCritical) {
@@ -945,34 +1181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.visibilityState === 'hidden') {
             saveGame();
         }
-    });
-
-    // --- New: Press and Hold to Hatch Logic ---
-
-    function startHatchHold() {
-        // Only start the timer if the egg is actually ready to hatch
-        if (gameState.egg.progress >= gameState.egg.goal) {
-            // After 5 seconds (5000 milliseconds), call the hatchEgg function
-            hatchHoldTimer = setTimeout(hatchEgg, 5000);
-        }
-    }
-
-    function cancelHatchHold() {
-        // If the player lets go, clear the timer to prevent hatching
-        clearTimeout(hatchHoldTimer);
-    }
-
-    // Add listeners for both mouse and touch screens
-    golemEgg.addEventListener('mousedown', startHatchHold);
-    golemEgg.addEventListener('mouseup', cancelHatchHold);
-    golemEgg.addEventListener('mouseleave', cancelHatchHold); // Also cancel if mouse leaves the egg
-
-    golemEgg.addEventListener('touchstart', startHatchHold);
-    golemEgg.addEventListener('touchend', cancelHatchHold);
-
-    // Prevent the context menu on all images
-    document.querySelectorAll('img').forEach(image => {
-        image.addEventListener('contextmenu', event => event.preventDefault());
     });
 
     settingsButton.addEventListener('click', () => {
@@ -1159,49 +1367,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 
-    function hatchEgg() {
-        const currentLevelIndex = gameState.egg.level - 1;
-        const config = DEFAULT_EGG_LEVELS[currentLevelIndex] || DEFAULT_EGG_LEVELS[DEFAULT_EGG_LEVELS.length - 1];
-
-        // Give dust reward
-        gameState.dust += config.rewardDust;
-
-        // Level up
-        if (gameState.egg.level < 10) {
-            gameState.egg.level++;
-        } else {
-            // Loop at level 10 forever
-            gameState.egg.level = 10;
-        }
-
-        // Reset progress to 0 and update new goal
-        const newConfig = DEFAULT_EGG_LEVELS[Math.min(gameState.egg.level - 1, DEFAULT_EGG_LEVELS.length - 1)];
-        gameState.egg.progress = 0;
-        gameState.egg.goal = newConfig.tapsRequired;
-
-        // UI feedback
-        // --- Show Level-Up Reward Popup ---
-        const levelupPopup = document.getElementById('levelup-popup');
-        levelupPopup.innerHTML = `
-  <div class="levelup-title">🌟 Level Up! 🌟</div>
-  <div class="levelup-reward">
-    +${formatWithCommas(config.rewardDust)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon">
-  </div>
-`;
-        levelupPopup.classList.remove('hidden');
-        levelupPopup.classList.add('show');
-
-        // Hide after 2.5s
-        setTimeout(() => {
-            levelupPopup.classList.remove('show');
-            setTimeout(() => levelupPopup.classList.add('hidden'), 600);
-        }, 2500);
-        tg.HapticFeedback.notificationOccurred('success');
-        document.getElementById('hatch-overlay').classList.add('hidden');
-
-        saveGame();
-    }
-
     // This is the existing block for the "Welcome Back" modal
     offlineProgressModal.addEventListener('click', (event) => {
         offlineProgressModal.classList.add('closing');
@@ -1270,7 +1435,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof gameState.tapsSinceLastGeode !== 'number') {
             gameState.tapsSinceLastGeode = MIN_TAPS_BETWEEN_GEODES;
         }
+        if (!gameState.egg || typeof gameState.egg.level !== 'number') {
+            gameState.egg = { name: "Default Egg", level: 1, progress: 0, goal: 100 };
+        }
+        const config = getCurrentEggConfig();
+        if (gameState.egg.level > config.maxLevel) {
+            gameState.egg.level = config.maxLevel;
+            gameState.egg.progress = 0;
+        }
+        gameState.egg.goal = getTapGoal();
+        if (gameState.egg.progress > gameState.egg.goal) {
+            gameState.egg.progress = gameState.egg.goal;
+        }
         if (isNewPlayer) {
+            console.log("New player detected, starting fresh game state.");
+            // Reset necessary parts of gameState for a new player if needed
+            // Ensure the egg state is correctly set for new players too
+            gameState.egg = {
+                name: "Default Egg",
+                level: 1,
+                progress: 0,
+                goal: getTapGoal() // Calculate goal for new player too
+            };
             saveGame();
         }
 
@@ -1285,10 +1471,11 @@ document.addEventListener('DOMContentLoaded', () => {
         particleSpawnInterval = setInterval(spawnParticle, 500);
 
         console.log("Game initialized.");
+        preloadImages();
     });
 
     // === DEVELOPER CHEATS ===
-    document.addEventListener('keydown', (e) => {
+    window.addEventListener('keydown', (e) => {
         if (!e.key) return;
         const key = e.key.toLowerCase();
         switch (key) {
@@ -1341,16 +1528,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 🔄 Reset all progress
             case 'r':
-                console.log('[DEV] Soft reset');
-                if (confirm('⚠️ Are you sure you want to reset your save?')) {
+                console.log('[DEV] Soft reset requested...');
+                // const confirmed = window.confirm('⚠️ Reset Game Save? This will clear ALL progress.'); // << COMMENT OUT
+                // console.log('[DEV] Confirm result:', confirmed);
+                // if (confirmed) { // << COMMENT OUT
+                console.log('[DEV] Resetting progress... (Bypassing confirm for testing)'); // Add this log
+                try {
+                    // 1. Clear Local Storage
                     localStorage.clear();
+                    console.log('[DEV] LocalStorage cleared.');
+
+                    // 2. Clear Cloud Storage (if available)
+                    if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        tg.CloudStorage.removeItem('golemEggGameState', (err, removed) => {
+                            // ... (rest of cloud storage code) ...
+                            console.log('[DEV] Reloading page after cloud attempt...');
+                            location.reload();
+                        });
+                    } else {
+                        // 3. Reload if not using CloudStorage
+                        console.log('[DEV] Reloading page...');
+                        location.reload();
+                    }
+                } catch (e) {
+                    console.error('[DEV] Error during reset:', e);
                     location.reload();
                 }
-                break;
-
-            default:
-                // no-op for other keys
-                break;
+                // } else { // << COMMENT OUT
+                //    console.log('[DEV] Reset cancelled.');
+                //} // << COMMENT OUT
+                break; // End case 'r'
         }
     });
 });

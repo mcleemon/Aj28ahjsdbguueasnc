@@ -38,19 +38,17 @@ button:active {
 .game-container {
     width: 100%;
     max-width: 400px;
-    height: 100%;
-    max-height: 812px;
+    height: var(--tg-viewport-stable-height, 100vh);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 85px;
+    padding-top: calc(20px + env(safe-area-inset-top));
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
     box-sizing: border-box;
     justify-content: space-between;
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-container {
@@ -189,7 +187,7 @@ button:active {
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
-    margin-top: 120px;
+    margin-top: 10px;
 }
 
 #particle-container {
@@ -466,7 +464,7 @@ button:active {
 
 .frenzy-timer-container {
     position: absolute;
-    top: 10px;
+    top: 0;
     z-index: 10;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
     background-size: contain;
@@ -484,6 +482,16 @@ button:active {
     border-radius: 0;
     box-shadow: none;
     padding: 0;
+}
+
+#frenzy-wrapper {
+    position: relative;
+    width: 100%;
+    /* 50px for the timer + 10px bottom margin */
+    min-height: 60px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @keyframes pulse-ready {
@@ -519,7 +527,7 @@ button:active {
 
 .temporary-message {
     position: absolute;
-    top: 70px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     z-index: 110;

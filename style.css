@@ -133,13 +133,6 @@ button:active {
     /* ✨ ADD THIS (Adjust 70px as needed) */
 }
 
-.level-up-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
 .label {
     display: block;
     font-size: 12px;
@@ -1501,12 +1494,6 @@ img {
     gap: 4px;
 }
 
-/* --- New Egg UI Elements --- */
-.egg-ui-label,
-.egg-ui-value {
-    text-align: center;
-}
-
 .egg-ui-label {
     font-size: 12px;
     opacity: 0.85;
@@ -1528,12 +1515,58 @@ img {
 }
 
 .egg-stats-container {
-    display: flex;           /* Use flexbox */
-    flex-direction: column; /* Stack children vertically */
-    align-items: center;    /* Center children horizontally */
-    width: 100%;             /* Take full width */
-    margin-top: 15px;       /* ✨ Add space below the egg image (Adjust as needed) */
-    gap: 2px;               /* ✨ Add small vertical space between text lines (Adjust as needed) */
+    display: flex;
+    /* Use flexbox */
+    flex-direction: column;
+    /* Stack children vertically */
+    align-items: center;
+    /* Center children horizontally */
+    width: 100%;
+    /* Take full width */
+    margin-top: 15px;
+    /* ✨ Add space below the egg image (Adjust as needed) */
+}
+
+/* --- Fix Layout Shift with Absolute Positioning --- */
+#egg-ui-wrapper {
+    position: absolute;
+    bottom: 135px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    width: 90%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-bottom: 50px; /* Leave space at the very bottom for the button */
+    
+    /* ✨ ADD THIS LINE ✨ */
+    min-height: 160px; /* Set a minimum height to prevent the screen from jumping */
+    /* You may need to adjust 100px slightly if the text is higher */
+}
+
+/* Adjust button container to fit new absolute wrapper */
+.level-up-container {
+    /* This overrides the previous margin/positioning */
+    margin-top: 10px;
+    /* Space it down from the level text */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* We need to revert all text to *static* positioning within the new wrapper */
+.egg-ui-label,
+.egg-ui-value {
+    position: static;
+    /* Let them flow normally inside #egg-ui-wrapper */
+    /* Re-center with text-align, as they are not absolute anymore */
+    text-align: center;
+    width: 100%;
+    transform: none;
 }
 
 @keyframes shine {

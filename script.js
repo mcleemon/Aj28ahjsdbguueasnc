@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const cost = getChiselCost();
             // Calculate next effect correctly
-            const nextChiselLevelEffect = (gameState.chiselLevel + 1) + (currentEggIndex * 5);
+            const nextChiselLevelEffect = gameState.dustPerTap + 1; // It's just the current tap power + 1
             if (chiselNextEffect) {
                 chiselNextEffect.innerText = `+${formatWithCommas(nextChiselLevelEffect)} Dust/Tap`;
                 if (chiselNextEffect.parentElement) {
@@ -1218,7 +1218,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.chiselLevel++;
-            gameState.dustPerTap = gameState.chiselLevel; // keep synced with chisel level
+            // Recalculate tap power: Chisel Level + (Index of current Egg * 5)
+            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+            gameState.dustPerTap = gameState.chiselLevel + (currentEggIndex * 5);
             updateUI();
             tg.HapticFeedback.notificationOccurred('success');
         }

@@ -42,12 +42,11 @@ button:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: calc(100px + env(safe-area-inset-top));
+    padding-top: calc(50px + env(safe-area-inset-top));
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
     box-sizing: border-box;
-    justify-content: space-between;
     position: relative;
 }
 

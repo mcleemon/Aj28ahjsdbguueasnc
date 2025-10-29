@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
-    const progressText = document.getElementById('progress-text');
+    const hatchProgressLabel = document.getElementById('hatch-progress-label'); // ✨ NEW
+    const hatchProgressValue = document.getElementById('hatch-progress-value'); // ✨ NEW
+    const eggLevelLabel = document.getElementById('egg-level-label');          // ✨ NEW
+    const eggLevelValue = document.getElementById('egg-level-value');          // ✨ NEW
     const levelUpContainer = document.getElementById('level-up-container'); // ✨ ADD
     const levelUpButton = document.getElementById('level-up-button');       // ✨ ADD
     const levelUpCostText = document.getElementById('level-up-cost');       // ✨ ADD
@@ -640,30 +643,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- 3. UPDATE EGG LEVEL ---
+        // --- 3. UPDATE EGG LEVEL DISPLAY ---
         const config = getCurrentEggConfig();
-        const eggLevelText = document.getElementById('egg-level-text');
-        if (eggLevelText) {
+        if (eggLevelValue) { // Use the new ID
             const currentLevel = gameState.egg?.level || 1;
             const maxLevel = config?.maxLevel || 10;
             const displayLevel = Math.min(currentLevel, maxLevel);
-            // Check if element exists before setting innerText
-            if (document.getElementById('egg-level-text')) {
-                document.getElementById('egg-level-text').innerText = `Lv. ${displayLevel} / ${maxLevel}`;
-            }
+            eggLevelValue.innerText = `Lv. ${displayLevel} / ${maxLevel}`; // Update new element
         }
+        // eggLevelLabel is static, no need to update it here
 
-        // --- 4. SHOW/HIDE PROGRESS BAR vs LEVEL UP BUTTON (REVISED LOGIC V4 - Prestige Ready) ---
-        const progressContainer = progressText.parentElement;
+        // --- 4. UPDATE HATCH PROGRESS & SHOW/HIDE BUTTON ---
         gameState.egg.goal = getTapGoal(); // Calculate goal first
 
-        // **Update progress text FIRST, ALWAYS**
+        // **Update progress value ALWAYS**
         const displayProgress = Math.min(gameState.egg.progress, gameState.egg.goal);
-        progressText.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`;
+        if (hatchProgressValue) { // Use the new ID
+            hatchProgressValue.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`; // Update new element
+        }
+        // hatchProgressLabel is static, no need to update it here
 
-        // **Default state:** Show progress, hide button, remove shake (unless frenzy)
-        progressContainer.classList.remove('hidden'); // Always ensure progress bar container is visible initially
-        levelUpContainer.classList.add('hidden');    // Hide button by default
+        // **Default state:** Hide button, remove shake (unless frenzy)
+        levelUpContainer.classList.add('hidden');
         if (!gameState.isFrenzyMode) {
             golemEgg.classList.remove('egg-frenzy');
         }
@@ -672,43 +673,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const isProgressBarFull = gameState.egg.progress >= gameState.egg.goal;
         const isAtMaxLevelForCurrentEgg = gameState.egg.level >= config.maxLevel;
         const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-        // Correct check for the last egg (index is length - 1)
         const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
 
         if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
-            // Condition 1: Player is at the MAX level of the FINAL egg AND progress is full
-            // (In the future, this might show Ascension button or similar)
+            // Condition 1: Max level of FINAL egg
             levelUpContainer.classList.remove('hidden'); // SHOW button
-            levelUpCostText.innerText = "Max Level";
+            // Update button text for Max Level state
+            const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
+            if (mainButtonTextElement) mainButtonTextElement.innerText = "Max Level";
+            levelUpCostText.innerText = ""; // Clear cost text
             levelUpButton.disabled = true;
-            golemEgg.classList.remove('egg-frenzy');     // No shake
+            golemEgg.classList.remove('egg-frenzy');
 
         } else if (isProgressBarFull) {
-            // Condition 2: Progress bar is full (ready for normal level up OR prestige to next egg)
+            // Condition 2: Progress full (ready for level up or prestige)
             levelUpContainer.classList.remove('hidden'); // SHOW button
-            golemEgg.classList.add('egg-frenzy');         // Add "ready" shake
+            golemEgg.classList.add('egg-frenzy');
 
+            // Update button text based on whether it's prestige time
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
             if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
-                // If at max level AND it's NOT the final egg, show "Evolve"
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "Evolve";
             } else {
-                // Otherwise, show "Level Up"
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "Level Up";
             }
 
-            // Calculate the cost. getDustFee calculates based on the CURRENT level.
-            // The click handler will check level > maxLevel AFTER incrementing.
+            // Calculate and display cost
             const cost = getDustFee();
             levelUpCostText.innerHTML = `
-                ${formatNumber(cost)}
-                <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">
-            `;
-            // Button should be enabled if progress is full, unless dust is insufficient
+            ${formatNumber(cost)}
+            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">
+        `;
             levelUpButton.disabled = gameState.dust < cost;
-
         }
-        // Else: (Progress bar is not full) - Button remains hidden (handled by default state)
+        // Else: (Progress bar not full) - Button remains hidden (default state)
 
         // --- 5. UPDATE UPGRADE SHOP (CHISEL) ---
         const chiselNextEffect = document.getElementById('chisel-next-effect');
@@ -1065,9 +1063,9 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.egg.goal = getTapGoal(); // Set the tap goal for the new level
 
         const levelupPopup = document.getElementById('levelup-popup');
-        levelupPopup.innerHTML = `<div class="levelup-title">🌟 Level Up! 🌟</div>`;
         levelupPopup.classList.remove('hidden');
         levelupPopup.classList.add('show');
+        spawnFireworkParticles();
         setTimeout(() => {
             levelupPopup.classList.remove('show');
             setTimeout(() => levelupPopup.classList.add('hidden'), 600);
@@ -1279,6 +1277,56 @@ document.addEventListener('DOMContentLoaded', () => {
         particleContainer.appendChild(wrapper);
         setTimeout(() => wrapper.remove(), 5100);
     }
+
+    // ✨ --- NEW FIREWORK EFFECT FUNCTION --- ✨
+    function spawnFireworkParticles() {
+        const popupElement = document.getElementById('levelup-popup');
+        // Use the egg wrapper as the container for particles
+        const container = document.querySelector('.egg-image-wrapper');
+        if (!popupElement || !container) return; // Exit if elements aren't found
+
+        const particleCount = 15; // How many sparks to create
+        const containerRect = container.getBoundingClientRect(); // Get container position once
+        const popupRect = popupElement.getBoundingClientRect(); // Get popup position once
+
+        // Calculate starting position near the bottom-center of the popup, relative to the container
+        const startXBase = popupRect.left - containerRect.left + (popupRect.width / 2);
+        const startYBase = popupRect.top - containerRect.top + (popupRect.height * 0.8); // Start near bottom
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'firework-particle';
+
+            // Randomize starting position slightly
+            const startX = startXBase + (Math.random() - 0.5) * 30; // +/- 15px horizontal variation
+            const startY = startYBase + (Math.random() - 0.5) * 20; // +/- 10px vertical variation
+            particle.style.left = `${startX}px`;
+            particle.style.top = `${startY}px`;
+
+            // Randomize animation properties
+            const angle = (Math.random() - 0.5) * (Math.PI / 2); // Shoot mostly upwards +/- 45 degrees
+            const travelDistance = 150 + Math.random() * 60; // Travel 80-120px
+            const endX = Math.sin(angle) * travelDistance; // Calculate end X offset
+            const endY = -Math.cos(angle) * travelDistance; // Calculate end Y offset (negative is up)
+            const duration = 1.2 + Math.random() * 0.6; // Animation duration 0.6s to 1.0s
+            const delay = Math.random() * 0.2; // Stagger start times slightly (0s to 0.2s)
+
+            // Set CSS variables for the animation
+            particle.style.setProperty('--firework-x', `${endX}px`);
+            particle.style.setProperty('--firework-y', `${endY}px`);
+
+            // Apply the animation
+            particle.style.animation = `firework-shoot ${duration}s ease-out ${delay}s forwards`;
+
+            container.appendChild(particle);
+
+            // Remove particle after animation + a small buffer
+            setTimeout(() => {
+                particle.remove();
+            }, (duration + delay) * 1000 + 100);
+        }
+    }
+    // ✨ --- END OF NEW FUNCTION --- ✨
 
     slotSpinBtn.addEventListener("click", () => {
         slotSpinBtn.disabled = true;

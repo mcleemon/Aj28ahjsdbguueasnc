@@ -136,7 +136,7 @@ button:active {
 .level-up-container {
     position: absolute;
     /* ✨ Takes it out of the flow */
-    bottom: -50px;
+    top: 73%;
     /* ✨ Position 10px from the bottom of .level-display */
     left: 50%;
     /* ✨ Center horizontally */
@@ -568,24 +568,73 @@ button:active {
 .levelup-popup {
     position: absolute;
     top: 40%;
+    /* Keep initial vertical position */
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Graduate', sans-serif;
-    color: #fff8e7;
-    text-align: center;
-    font-size: 28px;
-    text-shadow: 0 0 10px #ffd27f, 0 0 20px #ffae00;
+    /* Center horizontally, initial vertical */
     opacity: 0;
     z-index: 40;
     pointer-events: none;
-    transition: opacity 0.6s, transform 0.6s;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    /* Smoother transition */
+    width: 180px;
+    /* ✨ Set width for the image container */
+    height: auto;
+}
+
+.levelup-popup img {
+    display: block;
+    /* Remove extra space below image */
+    width: 100%;
+    /* Make image fill the container */
+    height: auto;
 }
 
 .levelup-popup.show {
     opacity: 1;
-    transform: translate(-50%, -60%) scale(1.1);
+    /* Make it float up slightly more */
+    transform: translate(-50%, -70%) scale(1.1);
 }
 
+.firework-particle {
+    position: absolute;
+    /* Needed for positioning */
+    width: 6px;
+    /* Size of the particle */
+    height: 6px;
+    background-color: gold;
+    /* Color of the particle */
+    border-radius: 50%;
+    /* Make it round */
+    pointer-events: none;
+    /* Prevent clicks */
+    z-index: 39;
+    /* Behind levelup-popup (z-index 40) */
+    opacity: 0;
+    /* Start invisible */
+    box-shadow: 0 0 5px gold, 0 0 8px yellow;
+    /* Add a glow */
+    /* Animation will be applied by JS */
+}
+
+@keyframes firework-shoot {
+    0% {
+        transform: translate(0, 0) scale(1);
+        /* Start at original position */
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+        /* Stay visible while moving */
+    }
+
+    100% {
+        /* Move up and slightly outward, scale up, fade out */
+        transform: translate(var(--firework-x, 0), var(--firework-y, -100px)) scale(1.5);
+        opacity: 0;
+    }
+}
 
 @keyframes floatUpTransform {
     from {
@@ -1455,6 +1504,60 @@ img {
     align-items: center;
     justify-content: center;
     gap: 4px;
+}
+
+/* --- New Egg UI Elements --- */
+.egg-ui-label,
+.egg-ui-value {
+    position: absolute;
+    /* Make all elements absolutely positioned */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Fine-tune centering */
+    text-align: center;
+    width: 150px;
+    /* Give them a consistent width */
+}
+
+.egg-ui-label {
+    font-size: 12px;
+    opacity: 0.85;
+    color: var(--universal-text-color);
+}
+
+.egg-ui-value {
+    font-size: 16px;
+    /* Adjust size as needed */
+    font-weight: bold;
+    color: white;
+}
+
+.egg-level-value {
+    /* Specific style for the level value */
+    font-weight: bold;
+    margin-top: 0;
+    /* Remove default margin if any */
+}
+
+#hatch-progress-label {
+    top: 63%;
+    /* Example: Position below the egg */
+}
+
+#hatch-progress-value {
+    top: 65%;
+    /* Example: Position below the label */
+}
+
+#egg-level-label {
+    top: 68%;
+    /* Example: Position further down */
+}
+
+#egg-level-value {
+    top: 70%
+        /* Example: Position below its label */
 }
 
 @keyframes shine {

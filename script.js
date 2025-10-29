@@ -38,11 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gemShardsCounter = document.getElementById('gem-shards-counter');
     const batteryStatus = document.getElementById('battery-status');
     const golemEgg = document.getElementById('golem-egg');
-    const hatchProgressValue = document.getElementById('hatch-progress-value'); // ✨ NEW
-    const eggLevelValue = document.getElementById('egg-level-value');          // ✨ NEW
-    const levelUpContainer = document.getElementById('level-up-container'); // ✨ ADD
-    const levelUpButton = document.getElementById('level-up-button');       // ✨ ADD
-    const levelUpCostText = document.getElementById('level-up-cost');       // ✨ ADD
+    const hatchProgressValue = document.getElementById('hatch-progress-value');
+    const eggLevelValue = document.getElementById('egg-level-value');
+    const levelUpContainer = document.getElementById('level-up-container');
+    const levelUpButton = document.getElementById('level-up-button');
+    const levelUpCostText = document.getElementById('level-up-cost');
     const clickEffectContainer = document.getElementById('click-effect-container');
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
     const frenzyTimer = document.getElementById('frenzy-timer');
@@ -79,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotResult = document.getElementById("slot-result");
     const slotReels = document.querySelectorAll(".symbols");
 
+    let isGameDirty = false; //
     let slotActive = false;
     let frenzyAccumulatedDust = 0;
-    let saveTimer = null;
     let activeTreasureBox = null;
     let activeGeodeBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 150;
@@ -266,7 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
             dpt: state.dustPerTap,
             dps: state.dustPerSecond,
             cl: state.chiselLevel,
-            dl: state.droneLevel
+            dl: state.droneLevel,
+            gs: state.gemShards,
+            el: state.egg.level,
+            ep: state.egg.progress,
+            bl: state.batteryLevel
         };
         const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
         return btoa(stringToHash);
@@ -619,12 +623,10 @@ document.addEventListener('DOMContentLoaded', () => {
             onLoadComplete(isNew);
         }
     }
-    function updateUI() {
-        // --- 1. ALWAYS UPDATE TOP STATS ---
+
+    function updateHeader() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-
-        // --- 2. UPDATE DRONE BATTERY ---
         if (gameState.droneLevel === 0) {
             batteryStatus.innerText = '--:--';
             batteryStatus.classList.remove('claimable');
@@ -639,63 +641,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 batteryStatus.classList.remove('claimable');
             }
         }
+    }
 
-        // --- 3. UPDATE EGG LEVEL DISPLAY ---
+    function updateEggProgress() {
         const config = getCurrentEggConfig();
-        if (eggLevelValue) { // Use the new ID
-            const currentLevel = gameState.egg?.level || 1;
-            const maxLevel = config?.maxLevel || 10;
-            const displayLevel = Math.min(currentLevel, maxLevel);
-            eggLevelValue.innerText = `Lv. ${displayLevel} / ${maxLevel}`; // Update new element
-        }
-        // eggLevelLabel is static, no need to update it here
-
-        // --- 4. UPDATE HATCH PROGRESS & SHOW/HIDE BUTTON ---
-        gameState.egg.goal = getTapGoal(); // Calculate goal first
-
-        // **Update progress value ALWAYS**
+        gameState.egg.goal = getTapGoal();
         const displayProgress = Math.min(gameState.egg.progress, gameState.egg.goal);
-        if (hatchProgressValue) { // Use the new ID
-            hatchProgressValue.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`; // Update new element
+        if (hatchProgressValue) {
+            hatchProgressValue.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`;
         }
-        // hatchProgressLabel is static, no need to update it here
-
-        // **Default state:** Hide button, remove shake (unless frenzy)
         levelUpContainer.classList.add('hidden');
         if (!gameState.isFrenzyMode) {
             golemEgg.classList.remove('egg-frenzy');
         }
-
-        // **Determine button state based on conditions:**
         const isProgressBarFull = gameState.egg.progress >= gameState.egg.goal;
         const isAtMaxLevelForCurrentEgg = gameState.egg.level >= config.maxLevel;
         const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
         const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
-
         if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
-            // Condition 1: Max level of FINAL egg
-            levelUpContainer.classList.remove('hidden'); // SHOW button
-            // Update button text for Max Level state
+            levelUpContainer.classList.remove('hidden');
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
             if (mainButtonTextElement) mainButtonTextElement.innerText = "Max Level";
-            levelUpCostText.innerText = ""; // Clear cost text
+            levelUpCostText.innerText = "";
             levelUpButton.disabled = true;
             golemEgg.classList.remove('egg-frenzy');
-
         } else if (isProgressBarFull) {
-            // Condition 2: Progress full (ready for level up or prestige)
-            levelUpContainer.classList.remove('hidden'); // SHOW button
+            levelUpContainer.classList.remove('hidden');
             golemEgg.classList.add('egg-frenzy');
-
-            // Update button text based on whether it's prestige time
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
             if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "Evolve";
             } else {
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "Level Up";
             }
-
-            // Calculate and display cost
             const cost = getDustFee();
             levelUpCostText.innerHTML = `
             ${formatNumber(cost)}
@@ -703,15 +681,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
             levelUpButton.disabled = gameState.dust < cost;
         }
-        // Else: (Progress bar not full) - Button remains hidden (default state)
+    }
 
-        // --- 5. UPDATE UPGRADE SHOP (CHISEL) ---
+    function updateUpgradeModal() {
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
-        // Ensure dustPerTap is calculated correctly including potential prestige bonus
-        //const currentEggIndex = EGG_NAMES.indexOf(gameState.egg?.name || "Default Egg");
         chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
-
         if (gameState.chiselLevel >= 10) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
@@ -720,8 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             const cost = getChiselCost();
-            // Calculate next effect correctly
-            const nextChiselLevelEffect = gameState.dustPerTap + 1; // It's just the current tap power + 1
+            const nextChiselLevelEffect = gameState.dustPerTap + 1;
             if (chiselNextEffect) {
                 chiselNextEffect.innerText = `+${formatWithCommas(nextChiselLevelEffect)} Dust/Tap`;
                 if (chiselNextEffect.parentElement) {
@@ -731,8 +705,6 @@ document.addEventListener('DOMContentLoaded', () => {
             buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyChiselButton.disabled = gameState.dust < cost;
         }
-
-        // --- 6. UPDATE UPGRADE SHOP (DRONE) ---
         const droneNextEffect = document.getElementById('drone-next-effect');
         droneLevelText.innerText = gameState.droneLevel;
         droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
@@ -754,8 +726,6 @@ document.addEventListener('DOMContentLoaded', () => {
             buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyDroneButton.disabled = gameState.dust < cost;
         }
-
-        // --- 7. UPDATE UPGRADE SHOP (BATTERY) ---
         const batteryNextCapacity = document.getElementById('battery-next-capacity');
         batteryLevelText.innerText = gameState.batteryLevel;
         batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
@@ -784,7 +754,16 @@ document.addEventListener('DOMContentLoaded', () => {
             buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
             buyBatteryButton.disabled = gameState.dust < cost;
         }
-    } // End of updateUI function
+    }
+    function updateAllUI() {
+        updateHeader();
+        updateEggProgress();
+        updateUpgradeModal();
+    }
+    function updateFrequentUI() {
+        updateHeader();
+        updateEggProgress();
+    }
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
     function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
@@ -806,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.max(1, Math.floor(dustFee));
     }
     function gameLoop() {
-        updateUI();
+        updateFrequentUI();
     }
 
     function handleDailyLogin() {
@@ -838,7 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use our new elements to display the info
         loginStreakText.innerText = `Streak: ${gameState.loginStreak} Day(s)`;
         loginRewardText.innerHTML = rewardText;
-        // --- End of new lines ---
+        updateHeader();
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
@@ -922,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
             geodeMessage.remove();
         }, 4000);
 
-        // 🔔 Feedback
+        updateHeader();
         tg?.HapticFeedback?.notificationOccurred('success');
     }
 
@@ -953,7 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const frenzyRate = particleSystem.baseRate * particleSystem.frenzyRateMultiplier;
         startParticleLoop(frenzyRate);
 
-        updateUI();
+        updateFrequentUI();
     }
     function endFrenzyMode() {
         clearInterval(frenzyInterval);
@@ -981,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         particleSystem.mode = "normal";
         startParticleLoop(particleSystem.baseRate);
-        updateUI();
+        updateFrequentUI();
     }
 
     // --- EVENT LISTENERS ---
@@ -1070,13 +1049,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         triggerHaptic('notification', 'success');
         saveGame(); // Immediately save the new level and dust
-        updateUI(); // Refresh the entire UI
+        updateAllUI();
+        isGameDirty = true;
     });
     // ✨ --- END OF NEW LISTENER --- ✨
 
     golemEgg.addEventListener('click', () => {
-        clearTimeout(saveTimer); // Clear any existing save timer
-        saveTimer = setTimeout(saveGame, 3000); // Set a new 3-second timer
         const now = Date.now();
         const COOLDOWN_DURATION = 100; // 1000ms / 5 taps per second = 200ms
 
@@ -1151,17 +1129,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3. Update the UI to show the new dust and progress.
-        updateUI();
-
-        // --- HAPTIC FEEDBACK ---
+        updateFrequentUI();
+        isGameDirty = true;
         if (isCritical) {
             tg.HapticFeedback.notificationOccurred('warning');
         } else {
             tg.HapticFeedback.impactOccurred('light');
         }
-
-        // --- TAP EFFECT VISUAL ---
         const effect = document.createElement('div');
         effect.className = 'click-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
@@ -1191,7 +1165,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    upgradeButton.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
+    upgradeButton.addEventListener('click', () => {
+        updateUpgradeModal(); // ✨ ADD THIS LINE
+        upgradeModal.classList.remove('hidden');
+    });
     closeUpgradeButton.addEventListener('click', () => {
         upgradeModal.classList.add('closing');
         setTimeout(() => {
@@ -1221,7 +1198,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Recalculate tap power: Chisel Level + (Index of current Egg * 5)
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             gameState.dustPerTap = gameState.chiselLevel + (currentEggIndex * 5);
-            updateUI();
+            updateUpgradeModal(); updateHeader();
+            isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1233,11 +1211,11 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.droneLevel++;
             gameState.dustPerSecond++;
-            // ✨ NEW: Start the first cooldown cycle if this is the first drone
             if (gameState.droneLevel === 1) {
                 gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
             }
-            updateUI();
+            updateUpgradeModal(); updateHeader();
+            isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1249,9 +1227,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= cost;
             gameState.batteryLevel++;
             gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
-            // ✨ NEW: Reset the cooldown with the new, longer duration
             gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
-            updateUI();
+            updateUpgradeModal(); updateHeader();
+            isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1404,7 +1382,8 @@ document.addEventListener('DOMContentLoaded', () => {
             slotResult.className = "slot-result win";
         }
 
-        // Show result
+        updateHeader();
+        isGameDirty = true;
         slotResult.classList.remove("hidden");
         slotResult.classList.add("show");
 
@@ -1470,7 +1449,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
 
         // 6. Instantly update the UI to show the new timer.
-        updateUI();
+        updateHeader();
+        isGameDirty = true;
     });
 
     // --- INITIALIZE GAME ---
@@ -1496,24 +1476,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (isNewPlayer) {
             console.log("New player detected, starting fresh game state.");
-            // Reset necessary parts of gameState for a new player if needed
-            // Ensure the egg state is correctly set for new players too
             gameState.egg = {
                 name: "Default Egg",
                 level: 1,
                 progress: 0,
-                goal: getTapGoal() // Calculate goal for new player too
+                goal: getTapGoal()
             };
             saveGame();
         }
 
         handleDailyLogin();
-        updateUI();
+        updateAllUI();
         if (typeof tg.ready === 'function') {
             tg.ready();
         }
         setInterval(gameLoop, 1000);
-        setInterval(saveGame, 5000);
+        function saveGameIfDirty() {
+            if (isGameDirty) {
+                saveGame();
+                isGameDirty = false;
+            }
+        }
+        setInterval(saveGameIfDirty, 5000);
         window.addEventListener('beforeunload', saveGame);
         particleSpawnInterval = setInterval(spawnParticle, 500);
 
@@ -1547,14 +1531,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'g':
                 console.log('[DEV] +10 Gems');
                 gameState.gems = (gameState.gems || 0) + 10;
-                updateUI?.();
+                updateHeader?.();
                 break;
 
             // ✨ Add crystal dust
             case 'c':
                 console.log('[DEV] +1000 Crystal Dust');
                 gameState.dust = (gameState.dust || 0) + 1000;
-                updateUI?.();
+                updateHeader?.();
                 break;
 
             // 🧰 Spawn treasure box manually

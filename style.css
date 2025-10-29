@@ -39,6 +39,7 @@ button:active {
     width: 100%;
     max-width: 400px;
     height: 100%;
+    max-height: 812px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -48,6 +49,8 @@ button:active {
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
     box-sizing: border-box;
     justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-container {
@@ -152,7 +155,9 @@ button:active {
 
 .egg-image {
     width: 180px;
-    height: 220px;
+    height: 27vh;
+    /* ✨ MODIFIED: Was 220px */
+    max-height: 220px;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     cursor: pointer;
     transition: transform 0.1s ease;
@@ -177,11 +182,14 @@ button:active {
 .egg-image-wrapper {
     position: relative;
     width: 200px;
-    height: 240px;
+    height: 29.5vh;
+    /* ✨ ADDED: Was 240px */
+    max-height: 240px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
+    margin-top: 120px;
 }
 
 #particle-container {
@@ -330,6 +338,22 @@ button:active {
     color: white;
     pointer-events: none;
     animation: float-up 1s ease-out forwards;
+}
+
+#click-effect-container {
+    position: absolute;
+    /* This matches the padding-top of .egg-container */
+    top: 200px;
+    /* This centers it, matching the .egg-image-wrapper */
+    left: 50%;
+    transform: translateX(-50%);
+    /* This matches the exact size of .egg-image-wrapper */
+    width: 200px;
+    height: 240px;
+    /* This is critical: it lets your taps pass through to the egg */
+    pointer-events: none;
+    z-index: 10;
+    /* Ensures effects are on top of the egg */
 }
 
 .drone-claim-effect {
@@ -1035,10 +1059,6 @@ button:active {
     font-size: 0;
 }
 
-.game-container {
-    position: relative;
-}
-
 .treasure-box {
     position: absolute;
     z-index: 80;
@@ -1520,7 +1540,9 @@ img {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    min-height: 150px;
+    min-height: 18.5vh;
+    /* ✨ MODIFIED: Was 150px */
+    max-height: 150px;
 }
 
 #egg-ui-wrapper {

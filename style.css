@@ -134,15 +134,10 @@ button:active {
 }
 
 .level-up-container {
-    position: absolute;
-    /* ✨ Takes it out of the flow */
-    top: 73%;
-    /* ✨ Position 10px from the bottom of .level-display */
-    left: 50%;
-    /* ✨ Center horizontally */
-    transform: translateX(-50%);
-    /* ✨ Fine-tune centering */
-    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 .label {
@@ -1509,15 +1504,7 @@ img {
 /* --- New Egg UI Elements --- */
 .egg-ui-label,
 .egg-ui-value {
-    position: absolute;
-    /* Make all elements absolutely positioned */
-    left: 50%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Fine-tune centering */
     text-align: center;
-    width: 150px;
-    /* Give them a consistent width */
 }
 
 .egg-ui-label {
@@ -1540,24 +1527,13 @@ img {
     /* Remove default margin if any */
 }
 
-#hatch-progress-label {
-    top: 63%;
-    /* Example: Position below the egg */
-}
-
-#hatch-progress-value {
-    top: 65%;
-    /* Example: Position below the label */
-}
-
-#egg-level-label {
-    top: 68%;
-    /* Example: Position further down */
-}
-
-#egg-level-value {
-    top: 70%
-        /* Example: Position below its label */
+.egg-stats-container {
+    display: flex;           /* Use flexbox */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;    /* Center children horizontally */
+    width: 100%;             /* Take full width */
+    margin-top: 15px;       /* ✨ Add space below the egg image (Adjust as needed) */
+    gap: 2px;               /* ✨ Add small vertical space between text lines (Adjust as needed) */
 }
 
 @keyframes shine {

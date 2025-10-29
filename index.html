@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.30">
+    <link rel="stylesheet" href="style.css?v=2.13.32">
 </head>
 
 <body>
@@ -65,6 +65,18 @@
                         alt="Level Up!">
                 </div>
             </div>
+            <div class="egg-stats-container">
+                <div id="hatch-progress-label" class="egg-ui-label">Hatch Progress</div>
+                <div id="hatch-progress-value" class="egg-ui-value">0 / 100</div>
+                <div id="egg-level-label" class="egg-ui-label">Egg Level</div>
+                <div id="egg-level-value" class="egg-ui-value egg-level-value">Lv. 1 / 10</div>
+                <div id="level-up-container" class="level-up-container hidden">
+                    <button id="level-up-button">
+                        <span class="level-up-text">Level Up</span>
+                        <span id="level-up-cost" class="level-up-cost-text"></span>
+                    </button>
+                </div>
+            </div>
             <div id="click-effect-container"></div>
             <div id="slot-popup" class="slot-popup hidden">
                 <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true"
@@ -75,17 +87,6 @@
             </div>
 
             <div id="temporary-message" class="temporary-message hidden"></div>
-
-            <div id="hatch-progress-label" class="egg-ui-label">Hatch Progress</div>
-            <div id="hatch-progress-value" class="egg-ui-value">0 / 100</div>
-            <div id="egg-level-label" class="egg-ui-label">Egg Level</div>
-            <div id="egg-level-value" class="egg-ui-value egg-level-value">Lv. 1 / 10</div>
-            <div id="level-up-container" class="level-up-container hidden">
-                <button id="level-up-button">
-                    <span class="level-up-text">Level Up</span>
-                    <span id="level-up-cost" class="level-up-cost-text"></span>
-                </button>
-            </div>
         </div>
 
         <div class="scroll-menu-container">
@@ -238,7 +239,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.30"></script>
+    <script src="script.js?v=2.13.32"></script>
 
 </body>
 

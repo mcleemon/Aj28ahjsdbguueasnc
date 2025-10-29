@@ -650,6 +650,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hatchProgressValue) {
             hatchProgressValue.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`;
         }
+        if (eggLevelValue) {
+            eggLevelValue.innerText = `Lv. ${gameState.egg.level} / ${config.maxLevel}`;
+        }
         levelUpContainer.classList.add('hidden');
         if (!gameState.isFrenzyMode) {
             golemEgg.classList.remove('egg-frenzy');
@@ -1529,8 +1532,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 💎 Add gems
             case 'g':
-                console.log('[DEV] +10 Gems');
-                gameState.gems = (gameState.gems || 0) + 10;
+                console.log('[DEV] +10 Gem Shards');
+                gameState.gemShards = (gameState.gemShards || 0) + 10;
                 updateHeader?.();
                 break;
 

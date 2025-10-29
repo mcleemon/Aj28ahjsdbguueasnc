@@ -42,7 +42,7 @@ button:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: calc(50px + env(safe-area-inset-top));
+    padding-top: calc(20px + env(safe-area-inset-top));
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
@@ -53,6 +53,7 @@ button:active {
 .header-container {
     width: 100%;
     margin-bottom: 15px;
+    margin-top: 100px;
 }
 
 .player-bar {
@@ -487,7 +488,7 @@ button:active {
     position: relative;
     width: 100%;
     /* 50px for the timer + 10px bottom margin */
-    min-height: 60px; 
+    min-height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;

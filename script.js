@@ -8,6 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 impactOccurred: () => { }
             }
         };
+
+    try {
+        // This is the dark color of your game's background
+        const gameBackgroundColor = '#1a1a1a'; // Or the hex for your background.png
+
+        // Set the color of the native header (where clock/battery are)
+        if (tg.setHeaderColor) {
+            tg.setHeaderColor(gameBackgroundColor);
+        }
+        // Set the color of the background BEHIND your app
+        if (tg.setBackgroundColor) {
+            tg.setBackgroundColor(gameBackgroundColor);
+        }
+    } catch (e) {
+        console.error("Failed to set native Telegram colors:", e);
+    }
     try {
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             if (typeof tg.requestFullscreen === 'function') {
@@ -565,7 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
                 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
                 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true'
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',
+                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true'
             ];
 
             console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
@@ -673,9 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
             golemEgg.classList.add('egg-frenzy');
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
             if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
-                if (mainButtonTextElement) mainButtonTextElement.innerText = "Evolve";
+                if (mainButtonTextElement) mainButtonTextElement.innerText = "EVOLVE!";
             } else {
-                if (mainButtonTextElement) mainButtonTextElement.innerText = "Level Up";
+                if (mainButtonTextElement) mainButtonTextElement.innerText = "LEVEL UP!";
             }
             const cost = getDustFee();
             levelUpCostText.innerHTML = `
@@ -942,10 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
         golemEgg.classList.remove('egg-frenzy');
         frenzyTimerContainer.classList.add('hidden');
         gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 120000; // 2-minute cooldown
+        gameState.frenzyCooldownUntil = Date.now() + 180000; // 3-minute cooldown
         if (frenzyAccumulatedDust > 0) {
             const iconHtml = `<img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">`;
-            temporaryMessage.innerHTML = `You got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
+            temporaryMessage.innerHTML = `Got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
 
             // 1. Make it visible and fade it IN
             temporaryMessage.classList.remove('hidden'); // Removes display:none

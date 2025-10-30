@@ -462,15 +462,15 @@ button:active {
     position: absolute;
     top: 0;
     z-index: 10;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
-    width: 180px;
-    height: 50px;
+    width: 200px;
+    height: 60px;
+    line-height: 65px;
     text-align: center;
-    line-height: 50px;
     font-size: 16px;
     font-weight: bold;
     color: #4A3000;
@@ -483,42 +483,10 @@ button:active {
 #frenzy-wrapper {
     position: relative;
     width: 100%;
-    /* 50px for the timer + 10px bottom margin */
     min-height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-@keyframes pulse-ready {
-    0% {
-        box-shadow: 0 0 10px 0px rgba(255, 215, 0, 0.5);
-    }
-
-    50% {
-        box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8);
-    }
-
-    100% {
-        box-shadow: 0 0 10px 0px rgba(255, 215, 0, 0.5);
-    }
-}
-
-@keyframes pulse-active {
-    0% {
-        box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
-        transform: scale(1);
-    }
-
-    50% {
-        box-shadow: 0 0 25px 15px rgba(255, 0, 0, 1);
-        transform: scale(1.02);
-    }
-
-    100% {
-        box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
-        transform: scale(1);
-    }
 }
 
 .temporary-message {
@@ -528,16 +496,16 @@ button:active {
     transform: translateX(-50%);
     z-index: 110;
     pointer-events: none;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
-    width: 280px;
+    width: 200px;
     height: 60px;
     text-align: center;
-    line-height: 60px;
-    font-size: 16px;
+    line-height: 68px;
+    font-size: 15px;
     font-weight: bold;
     color: #4A3000;
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
@@ -1473,14 +1441,14 @@ img {
 }
 
 #level-up-button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true');
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
     border: none;
     width: 220px;
-    height: 65px;
+    height: 70px;
     padding-bottom: 5px;
     display: flex;
     flex-direction: column;
@@ -1501,11 +1469,11 @@ img {
 }
 
 .level-up-text {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
-    color: #4A3000;
+    color: #ebc700;
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
-    margin-top: 1px;
+    margin-top: 8px;
     margin-bottom: 0px;
 }
 
@@ -1563,6 +1531,37 @@ img {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+@keyframes pulse-ready {
+    0% {
+        box-shadow: 0 0 10px 0px rgba(255, 215, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8);
+    }
+
+    100% {
+        box-shadow: 0 0 10px 0px rgba(255, 215, 0, 0.5);
+    }
+}
+
+@keyframes pulse-active {
+    0% {
+        box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 25px 15px rgba(255, 0, 0, 1);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
+        transform: scale(1);
+    }
 }
 
 @keyframes shine {

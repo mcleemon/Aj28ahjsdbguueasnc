@@ -498,28 +498,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const tryLoadingState = (savedJSON) => {
             try {
                 if (!savedJSON) return false;
-
                 const savedState = JSON.parse(savedJSON);
-
-                // If save file is missing key data, it's invalid
                 if (!savedState || !savedState.checksum || !savedState.egg) {
                     console.warn("Save file is missing critical data.");
                     return false;
                 }
-
                 const expectedChecksum = generateChecksum(savedState);
-
                 if (savedState.checksum === expectedChecksum) {
                     gameState = Object.assign(gameState, savedState);
                     gameState.isFrenzyMode = false;
-                    // We will do more validation in the loadGame callback
                     return true;
                 }
                 console.warn("Checksum mismatch. Save file is invalid.");
                 return false;
             } catch (e) {
                 console.error("Failed to parse or validate save file, it's corrupt:", e);
-                return false; // Safely return false instead of crashing
+                return false;
             }
         };
 

@@ -8,16 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 impactOccurred: () => { }
             }
         };
-
     try {
-        // This is the dark color of your game's background
-        const gameBackgroundColor = '#1a1a1a'; // Or the hex for your background.png
-
-        // Set the color of the native header (where clock/battery are)
+        const gameBackgroundColor = '#1a1a1a';
         if (tg.setHeaderColor) {
             tg.setHeaderColor(gameBackgroundColor);
         }
-        // Set the color of the background BEHIND your app
         if (tg.setBackgroundColor) {
             tg.setBackgroundColor(gameBackgroundColor);
         }
@@ -102,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeGeodeBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 150;
     const MIN_TAPS_BETWEEN_GEODES = 120;
+    const DUST_FEE_GROWTH_RATE = 1.05;
 
     const EGG_NAMES = [
         "Default Egg", "Copper Egg", "Iron Egg", "Silver Egg", "Golden Egg",
         "Obsidian Egg", "Sapphire Egg", "Emerald Egg", "Ruby Egg", "Diamond Egg"
     ];
 
-    // Defines the balancing for each tier
     const EGG_TIERS = {
         "Default Egg": { maxLevel: 10, baseTaps: 100, tapsPerLevel: 25, baseCost: 100 },
         "Copper Egg": { maxLevel: 20, baseTaps: 500, tapsPerLevel: 50, baseCost: 1000 },
@@ -122,9 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 100000000000 }
     };
 
-    // Growth rate for the Dust Fee (5%)
-    const DUST_FEE_GROWTH_RATE = 1.05;
-
     // --- GAME STATE ---
     let gameState = {
         dust: 0,
@@ -132,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chiselLevel: 1,
         chiselBaseCost: 100,
         egg: {
-            name: "Default Egg", // Default starting egg
-            level: 1,            // Default starting level
-            progress: 0,         // Start with 0 progress
-            goal: 100            // Initial placeholder goal, calculated on load
+            name: "Default Egg",
+            level: 1,
+            progress: 0,
+            goal: 100
         },
         dustPerSecond: 0,
         droneLevel: 0,
@@ -155,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         frenzyCooldownUntil: 0,
         tapsSinceLastSpin: 0,
         tapsSinceLastGeode: 0,
-        lastTapTimestamp: 0 // ✨ ADD THIS LINE
+        lastTapTimestamp: 0
     };
 
     const slotSymbols = [
@@ -190,39 +182,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const dailyRewards = [
 
         // Week 1
-        { type: 'dust', amount: 500 },
-        { type: 'dust', amount: 750 },
-        { type: 'dust', amount: 1000 },
-        { type: 'dust', amount: 1250 },
-        { type: 'dust', amount: 1500 },
-        { type: 'dust', amount: 2000 },
+        { type: 'dust', amount: 5000 },
+        { type: 'dust', amount: 10000 },
+        { type: 'dust', amount: 15000 },
+        { type: 'dust', amount: 20000 },
+        { type: 'dust', amount: 25000 },
+        { type: 'dust', amount: 30000 },
         { type: 'gem_shard', amount: 1, label: '1 Gem Shard' }, // Milestone Day 7
 
         // Week 2
-        { type: 'dust', amount: 2500 },
-        { type: 'dust', amount: 2750 },
-        { type: 'dust', amount: 3000 },
-        { type: 'dust', amount: 3250 },
-        { type: 'dust', amount: 3500 },
-        { type: 'dust', amount: 4000 },
+        { type: 'dust', amount: 35000 },
+        { type: 'dust', amount: 40000 },
+        { type: 'dust', amount: 45000 },
+        { type: 'dust', amount: 50000 },
+        { type: 'dust', amount: 55000 },
+        { type: 'dust', amount: 60000 },
         { type: 'gem_shard', amount: 2, label: '2 Gem Shards' }, // Milestone Day 14
 
         // Week 3
-        { type: 'dust', amount: 4500 },
-        { type: 'dust', amount: 4750 },
-        { type: 'dust', amount: 5000 },
-        { type: 'dust', amount: 5250 },
-        { type: 'dust', amount: 5500 },
-        { type: 'dust', amount: 6000 },
+        { type: 'dust', amount: 65000 },
+        { type: 'dust', amount: 70000 },
+        { type: 'dust', amount: 75000 },
+        { type: 'dust', amount: 80000 },
+        { type: 'dust', amount: 85000 },
+        { type: 'dust', amount: 90000 },
         { type: 'gem_shard', amount: 3, label: '3 Gem Shards' }, // Milestone Day 21
 
         // Week 4
-        { type: 'dust', amount: 7000 },
-        { type: 'dust', amount: 7500 },
-        { type: 'dust', amount: 8000 },
-        { type: 'dust', amount: 9000 },
-        { type: 'dust', amount: 10000 },
-        { type: 'dust', amount: 15000 },
+        { type: 'dust', amount: 95000 },
+        { type: 'dust', amount: 100000 },
+        { type: 'dust', amount: 120000 },
+        { type: 'dust', amount: 150000 },
+        { type: 'dust', amount: 300000 },
+        { type: 'dust', amount: 500000 },
         { type: 'gem_shard', amount: 5, label: '5 Gem Shards' }, // BIG Milestone Day 28
     ];
 
@@ -249,15 +241,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatNumber(num) {
         num = Math.floor(Number(num) || 0);
         if (num < 1000) return num.toString();
-
         const suffixes = ["", "K", "M", "B", "T", "Q"];
         const tier = Math.floor(Math.log10(num) / 3);
-
         if (tier === 0) return num;
-
         const scaled = num / Math.pow(1000, tier);
         const formatted = scaled.toFixed(1).replace(/\.0$/, '');
-
         return `${formatted}${suffixes[tier]}`;
     }
 
@@ -346,12 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!activeGeodeBox) return;
         try {
             if (activeGeodeBox._geoClickHandler) {
-                // Use the new handler name we'll create
                 activeGeodeBox.removeEventListener('click', activeGeodeBox._geoClickHandler);
             }
         } catch (e) {
         }
-        // We won't add particles to the geode, so we just remove the box
         activeGeodeBox.remove();
         activeGeodeBox = null;
     }
@@ -436,56 +422,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function spawnGeode() {
-        // Prevent spawning if a box (of either type) or modal is already open
         if (activeGeodeBox || slotActive || gameState.isFrenzyMode) return;
         if (isAnyModalOpen()) return;
-
         const container = document.querySelector('.game-container');
         if (!container) return;
-
-        // 1. Create the geode box element
         const box = document.createElement('div');
-        box.className = 'geode-box'; // Use our new CSS class
+        box.className = 'geode-box';
         const inner = document.createElement('div');
-        inner.className = 'geode-box-inner'; // Use the inner class for shaking
+        inner.className = 'geode-box-inner';
         const img = document.createElement('img');
-        // 2. Use the geode image
         img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true';
         img.alt = 'Geode';
         inner.appendChild(img);
         box.appendChild(inner);
-
-        // 3. Define the click handler
         const clickHandler = (e) => {
             e.stopPropagation();
-            removeGeodeBox();     // Remove this geode
-            handleGeodeEvent();   // Call your existing reward function!
+            removeGeodeBox();
+            handleGeodeEvent();
         };
-        box._geoClickHandler = clickHandler; // Use the new handler name
+        box._geoClickHandler = clickHandler;
         box.addEventListener('click', clickHandler, { passive: true });
-
         container.appendChild(box);
-        activeGeodeBox = box; // Set the global variable
-
-        // 4. Position it randomly (same logic as treasure box)
+        activeGeodeBox = box;
         const header = document.querySelector('.header-container');
         const bottomBar = document.querySelector('.button-bar');
         const containerRect = container.getBoundingClientRect();
         const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
         const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
-
         const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50);
         const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
         const safeLeftMin = 16;
         const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
-
         const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
         const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
-
         box.style.left = `${randLeft + box.clientWidth / 2}px`;
         box.style.top = `${randTop + box.clientHeight / 2}px`;
-
-        // No particle interval for the geode, we'll keep it simple
     }
 
     function formatCooldownTime(totalSeconds) {
@@ -507,7 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.lastSavedTimestamp = Date.now();
             gameState.checksum = generateChecksum(gameState);
             const saveString = JSON.stringify(gameState);
-
             if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 tg.CloudStorage.setItem('golemEggGameState', saveString, (err) => {
                     if (err) {
@@ -540,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         };
 
-        // ✨ --- NEW IMAGE PRELOADER FUNCTION --- ✨
+        // --- IMAGE PRELOADER FUNCTION --- 
         function preloadImages() {
             const imageUrls = [
                 // Main UI & Background
@@ -591,8 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.src = url;
             });
         }
-        // ✨ --- END OF NEW FUNCTION --- ✨
-
         if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
                 let isNew = true;
@@ -678,6 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAtMaxLevelForCurrentEgg = gameState.egg.level >= config.maxLevel;
         const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
         const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
+        levelUpButton.classList.remove('evolve-button');
         if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
             levelUpContainer.classList.remove('hidden');
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
@@ -691,6 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
             if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "EVOLVE!";
+                levelUpButton.classList.add('evolve-button');
             } else {
                 if (mainButtonTextElement) mainButtonTextElement.innerText = "LEVEL UP!";
             }
@@ -801,6 +771,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function getDustFee() {
         const config = getCurrentEggConfig();
         const currentLevel = gameState.egg?.level || 1;
+        if (currentLevel >= config.maxLevel) {
+            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+            const nextEggIndex = currentEggIndex + 1;
+            if (nextEggIndex < EGG_NAMES.length) {
+                const nextEggName = EGG_NAMES[nextEggIndex];
+                const nextEggConfig = EGG_TIERS[nextEggName];
+                return nextEggConfig.baseCost;
+            }
+        }
         const dustFee = config.baseCost * Math.pow(DUST_FEE_GROWTH_RATE, currentLevel);
         return Math.max(1, Math.floor(dustFee));
     }
@@ -834,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 rewardText = `${rewardInfo.label}!`;
                 break;
         }
-        // Use our new elements to display the info
         loginStreakText.innerText = `Streak: ${gameState.loginStreak} Day(s)`;
         loginRewardText.innerHTML = rewardText;
         updateHeader();
@@ -843,23 +821,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function updateCalendarModal() {
         const streakCount = document.getElementById('calendar-streak-count');
-        // We now target the new element for the value
         const nextRewardValue = document.getElementById('next-reward-value');
-
         streakCount.innerHTML = `${gameState.loginStreak} <span class="streak-unit-font">Day${gameState.loginStreak === 1 ? '' : 's'}</span>`;
-
         const nextRewardIndex = (gameState.loginStreak) % dailyRewards.length;
         const rewardInfo = dailyRewards[nextRewardIndex];
         let rewardText = '';
-
         if (rewardInfo.type === 'dust') {
-            // This creates the HTML for a blue number and the image icon
             rewardText = `<span class="dust-amount-color">${formatWithCommas(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
         } else {
-            rewardText = rewardInfo.label; // Other rewards stay as text
+            rewardText = rewardInfo.label;
         }
-
-        // We MUST use .innerHTML now to display the image
         nextRewardValue.innerHTML = rewardText;
     }
     function getGeodeChance() {
@@ -867,14 +838,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function handleGeodeEvent() {
         gameState.geodesFoundToday++;
-
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
         let rarityClass = '';
         let rewardText = '';
-
-        // Fixed base reward (you can tune this easily)
         const baseReward = 1000;
 
         if (prizeRoll < 0.02) {
@@ -911,33 +879,26 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust += reward;
         }
 
-        // ✨ Visual feedback
         const geodeMessage = document.createElement('div');
         geodeMessage.className = `geode-effect ${rarityClass}`;
         geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
         document.body.appendChild(geodeMessage);
-
         setTimeout(() => {
             geodeMessage.remove();
         }, 4000);
-
         updateHeader();
         tg?.HapticFeedback?.notificationOccurred('success');
     }
 
     function startFrenzyMode() {
         if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
-
         golemEgg.classList.add('egg-frenzy');
         gameState.isFrenzyMode = true;
         frenzyAccumulatedDust = 0;
-
         let timeLeft = 15;
         frenzyTimerContainer.classList.remove('hidden');
         frenzyTimer.innerText = `${timeLeft}s`;
-
         tg.HapticFeedback.notificationOccurred('success');
-
         frenzyInterval = setInterval(() => {
             timeLeft--;
             frenzyTimer.innerText = `${timeLeft}s`;
@@ -945,38 +906,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 endFrenzyMode();
             }
         }, 1000);
-
         clearInterval(particleSpawnInterval);
         particleSystem.mode = "frenzy";
-
         const frenzyRate = particleSystem.baseRate * particleSystem.frenzyRateMultiplier;
         startParticleLoop(frenzyRate);
-
         updateFrequentUI();
     }
+
     function endFrenzyMode() {
         clearInterval(frenzyInterval);
         golemEgg.classList.remove('egg-frenzy');
         frenzyTimerContainer.classList.add('hidden');
         gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 180000; // 3-minute cooldown
+        gameState.frenzyCooldownUntil = Date.now() + 180000;
         if (frenzyAccumulatedDust > 0) {
             const iconHtml = `<img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">`;
             temporaryMessage.innerHTML = `Got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
-
-            // 1. Make it visible and fade it IN
-            temporaryMessage.classList.remove('hidden'); // Removes display:none
-            temporaryMessage.classList.add('show');     // Fades opacity to 1
-
-            // 2. Set a timer to fade it OUT after 2.7s
+            temporaryMessage.classList.remove('hidden');
+            temporaryMessage.classList.add('show');
             setTimeout(() => {
-                temporaryMessage.classList.remove('show'); // Fades opacity to 0
-            }, 2700); // 2.7 seconds
-
-            // 3. Set a final timer to HIDE it after 3s total
+                temporaryMessage.classList.remove('show');
+            }, 2700);
             setTimeout(() => {
-                temporaryMessage.classList.add('hidden'); // Sets display:none
-            }, 3000); // 3 seconds
+                temporaryMessage.classList.add('hidden');
+            }, 3000);
         }
         particleSystem.mode = "normal";
         startParticleLoop(particleSystem.baseRate);
@@ -987,8 +940,6 @@ document.addEventListener('DOMContentLoaded', () => {
     levelUpButton.addEventListener('click', () => {
         const config = getCurrentEggConfig();
         const cost = getDustFee();
-
-        // --- Guard Clauses ---
         if (!gameState.egg || gameState.egg.level > config.maxLevel) {
             console.log("Cannot level up: Already at max level or egg state invalid.");
             return;
@@ -1003,60 +954,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- Proceed with Level Up ---
         gameState.dust -= cost;
         gameState.egg.level++;
-        gameState.egg.progress = 0; // Reset progress bar
+        gameState.egg.progress = 0;
 
-        // --- CHECK FOR PRESTIGE (UNLOCKING NEXT EGG) ---
-        // This runs *after* gameState.egg.level++
+        // --- PRESTIGE (UNLOCKING NEXT EGG) ---
         if (gameState.egg.level > config.maxLevel) {
-            // We exceeded the max level for the current egg, time to prestige!
-
-            // Find the index of the egg we just finished
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             const nextEggIndex = currentEggIndex + 1;
-
-            // Check if there IS a next egg in the EGG_NAMES array
             if (nextEggIndex < EGG_NAMES.length) {
-                // Yes, there is a next egg!
                 const newEggName = EGG_NAMES[nextEggIndex];
                 console.log(`PRESTIGE! Unlocking ${newEggName}`);
-
-                // Update game state for the new egg
                 gameState.egg.name = newEggName;
-                gameState.egg.level = 1;      // Start the new egg at level 1
-                gameState.egg.progress = 0;   // Reset progress
+                gameState.egg.level = 1;
+                gameState.egg.progress = 0;
 
-                // ✨ APPLY THE +5 TAP POWER BONUS ✨
-                // Bonus is +5 for Copper (index 1), +10 for Iron (index 2), etc.
+                // --- APPLY THE +5 TAP POWER BONUS 
                 gameState.dustPerTap = gameState.chiselLevel + (nextEggIndex * 5);
-
-                // TODO: Add a nice visual popup/notification here later
-
-                triggerHaptic('notification', 'success'); // Extra success feedback
+                triggerHaptic('notification', 'success');
 
             } else {
-                // No more eggs! This was the final one (Diamond Egg)
                 console.log("Congratulations! Reached max level on the final egg!");
-                // Keep the player at the max level of the final egg
                 gameState.egg.level = config.maxLevel;
-                gameState.egg.progress = 0; // Ensure progress is reset/zeroed
-                // TODO: Maybe show a "Game Complete" message or unlock something special
+                gameState.egg.progress = 0;
             }
 
         } else if (gameState.egg.level === config.maxLevel) {
-            // If they just hit the max level EXACTLY (didn't exceed it)
-            // We don't prestige yet, just log it. Prestige happens on the NEXT level up attempt.
             console.log(`Reached Max Level ${config.maxLevel} for ${gameState.egg.name}. Next level up will prestige.`);
-            // Ensure progress is visually capped if needed (it should be 0 already)
             if (gameState.egg.progress !== 0) gameState.egg.progress = 0;
         }
-        // If level is less than max level, do nothing extra here.
-        // --- END OF PRESTIGE LOGIC ---
 
-        // --- Update Goal & Give Feedback ---
-        gameState.egg.goal = getTapGoal(); // Set the tap goal for the new level
+        gameState.egg.goal = getTapGoal();
 
         const levelupPopup = document.getElementById('levelup-popup');
         levelupPopup.classList.remove('hidden');
@@ -1068,21 +996,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2500);
 
         triggerHaptic('notification', 'success');
-        saveGame(); // Immediately save the new level and dust
+        saveGame();
         updateAllUI();
         isGameDirty = true;
     });
-    // ✨ --- END OF NEW LISTENER --- ✨
-
     golemEgg.addEventListener('click', () => {
+        let isOvercharge = false;
         const now = Date.now();
-        const COOLDOWN_DURATION = 100; // 1000ms / 5 taps per second = 200ms
-
-        // Check if enough time has passed since the last successful tap.
+        const COOLDOWN_DURATION = 100;
         if (now - gameState.lastTapTimestamp < COOLDOWN_DURATION) {
-            return; // If not, ignore this tap and do nothing else.
+            return;
         }
-        // If the tap is allowed, update the timestamp to the current time.
         gameState.lastTapTimestamp = now;
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
@@ -1093,22 +1017,17 @@ document.addEventListener('DOMContentLoaded', () => {
             dustEarned *= 2;
             frenzyAccumulatedDust += dustEarned;
         } else {
-            // 0.5% chance to trigger frenzy mode
-            if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005) {
+            if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005 && gameState.egg.progress < gameState.egg.goal) {
                 startFrenzyMode();
                 return;
             }
             gameState.tapsSinceLastGeode = (gameState.tapsSinceLastGeode || 0) + 1;
             const geodeRoll = Math.random();
-
-            // 2. Check if taps are met AND the random roll passes
             if (gameState.tapsSinceLastGeode >= MIN_TAPS_BETWEEN_GEODES && geodeRoll < getGeodeChance()) {
-                // 3. Reset counter and spawn
                 gameState.tapsSinceLastGeode = 0;
                 spawnGeode();
-                return; // Stop the rest of the tap logic
+                return;
             }
-            // 10% chance of critical tap (double dust + wobble)
             if (Math.random() < 0.10) {
                 isCritical = true;
                 dustEarned *= 2;
@@ -1120,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- MINI-SLOT TRIGGER WITH TAP COOLDOWN ---
         if (!slotActive && !gameState.isFrenzyMode) {
             gameState.tapsSinceLastSpin = (gameState.tapsSinceLastSpin || 0) + 1;
-            const SPIN_BASE_CHANCE = 0.02; // 2% base chance per eligible tap sequence
+            const SPIN_BASE_CHANCE = 0.02;
             const roll = Math.random();
             if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < SPIN_BASE_CHANCE) {
                 gameState.tapsSinceLastSpin = 0;
@@ -1128,22 +1047,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        if (!gameState.isFrenzyMode && gameState.egg.progress >= gameState.egg.goal) {
+            isOvercharge = true;
+            dustEarned *= 0.25;
+        }
+
         // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION (NEW HYBRID MODEL) ---
-        // 'dustEarned' is the (potentially buffed) dust from frenzy/crit
-
-        // 1. ALWAYS give the player the dust they earned.
         gameState.dust += dustEarned;
-
-        // 2. ONLY add to progress if the bar is NOT full.
-        // Ensure gameState.egg exists before accessing progress/goal
         if (gameState.egg && gameState.egg.progress < gameState.egg.goal) {
-
-            // We use 'gameState.dustPerTap' for progress.
-            // Ensure dustPerTap exists, default to 1 if not
             const tapPower = gameState.dustPerTap || 1;
             gameState.egg.progress += tapPower;
-
-            // Clamp the progress to the goal
             if (gameState.egg.progress > gameState.egg.goal) {
                 gameState.egg.progress = gameState.egg.goal;
             }
@@ -1160,12 +1073,14 @@ document.addEventListener('DOMContentLoaded', () => {
         effect.className = 'click-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
         if (isCritical) effect.classList.add('critical');
+        if (isOvercharge) {
+            effect.classList.add('overcharge');
+        }
         effect.style.left = `${Math.random() * 60 + 20}%`;
         clickEffectContainer.appendChild(effect);
         setTimeout(() => effect.remove(), 1000);
     });
 
-    // New, more reliable save event for mobile devices
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
             saveGame();
@@ -1186,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     upgradeButton.addEventListener('click', () => {
-        updateUpgradeModal(); // ✨ ADD THIS LINE
+        updateUpgradeModal();
         upgradeModal.classList.remove('hidden');
     });
     closeUpgradeButton.addEventListener('click', () => {
@@ -1210,12 +1125,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
     buyChiselButton.addEventListener('click', () => {
-        if (gameState.chiselLevel >= 10) return; // reduced max to 10
+        if (gameState.chiselLevel >= 10) return;
         const cost = getChiselCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.chiselLevel++;
-            // Recalculate tap power: Chisel Level + (Index of current Egg * 5)
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             gameState.dustPerTap = gameState.chiselLevel + (currentEggIndex * 5);
             updateUpgradeModal(); updateHeader();
@@ -1275,55 +1189,37 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => wrapper.remove(), 5100);
     }
 
-    // ✨ --- NEW FIREWORK EFFECT FUNCTION --- ✨
     function spawnFireworkParticles() {
         const popupElement = document.getElementById('levelup-popup');
-        // Use the egg wrapper as the container for particles
         const container = document.querySelector('.egg-image-wrapper');
-        if (!popupElement || !container) return; // Exit if elements aren't found
-
-        const particleCount = 15; // How many sparks to create
-        const containerRect = container.getBoundingClientRect(); // Get container position once
-        const popupRect = popupElement.getBoundingClientRect(); // Get popup position once
-
-        // Calculate starting position near the bottom-center of the popup, relative to the container
+        if (!popupElement || !container) return;
+        const particleCount = 15;
+        const containerRect = container.getBoundingClientRect();
+        const popupRect = popupElement.getBoundingClientRect();
         const startXBase = popupRect.left - containerRect.left + (popupRect.width / 2);
-        const startYBase = popupRect.top - containerRect.top + (popupRect.height * 0.8); // Start near bottom
-
+        const startYBase = popupRect.top - containerRect.top + (popupRect.height * 0.8);
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.className = 'firework-particle';
-
-            // Randomize starting position slightly
-            const startX = startXBase + (Math.random() - 0.5) * 30; // +/- 15px horizontal variation
-            const startY = startYBase + (Math.random() - 0.5) * 20; // +/- 10px vertical variation
+            const startX = startXBase + (Math.random() - 0.5) * 30;
+            const startY = startYBase + (Math.random() - 0.5) * 20;
             particle.style.left = `${startX}px`;
             particle.style.top = `${startY}px`;
-
-            // Randomize animation properties
-            const angle = (Math.random() - 0.5) * (Math.PI / 2); // Shoot mostly upwards +/- 45 degrees
-            const travelDistance = 150 + Math.random() * 60; // Travel 80-120px
-            const endX = Math.sin(angle) * travelDistance; // Calculate end X offset
-            const endY = -Math.cos(angle) * travelDistance; // Calculate end Y offset (negative is up)
-            const duration = 1.2 + Math.random() * 0.6; // Animation duration 0.6s to 1.0s
-            const delay = Math.random() * 0.2; // Stagger start times slightly (0s to 0.2s)
-
-            // Set CSS variables for the animation
+            const angle = (Math.random() - 0.5) * (Math.PI / 2);
+            const travelDistance = 150 + Math.random() * 60;
+            const endX = Math.sin(angle) * travelDistance;
+            const endY = -Math.cos(angle) * travelDistance;
+            const duration = 1.2 + Math.random() * 0.6;
+            const delay = Math.random() * 0.2;
             particle.style.setProperty('--firework-x', `${endX}px`);
             particle.style.setProperty('--firework-y', `${endY}px`);
-
-            // Apply the animation
             particle.style.animation = `firework-shoot ${duration}s ease-out ${delay}s forwards`;
-
             container.appendChild(particle);
-
-            // Remove particle after animation + a small buffer
             setTimeout(() => {
                 particle.remove();
             }, (duration + delay) * 1000 + 100);
         }
     }
-    // ✨ --- END OF NEW FUNCTION --- ✨
 
     slotSpinBtn.addEventListener("click", () => {
         slotSpinBtn.disabled = true;
@@ -1365,55 +1261,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let rewardDisplayHtml = '';
-
         if (win) {
             const winningSymbolName = slotSymbols[r1].name;
-
             if (winningSymbolName === 'crystaldust') {
-                // 🔹 Fixed Crystal Dust reward
                 const dustReward = 50000;
                 gameState.dust += dustReward;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
-
             } else if (winningSymbolName === 'geode') {
-                // 🔹 Geode win gives dust + geodes
                 const dustReward = 100000;
                 const rareGeodesWon = 3;
                 gameState.dust += dustReward;
                 gameState.geodesFoundToday = (gameState.geodesFoundToday || 0) + rareGeodesWon;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
-
             } else if (winningSymbolName === 'gem') {
-                // 🔹 Gem win gives gem shards
                 const gemReward = 5;
                 gameState.gemShards += gemReward;
                 rewardDisplayHtml = `${gemReward} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" class="slot-icon-small">`;
             }
-
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
-
         } else {
-            // ❌ Lose case
             let dustReward = 10000;
             gameState.dust += dustReward;
             const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
         }
-
         updateHeader();
         isGameDirty = true;
         slotResult.classList.remove("hidden");
         slotResult.classList.add("show");
-
-        // Allow click to close slot overlay
         slotOverlay.addEventListener("click", () => {
             closeSlot();
         }, { once: true });
     }
 
-    // This is the existing block for the "Welcome Back" modal
     offlineProgressModal.addEventListener('click', (event) => {
         offlineProgressModal.classList.add('closing');
         setTimeout(() => {
@@ -1422,7 +1304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // ADD THE NEW CODE FOR THE DAILY LOGIN MODAL RIGHT HERE
     loginRewardModal.addEventListener('click', (event) => {
         loginRewardModal.classList.add('closing');
         setTimeout(() => {
@@ -1431,44 +1312,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // --- New Drone Claim Event Listener ---
     const batteryDisplayContainer = batteryStatus.parentElement;
     batteryDisplayContainer.addEventListener('click', () => {
-        // 1. First, check if the player even owns a drone.
         if (gameState.droneLevel === 0) return;
-
-        // 2. Then, check if the cooldown is actually finished.
         const now = Date.now();
         if (now < gameState.droneCooldownEndTimestamp) {
-            // Optional: Give feedback that it's not ready yet.
             console.log("Drone reward is not ready yet.");
             tg.HapticFeedback.notificationOccurred('error');
             return;
         }
 
-        // 3. Calculate the reward. It's the drone's power multiplied by the full cooldown duration.
         const dustEarned = gameState.dustPerSecond * gameState.batteryCapacity;
         gameState.dust += dustEarned;
-
-        // 4. Give the player satisfying feedback!
         tg.HapticFeedback.notificationOccurred('success');
-
-        // Get the exact position of the dust counter on the screen
         const dustCounterRect = dustCounter.getBoundingClientRect();
-
         const effect = document.createElement('div');
-        effect.className = 'drone-claim-effect'; // Use our new, specific class
+        effect.className = 'drone-claim-effect';
         effect.innerText = `+${formatNumber(dustEarned)}`;
         effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`;
         effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;
         document.body.appendChild(effect);
         setTimeout(() => effect.remove(), 4000);
-
-
-        // 5. IMPORTANT: Reset the cooldown for the next cycle.
         gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
-
-        // 6. Instantly update the UI to show the new timer.
         updateHeader();
         isGameDirty = true;
     });
@@ -1571,33 +1436,24 @@ document.addEventListener('DOMContentLoaded', () => {
             // 📅 Force daily login    
             case 'l':
                 console.log('[DEV] Forcing Daily Login...');
-                // Temporarily reset the last login date to trigger the function
                 gameState.lastLoginDate = null;
                 handleDailyLogin();
-                saveGame(); // Optional: save the new login state
+                saveGame();
                 break;
 
             // 🔄 Reset all progress
             case 'r':
                 console.log('[DEV] Soft reset requested...');
-                // const confirmed = window.confirm('⚠️ Reset Game Save? This will clear ALL progress.'); // << COMMENT OUT
-                // console.log('[DEV] Confirm result:', confirmed);
-                // if (confirmed) { // << COMMENT OUT
-                console.log('[DEV] Resetting progress... (Bypassing confirm for testing)'); // Add this log
+                console.log('[DEV] Resetting progress... (Bypassing confirm for testing)');
                 try {
-                    // 1. Clear Local Storage
                     localStorage.clear();
                     console.log('[DEV] LocalStorage cleared.');
-
-                    // 2. Clear Cloud Storage (if available)
                     if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         tg.CloudStorage.removeItem('golemEggGameState', (err, removed) => {
-                            // ... (rest of cloud storage code) ...
                             console.log('[DEV] Reloading page after cloud attempt...');
                             location.reload();
                         });
                     } else {
-                        // 3. Reload if not using CloudStorage
                         console.log('[DEV] Reloading page...');
                         location.reload();
                     }
@@ -1605,10 +1461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('[DEV] Error during reset:', e);
                     location.reload();
                 }
-                // } else { // << COMMENT OUT
-                //    console.log('[DEV] Reset cancelled.');
-                //} // << COMMENT OUT
-                break; // End case 'r'
+                break;
         }
     });
 });

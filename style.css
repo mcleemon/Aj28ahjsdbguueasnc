@@ -1330,10 +1330,6 @@ img {
     transition: transform 0.1s ease;
 }
 
-#level-up-button.evolve-button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true');
-}
-
 #level-up-button:active {
     transform: scale(0.95);
 }

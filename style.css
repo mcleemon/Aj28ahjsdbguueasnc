@@ -1302,7 +1302,7 @@ img {
     flex-shrink: 0;
     width: 60px;
     height: 60px;
-    margin-right: 20px;
+    margin-right: 12px;
     cursor: pointer;
     object-fit: contain;
     transition: transform 0.1s ease;

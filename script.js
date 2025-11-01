@@ -107,14 +107,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const EGG_TIERS = {
         "Default Egg": { maxLevel: 10, baseTaps: 100, tapsPerLevel: 25, baseCost: 100 },
         "Copper Egg": { maxLevel: 20, baseTaps: 500, tapsPerLevel: 50, baseCost: 1000 },
-        "Iron Egg": { maxLevel: 30, baseTaps: 1500, tapsPerLevel: 100, baseCost: 10000 },
-        "Silver Egg": { maxLevel: 40, baseTaps: 4500, tapsPerLevel: 200, baseCost: 100000 },
-        "Golden Egg": { maxLevel: 50, baseTaps: 12500, tapsPerLevel: 300, baseCost: 1000000 },
-        "Obsidian Egg": { maxLevel: 60, baseTaps: 27500, tapsPerLevel: 450, baseCost: 10000000 },
-        "Sapphire Egg": { maxLevel: 70, baseTaps: 55000, tapsPerLevel: 650, baseCost: 100000000 },
-        "Emerald Egg": { maxLevel: 80, baseTaps: 100000, tapsPerLevel: 900, baseCost: 1000000000 },
-        "Ruby Egg": { maxLevel: 90, baseTaps: 175000, tapsPerLevel: 1200, baseCost: 10000000000 },
-        "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 100000000000 }
+        "Iron Egg": { maxLevel: 30, baseTaps: 1500, tapsPerLevel: 100, baseCost: 5000 },
+        "Silver Egg": { maxLevel: 40, baseTaps: 4500, tapsPerLevel: 200, baseCost: 25000 },
+        "Golden Egg": { maxLevel: 50, baseTaps: 12500, tapsPerLevel: 300, baseCost: 125000 },
+        "Obsidian Egg": { maxLevel: 60, baseTaps: 27500, tapsPerLevel: 450, baseCost: 625000 },
+        "Sapphire Egg": { maxLevel: 70, baseTaps: 55000, tapsPerLevel: 650, baseCost: 3125000 },
+        "Emerald Egg": { maxLevel: 80, baseTaps: 100000, tapsPerLevel: 900, baseCost: 15625000 },
+        "Ruby Egg": { maxLevel: 90, baseTaps: 175000, tapsPerLevel: 1200, baseCost: 78125000 },
+        "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 390625000 }
+    };
+
+    // --- NEW: EGG IMAGE MAPPING ---
+    const EGG_IMAGES = {
+        "Default Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true",
+        "Copper Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true",
+        "Iron Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true",
+        "Silver Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true",
+        "Golden Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true",
+        "Obsidian Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true",
+        "Sapphire Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true",
+        "Emerald Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true",
+        "Ruby Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true",
+        "Diamond Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true"
     };
 
     // --- GAME STATE ---
@@ -494,6 +508,77 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to save game:", error);
         }
     }
+
+    // --- NEW: Helper function to set the egg image ---
+    function setEggImage(eggName) {
+        const url = EGG_IMAGES[eggName] || EGG_IMAGES["Default Egg"];
+        golemEgg.style.backgroundImage = `url(${url})`;
+    }
+
+    // --- IMAGE PRELOADER FUNCTION --- 
+    function preloadImages() {
+        const imageUrls = [
+            // Main UI & Background
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
+
+            // Icons
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
+
+            // Bottom Buttons
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
+
+            // Scroll Menu Icons
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/rouletteicon.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/sloticon.png?raw=true',
+
+            // Modals & Frames
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true',
+
+            // Settings Modal
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/achievement.png?raw=true',
+
+            // Objects & Popups
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
+
+            // --- NEW EGG IMAGES FOR PRELOAD ---
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true'
+        ];
+
+        console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
+        imageUrls.forEach(url => {
+            const img = new Image();
+            img.src = url;
+        });
+    }
+
     function loadGame(onLoadComplete) {
         const tryLoadingState = (savedJSON) => {
             try {
@@ -517,60 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // --- IMAGE PRELOADER FUNCTION --- 
-        function preloadImages() {
-            const imageUrls = [
-                // Main UI & Background
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
-
-                // Icons
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
-
-                // Bottom Buttons
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
-
-                // Scroll Menu Icons
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/rouletteicon.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/sloticon.png?raw=true',
-
-                // Modals & Frames
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true',
-
-                // Settings Modal
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/achievement.png?raw=true',
-
-                // Objects & Popups
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
-                
-                // --- NEW PRELOAD ---
-                'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true'
-            ];
-
-            console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
-            imageUrls.forEach(url => {
-                const img = new Image();
-                img.src = url;
-            });
-        }
         if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
                 let isNew = true;
@@ -789,7 +820,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleDailyLogin() {
         const today = formatDate();
         if (gameState.lastLoginDate === today) return;
-        gameState.geodesFoundToday = 0;
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = formatDate(yesterday);
@@ -836,7 +866,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return 0.03;
     }
     function handleGeodeEvent() {
-        gameState.geodesFoundToday++;
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
@@ -939,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
     levelUpButton.addEventListener('click', () => {
         const config = getCurrentEggConfig();
         const cost = getDustFee();
-        let isEvolving = false; // --- NEW: To track if this is an evolve ---
+        let isEvolving = false;
 
         if (!gameState.egg || gameState.egg.level > config.maxLevel) {
             console.log("Cannot level up: Already at max level or egg state invalid.");
@@ -950,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (gameState.dust < cost) {
-            tg.HapticFeedback.notificationOccurred('error'); // --- FIX 1 ---
+            tg.HapticFeedback.notificationOccurred('error');
             console.log("Cannot level up: Not enough dust.");
             return;
         }
@@ -961,7 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- PRESTIGE (UNLOCKING NEXT EGG) ---
         if (gameState.egg.level > config.maxLevel) {
-            isEvolving = true; // --- NEW: Mark this as an evolve ---
+            isEvolving = true;
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             const nextEggIndex = currentEggIndex + 1;
             if (nextEggIndex < EGG_NAMES.length) {
@@ -970,10 +999,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.egg.name = newEggName;
                 gameState.egg.level = 1;
                 gameState.egg.progress = 0;
+                setEggImage(newEggName);
 
                 // --- APPLY THE +5 TAP POWER BONUS 
                 gameState.dustPerTap = gameState.chiselLevel + (nextEggIndex * 5);
-                tg.HapticFeedback.notificationOccurred('success'); // --- FIX 2 ---
+                tg.HapticFeedback.notificationOccurred('success');
 
             } else {
                 console.log("Congratulations! Reached max level on the final egg!");
@@ -988,9 +1018,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameState.egg.goal = getTapGoal();
 
-        // --- NEW: DYNAMIC POPUP IMAGE LOGIC ---
+        // --- DYNAMIC POPUP IMAGE LOGIC ---
         const levelupPopup = document.getElementById('levelup-popup');
-        const popupImage = levelupPopup.querySelector('img'); // Get the <img> tag inside
+        const popupImage = levelupPopup.querySelector('img');
 
         if (isEvolving) {
             popupImage.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true';
@@ -999,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
             popupImage.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true';
             popupImage.alt = 'Level Up!';
         }
-        // --- END OF NEW LOGIC ---
+        // --- END OF DYNAMIC LOGIC ---
 
         levelupPopup.classList.remove('hidden');
         levelupPopup.classList.add('show');
@@ -1009,12 +1039,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => levelupPopup.classList.add('hidden'), 600);
         }, 2500);
 
-        tg.HapticFeedback.notificationOccurred('success'); // --- FIX 3 ---
+        tg.HapticFeedback.notificationOccurred('success');
         saveGame();
         updateUI();
         isGameDirty = true;
     });
-    
+
     golemEgg.addEventListener('click', () => {
         let isOvercharge = false;
         const now = Date.now();
@@ -1284,9 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'geode') {
                 const dustReward = 100000;
-                const rareGeodesWon = 3;
                 gameState.dust += dustReward;
-                gameState.geodesFoundToday = (gameState.geodesFoundToday || 0) + rareGeodesWon;
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 const gemReward = 5;
@@ -1385,6 +1413,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveGame();
         }
 
+        setEggImage(gameState.egg.name);
         handleDailyLogin();
         updateUI();
         if (typeof tg.ready === 'function') {
@@ -1431,14 +1460,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'g':
                 console.log('[DEV] +10 Gem Shards');
                 gameState.gemShards = (gameState.gemShards || 0) + 10;
-                updateUI?.();
+                updateUI();
                 break;
 
             // ✨ Add crystal dust
             case 'c':
                 console.log('[DEV] +1000 Crystal Dust');
                 gameState.dust = (gameState.dust || 0) + 1000;
-                updateUI?.();
+                updateUI();
                 break;
 
             // 🧰 Spawn treasure box manually

@@ -283,9 +283,9 @@ button:active {
 #close-upgrade-button {
     position: absolute;
     z-index: 10;
-    left: 50%;
+    left: 88%;
     transform: translateX(-50%);
-    top: 92%;
+    top: 5%;
     width: 30px;
     height: 29px;
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -970,7 +970,7 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true") center/contain no-repeat;
+    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe2.png?raw=true") center/contain no-repeat;
     background-color: transparent;
     border: none;
     overflow: hidden;
@@ -1415,7 +1415,7 @@ img {
     border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true');
     border-image-slice: 100 fill;
     /* Slices the image at its corners */
-    border-image-width: 80px;
+    border-image-width: 70px;
     /* Matches our border width */
 
     /* 4. We set the background *inside* the frame */
@@ -1437,7 +1437,7 @@ img {
 }
 
 .shop-header {
-    padding: 10px;
+    padding: 0px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1459,7 +1459,7 @@ img {
 
 #close-shop-button {
     position: absolute;
-    left: 15px;
+    left: 340px;
     top: 50%;
     transform: translateY(-50%);
 
@@ -1477,7 +1477,7 @@ img {
 }
 
 .shop-content {
-    padding: 10px 35px;
+    padding: 2px 35px;
     overflow-y: auto;
     flex-grow: 1;
     -ms-overflow-style: none;

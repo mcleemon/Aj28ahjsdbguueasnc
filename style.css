@@ -1404,11 +1404,28 @@ img {
 }
 
 .shop-panel {
+    /* 1. We remove the old background and border styles */
+    /* background-color: #2a2a2e; */
+    /* border-radius: 15px; */
+
+    /* 2. We set a large, transparent border to hold the image */
+    border: 60px solid transparent;
+
+    /* 3. This is the 9-slice magic */
+    border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true');
+    border-image-slice: 100 fill;
+    /* Slices the image at its corners */
+    border-image-width: 100px;
+    /* Matches our border width */
+
+    /* 4. We set the background *inside* the frame */
     background-color: #2a2a2e;
-    border: 2px solid #555;
-    border-radius: 15px;
+    background-clip: padding-box;
+    /* IMPORTANT: Keeps BG inside the border */
+
+    /* --- All your other styles stay the same --- */
     width: 95%;
-    max-width: 380px;
+    max-width: 350px;
     height: 85vh;
     max-height: 700px;
     position: relative;
@@ -1478,7 +1495,7 @@ img {
 .shop-item-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 5px;
 }
 
 .shop-item-vertical {

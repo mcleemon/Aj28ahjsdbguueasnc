@@ -526,6 +526,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Icons
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust3.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
@@ -550,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true',
 
             // Settings Modal
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true',

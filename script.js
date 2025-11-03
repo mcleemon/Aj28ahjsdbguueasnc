@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeGeodeBox = null;
     const MIN_TAPS_BETWEEN_SPINS = 150;
     const MIN_TAPS_BETWEEN_GEODES = 120;
-    const DUST_FEE_GROWTH_RATE = 1.05;
+    const DUST_FEE_GROWTH_RATE = 1.003;
 
     const EGG_NAMES = [
         "Default Egg", "Copper Egg", "Iron Egg", "Silver Egg", "Golden Egg",
@@ -531,7 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
 
             // Bottom Buttons
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true',
+            `https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true`,
 
             // Scroll Menu Icons
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',

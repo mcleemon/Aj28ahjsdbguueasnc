@@ -1409,13 +1409,13 @@ img {
     /* border-radius: 15px; */
 
     /* 2. We set a large, transparent border to hold the image */
-    border: 60px solid transparent;
+    border: 15px solid transparent;
 
     /* 3. This is the 9-slice magic */
     border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true');
     border-image-slice: 100 fill;
     /* Slices the image at its corners */
-    border-image-width: 100px;
+    border-image-width: 80px;
     /* Matches our border width */
 
     /* 4. We set the background *inside* the frame */
@@ -1425,9 +1425,9 @@ img {
 
     /* --- All your other styles stay the same --- */
     width: 95%;
-    max-width: 350px;
+    max-width: 380px;
     height: 85vh;
-    max-height: 700px;
+    max-height: 600px;
     position: relative;
     text-align: center;
     display: flex;
@@ -1437,8 +1437,7 @@ img {
 }
 
 .shop-header {
-    padding: 10px 20px;
-    border-bottom: 2px solid #444;
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1451,6 +1450,11 @@ img {
     font-size: 28px;
     margin: 0;
     color: #ffd55c;
+}
+
+.shop-footer {
+    flex-shrink: 0;
+    height: 30px;
 }
 
 #close-shop-button {
@@ -1473,7 +1477,7 @@ img {
 }
 
 .shop-content {
-    padding: 15px;
+    padding: 10px 35px;
     overflow-y: auto;
     flex-grow: 1;
     -ms-overflow-style: none;
@@ -1495,7 +1499,7 @@ img {
 .shop-item-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
+    gap: 8px;
 }
 
 .shop-item-vertical {

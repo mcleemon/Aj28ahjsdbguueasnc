@@ -545,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Modals & Frames
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe2.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
@@ -567,6 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
 
             // --- NEW EGG IMAGES FOR PRELOAD ---
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true',

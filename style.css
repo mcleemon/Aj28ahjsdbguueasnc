@@ -982,10 +982,10 @@ button:active {
 
 #upgrade-modal .modal-inner {
     position: absolute;
-    top: 9.5%;
+    top: 10%;
     left: 17%;
     width: 66%;
-    height: 81%;
+    height: 80%;
     overflow-y: auto;
     text-align: center;
     color: #fff;
@@ -1459,20 +1459,27 @@ img {
 
 #close-shop-button {
     position: absolute;
-    left: 340px;
+    left: 350px;
+    /* Keeps its top-left position */
     top: 50%;
     transform: translateY(-50%);
 
-    font-size: 32px;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    line-height: 1;
-    color: #fff;
+    /* --- New Image Styles --- */
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent;
 
-    background: none;
+    width: 30px;
+    /* Copied from your upgrade button */
+    height: 29px;
+    /* Copied from your upgrade button */
+
     border: none;
     cursor: pointer;
-    padding: 0 10px;
+    padding: 0;
+    font-size: 0;
+    /* Hides any text */
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -1584,6 +1591,159 @@ img {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+.shop-item-vertical .shop-item-card {
+    min-height: 90px;
+    padding: 0;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s ease;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Prestige Pass Card 1 --- */
+.shop-item-vertical .shop-item-card:first-child {
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass1.png?raw=true');
+}
+
+/* --- Prestige Pass Card 2 --- */
+.shop-item-vertical .shop-item-card:last-child {
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true');
+}
+
+/* --- New Prestige Pass Text Styles --- */
+
+/* This is the base style for all text */
+.shop-item-vertical .shop-item-card span {
+    font-family: 'Graduate', serif;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* --- Style for the Title --- */
+.pass-title {
+    font-size: 16px;
+    color: #FFFFFF;
+    /* Default color */
+}
+
+/* --- Style for the Price/Subtitle --- */
+.pass-price {
+    font-size: 14px;
+    color: #FFD700;
+    /* Default color (e.g., gold) */
+    margin-top: 3px;
+    /* Adds space between the lines */
+}
+
+/* --- (Optional) Customize Pass 1 --- */
+.shop-item-card:first-child .pass-title {
+    color: #FFD700;
+    /* Example: Gold Title */
+    font-size: 15px;
+}
+
+.shop-item-card:first-child .pass-price {
+    color: #FFFFFF;
+    /* Example: White Price */
+}
+
+/* --- (Optional) Customize Pass 2 --- */
+.shop-item-card:last-child .pass-title {
+    color: #E0E0E0;
+    /* Example: Cyan Title */
+    font-size: 14px;
+}
+
+.shop-item-card:last-child .pass-price {
+    color: #FFFFFF;
+    /* Example: White Price */
+}
+
+/* This rule adds the "pop" when you click */
+.shop-item-vertical .shop-item-card:active {
+    transform: scale(0.95);
+}
+
+/* --- Animated Brilliant Gold Effect (v3) --- */
+.shop-item-card:first-child .pass-title.animated-gold-text {
+
+    /* 1. New Gradient: Rich Gold -> Main Gold -> Bright Glint -> Main Gold */
+    background: linear-gradient(to right,
+            #D4AF37 0%,
+            /* A rich, classic gold (not too dark) */
+            #FFD700 30%,
+            /* Your main gold color */
+            #FFF7B6 50%,
+            /* A very pale, bright "glint" */
+            #FFD700 70%,
+            /* Your main gold color */
+            #D4AF37 100%
+            /* The rich, classic gold */
+        );
+    background-size: 200% 100%;
+    /* Keeps the wave smooth */
+
+    /* 2. The "Clip" (Stays the same) */
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+
+    /* 3. The Animation (uses our non-conflicting name) */
+    animation: rainbow-wave 6s linear infinite;
+}
+
+/* --- Animated Silver Text Effect (V2 - 6-Stop) --- */
+.shop-item-card:last-child .pass-title.animated-silver-text {
+
+    /* 1. New 6-Stop Gradient (Dark -> Mid -> Bright -> Glint -> Bright -> Mid) */
+    background: linear-gradient(to right,
+            #A9A9A9 0%,
+            /* 1. Dark Steel Silver */
+            #C0C0C0 20%,
+            /* 2. Standard Silver */
+            #E0E0E0 40%,
+            /* 3. Light Metallic */
+            #FFFFFF 50%,
+            /* 4. Pure White Glint */
+            #E0E0E0 60%,
+            /* 5. Light Metallic */
+            #C0C0C0 80%,
+            /* 6. Standard Silver */
+            #A9A9A9 100%
+            /* Loop back to Dark Steel */
+        );
+    background-size: 200% 100%;
+
+    /* 2. The "Clip" */
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+
+    /* 3. The Animation (using your 6-second speed) */
+    animation: rainbow-wave 6s linear infinite;
+
+    /* 4. THE FIX: Remove the shadow */
+    text-shadow: none;
+}
+
+@keyframes rainbow-wave {
+    0% {
+        background-position: 200% 0;
+        /* Start far right */
+    }
+
+    100% {
+        background-position: -200% 0;
+        /* End far left */
+    }
+}
+
 @keyframes pulse-ready {
     0% {
         box-shadow: 0 0 10px 0px rgba(255, 215, 0, 0.5);
@@ -1612,16 +1772,6 @@ img {
     100% {
         box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
         transform: scale(1);
-    }
-}
-
-@keyframes shine {
-    0% {
-        background-position: -100% 0;
-    }
-
-    100% {
-        background-position: 100% 0;
     }
 }
 

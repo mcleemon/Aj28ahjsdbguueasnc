@@ -23,7 +23,7 @@
         href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true">
     <link rel="preload" as="image"
         href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true">
-    <link rel="stylesheet" href="style.css?v=2.13.70">
+    <link rel="stylesheet" href="style.css?v=2.13.72">
 </head>
 
 <body>
@@ -124,7 +124,7 @@
         <div class="button-bar">
             <button id="upgrade-button">UPGRADE</button>
             <button id="new-shop-button" disabled>SHOP</button>
-            <button id="friends-button" disabled>FRIENDS</button>
+            <button id="tasks-button" disabled>TASKS</button>
             <button id="grotto-button" disabled>GROTTO</button>
         </div>
     </div>
@@ -264,7 +264,9 @@
                 <h3>LIFETIME PRESTIGE PASS</h3>
                 <div class="shop-item-vertical">
                     <button class="shop-item-card">
-                        <span class="pass-title animated-gold-text">PRESTIGE GOLD PASS</span>
+                        <span class="twinkle-wrapper">
+                            <span class="pass-title animated-gold-text">PRESTIGE GOLD PASS</span>
+                        </span>
                         <span class="pass-price">$4.99</span>
                     </button>
                     <button class="shop-item-card">
@@ -521,7 +523,7 @@
 
                     <h2 class="perk-subtitle">Limited Time Gold Prestige Bonus:</h2>
                     <ul>
-                        <li>Limited Special <span class="animated-gold-text">Gold Name</span></li>
+                        <li>Limited Special <span class="animated-gold-text">Gold Plated Name</span></li>
                         <li>Limited Special Egg and Golem (Future)</li>
                         <li>Unlimited GOLD Lifetime Pass</li>
                         <li>More Future Update Rewards</li>
@@ -568,7 +570,7 @@
 
                     <h2 class="perk-subtitle">Limited Time Silver Prestige Bonus:</h2>
                     <ul>
-                        <li>Limited Special <span class="animated-silver-text">Silver Name</span></li>
+                        <li>Limited Special <span class="animated-silver-text">Silver Plated Name</span></li>
                         <li>Unlimited SILVER Lifetime Pass</li>
                     </ul>
 
@@ -598,10 +600,122 @@
             </div>
         </div>
     </div>
+
+    <div id="tasks-modal" class="modal hidden">
+        <div class="task-panel">
+            <div class="task-header"> <button id="close-tasks-button"></button>
+                <h2>TASKS</h2>
+            </div>
+            <div class="task-content">
+                <div class="task-list">
+                    <h3>EARN GEMS</h3>
+                    <div class="task-item">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
+                            alt="Task Icon" class="task-icon">
+                        <div class="task-info">
+                            <span class="task-title">Tap 500 Times</span>
+                            <span class="task-reward">Reward: 1,000 Dust</span>
+                        </div>
+                        <button class="task-claim-button" disabled>GO</button>
+                    </div>
+
+                    <div class="task-item">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
+                            alt="Task Icon" class="task-icon">
+                        <div class="task-info">
+                            <span class="task-title">Tap 1,000 Times</span>
+                            <span class="task-reward">Reward: 2,500 Dust</span>
+                        </div>
+                        <button class="task-claim-button" disabled>GO</button>
+                    </div>
+
+                    <div class="task-item">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
+                            alt="Task Icon" class="task-icon">
+                        <div class="task-info">
+                            <span class="task-title">Tap 1,500 Times</span>
+                            <span class="task-reward">Reward: 5,000 Dust</span>
+                        </div>
+                        <button class="task-claim-button" disabled>GO</button>
+                    </div>
+                </div>
+            </div>
+            <div class="task-footer"></div>
+        </div>
+    </div>
+
+    <div id="grotto-modal" class="modal hidden">
+        <div class="grotto-panel">
+            <div class="grotto-header"> <button id="close-grotto-button"></button>
+                <h2>GROTTO</h2>
+            </div>
+            <div class="grotto-content"> <img id="grotto-display-image"
+                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
+                    alt="Golem Display">
+                <span id="grotto-counter">Hatch Card 0/10</span>
+            </div>
+            <div class="grotto-footer">
+                <div class="grotto-scroll-menu">
+                    <button class="grotto-menu-item active"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
+                            alt="Default Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true"
+                            alt="Copper Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true"
+                            alt="Iron Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true"
+                            alt="Silver Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true"
+                            alt="Golden Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true"
+                            alt="Obsidian Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true"
+                            alt="Sapphire Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true"
+                            alt="Emerald Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true"
+                            alt="Ruby Egg">
+                    </button>
+                    <button class="grotto-menu-item"
+                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true">
+                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true"
+                            alt="Diamond Egg">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="shop.js?v=1.0.4" defer></script>
-    <script src="script.js?v=2.13.70"></script>
+    <script src="shop.js?v=1.0.6" defer></script>
+    <script src="tasks.js?v=1.0.2" defer></script>
+    <script src="grotto.js?v=1.0.2" defer></script>
+    <script src="script.js?v=2.13.72"></script>
 
 </body>
 

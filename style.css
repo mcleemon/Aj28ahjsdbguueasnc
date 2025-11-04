@@ -1134,7 +1134,7 @@ button:active {
 
 #upgrade-button,
 #new-shop-button,
-#friends-button,
+#tasks-button,
 #grotto-button {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true');
     background-size: contain;
@@ -1152,7 +1152,7 @@ button:active {
 
 #upgrade-button,
 #new-shop-button,
-#friends-button,
+#tasks-button,
 #grotto-button {
     color: #dfc117;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
@@ -1445,7 +1445,8 @@ img {
 
 #close-shop-button {
     position: absolute;
-    left: 350px;
+    right: 5px;
+    ;
     top: 50%;
     transform: translateY(-50%);
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -1646,32 +1647,35 @@ img {
 .perk-list .animated-gold-text {
     background: linear-gradient(to right,
             #D4AF37 0%,
-            #FFD700 30%,
+            #D4AF37 40%,
             #FFF7B6 50%,
-            #FFD700 70%,
+            #D4AF37 60%,
             #D4AF37 100%
         );
+
     background-size: 200% 100%;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: rainbow-wave 6s linear infinite;
+    animation: rainbow-wave 7s linear infinite;
+    text-shadow: none;
 }
 
 .shop-item-card:last-child .pass-title.animated-silver-text,
 .perk-list .animated-silver-text {
     background: linear-gradient(to right,
             #A9A9A9 0%,
-            #C0C0C0 30%,
+            #A9A9A9 40%,
             #FFFFFF 50%,
-            #C0C0C0 70%,
+            #A9A9A9 60%,
             #A9A9A9 100%
         );
+
     background-size: 200% 100%;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: rainbow-wave 6s linear infinite;
+    animation: rainbow-wave 7s linear infinite;
     text-shadow: none;
 }
 
@@ -1683,7 +1687,8 @@ img {
 #close-gold-pass-button,
 #close-silver-pass-button {
     position: absolute;
-    left: 350px;
+    right: 5px;
+    ;
     top: 50%;
     transform: translateY(-50%);
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
@@ -1732,6 +1737,330 @@ img {
     font-size: 18px;
     margin-top: 25px;
     margin-bottom: 15px;
+}
+
+#tasks-modal {
+    z-index: 101;
+}
+
+#close-tasks-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 30px;
+    height: 29px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3e3e42;
+    border: 1px solid #666;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.task-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.task-info {
+    flex-grow: 1;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+}
+
+.task-title {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.task-reward {
+    display: block;
+    font-size: 12px;
+    color: #ffd55c;
+}
+
+.task-claim-button {
+    font-family: 'Graduate', serif;
+    font-size: 14px;
+    color: #dfc117;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: 80px;
+    min-height: 45px;
+    cursor: pointer;
+    padding-right: 7px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.task-claim-button:disabled {
+    filter: grayscale(80%) opacity(0.6);
+    cursor: not-allowed;
+}
+
+.task-panel {
+    border: 15px solid transparent;
+    border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe3.png?raw=true');
+    border-image-slice: 100 fill;
+    border-image-width: 70px;
+    background-color: #2a2a2e;
+    background-clip: padding-box;
+    width: 95%;
+    max-width: 380px;
+    height: 85vh;
+    max-height: 600px;
+    position: relative;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeInScaleUp 0.3s ease-out forwards;
+}
+
+.task-header {
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.task-header h2 {
+    font-family: 'Lilita One', cursive;
+    font-size: 28px;
+    margin: 0;
+    color: #ffd55c;
+}
+
+.task-content {
+    padding: 2px 35px;
+    overflow-y: auto;
+    flex-grow: 1;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.task-content::-webkit-scrollbar {
+    display: none;
+}
+
+.task-content h3 {
+    font-family: 'Graduate', serif;
+    color: #dfc117;
+    text-align: center;
+    margin: 15px 0 10px 0px;
+    font-size: 18px;
+}
+
+.task-footer {
+    flex-shrink: 0;
+    height: 30px;
+}
+
+#grotto-modal {
+    z-index: 101;
+}
+
+.grotto-panel {
+    border: 15px solid transparent;
+    border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe4.png?raw=true');
+    border-image-slice: 100 fill;
+    border-image-width: 70px;
+    background-color: #2a2a2e;
+    background-clip: padding-box;
+    width: 95%;
+    max-width: 380px;
+    height: 85vh;
+    max-height: 600px;
+    position: relative;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeInScaleUp 0.3s ease-out forwards;
+}
+
+.grotto-header {
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.grotto-header h2 {
+    font-family: 'Lilita One', cursive;
+    font-size: 28px;
+    margin: 0;
+    color: #ffd55c;
+}
+
+#close-grotto-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 30px;
+    height: 29px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.grotto-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#grotto-display-image {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+#grotto-counter {
+    font-family: 'Graduate', serif;
+    font-size: 18px;
+    color: #FFD700;
+    background-color: #3e3e42;
+    padding: 5px 15px;
+    border-radius: 10px;
+    border: 1px solid #666;
+}
+
+.grotto-footer {
+    flex-shrink: 0;
+    width: 100%;
+    height: 110px;
+    padding: 5px 25px 10px 25px;
+    box-sizing: border-box;
+}
+
+.grotto-scroll-menu {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.grotto-scroll-menu::-webkit-scrollbar {
+    height: 8px;
+}
+
+.grotto-scroll-menu::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0 10px;
+}
+
+.grotto-scroll-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.grotto-scroll-menu {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.grotto-menu-item {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+    background-color: #333;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.grotto-menu-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.grotto-menu-item.active {
+    border-color: #FFD700;
+    box-shadow: 0 0 10px #FFD700;
+}
+
+#gold-pass-modal .shop-content,
+#silver-pass-modal .shop-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    -ms-overflow-style: auto;
+}
+
+#gold-pass-modal .shop-content::-webkit-scrollbar,
+#silver-pass-modal .shop-content::-webkit-scrollbar {
+    display: block;
+    width: 8px;
+}
+
+#gold-pass-modal .shop-content::-webkit-scrollbar-track,
+#silver-pass-modal .shop-content::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+#gold-pass-modal .shop-content::-webkit-scrollbar-thumb,
+#silver-pass-modal .shop-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 @keyframes rainbow-wave {

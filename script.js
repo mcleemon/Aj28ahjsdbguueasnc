@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to save game:", error);
         }
     }
-    
+
     function setEggImage(eggName) {
         const url = EGG_IMAGES[eggName] || EGG_IMAGES["Default Egg"];
         golemEgg.style.backgroundImage = `url(${url})`;
@@ -545,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Modals & Frames
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe2.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe3.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',

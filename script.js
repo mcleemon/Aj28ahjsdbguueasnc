@@ -508,8 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to save game:", error);
         }
     }
-
-    // --- NEW: Helper function to set the egg image ---
+    
     function setEggImage(eggName) {
         const url = EGG_IMAGES[eggName] || EGG_IMAGES["Default Egg"];
         golemEgg.style.backgroundImage = `url(${url})`;
@@ -534,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Bottom Buttons
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true',
-            `https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true`,
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
 
             // Scroll Menu Icons
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',
@@ -552,7 +551,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true',
 
             // Settings Modal
@@ -567,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
 
-            // --- NEW EGG IMAGES FOR PRELOAD ---
+            // --- EGG IMAGES ---
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true',
@@ -577,7 +575,13 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true',
             'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true'
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true',
+
+            // --- NEWLY ADDED IMAGES (Nov 4) ---
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak2.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass1.png?raw=true',
+            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true'
         ];
 
         console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);

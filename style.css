@@ -1404,26 +1404,12 @@ img {
 }
 
 .shop-panel {
-    /* 1. We remove the old background and border styles */
-    /* background-color: #2a2a2e; */
-    /* border-radius: 15px; */
-
-    /* 2. We set a large, transparent border to hold the image */
     border: 15px solid transparent;
-
-    /* 3. This is the 9-slice magic */
     border-image-source: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true');
     border-image-slice: 100 fill;
-    /* Slices the image at its corners */
     border-image-width: 70px;
-    /* Matches our border width */
-
-    /* 4. We set the background *inside* the frame */
     background-color: #2a2a2e;
     background-clip: padding-box;
-    /* IMPORTANT: Keeps BG inside the border */
-
-    /* --- All your other styles stay the same --- */
     width: 95%;
     max-width: 380px;
     height: 85vh;
@@ -1460,26 +1446,18 @@ img {
 #close-shop-button {
     position: absolute;
     left: 350px;
-    /* Keeps its top-left position */
     top: 50%;
     transform: translateY(-50%);
-
-    /* --- New Image Styles --- */
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
-
     width: 30px;
-    /* Copied from your upgrade button */
     height: 29px;
-    /* Copied from your upgrade button */
-
     border: none;
     cursor: pointer;
     padding: 0;
     font-size: 0;
-    /* Hides any text */
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -1519,7 +1497,6 @@ img {
 .shop-item-card {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true');
     background-size: 100% 100%;
-    /* Stretches to fit the card */
     background-repeat: no-repeat;
     padding: 10px;
     display: flex;
@@ -1559,7 +1536,8 @@ img {
     margin-top: 15px;
 }
 
-.shop-item-card .card-buy-button {
+.shop-item-card .card-buy-button,
+.shop-footer .card-buy-button {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true');
     background-size: contain;
     background-position: center;
@@ -1574,21 +1552,30 @@ img {
     position: relative;
 }
 
-.shop-item-card .card-buy-button:active {
+.shop-item-card .card-buy-button:active,
+.shop-footer .card-buy-button:active {
     transform: scale(0.95);
 }
 
-.shop-item-card .card-buy-button span {
+.shop-item-card .card-buy-button span,
+.shop-footer .card-buy-button span {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-52%, -50%);
     white-space: nowrap;
     font-family: 'Graduate', serif;
     font-size: 14px;
     color: #dfc117;
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.shop-item-card .card-buy-button span {
+    transform: translate(-52%, -50%);
+}
+
+.shop-footer .card-buy-button span {
+    transform: translate(-50%, -50%);
 }
 
 .shop-item-vertical .shop-item-card {
@@ -1616,131 +1603,144 @@ img {
     background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true');
 }
 
-/* --- New Prestige Pass Text Styles --- */
-
-/* This is the base style for all text */
 .shop-item-vertical .shop-item-card span {
     font-family: 'Graduate', serif;
     font-weight: bold;
     white-space: nowrap;
 }
 
-/* --- Style for the Title --- */
 .pass-title {
     font-size: 16px;
     color: #FFFFFF;
-    /* Default color */
 }
 
-/* --- Style for the Price/Subtitle --- */
 .pass-price {
     font-size: 14px;
     color: #FFD700;
-    /* Default color (e.g., gold) */
     margin-top: 3px;
-    /* Adds space between the lines */
 }
 
-/* --- (Optional) Customize Pass 1 --- */
 .shop-item-card:first-child .pass-title {
     color: #FFD700;
-    /* Example: Gold Title */
     font-size: 15px;
 }
 
 .shop-item-card:first-child .pass-price {
     color: #FFFFFF;
-    /* Example: White Price */
 }
 
-/* --- (Optional) Customize Pass 2 --- */
 .shop-item-card:last-child .pass-title {
     color: #E0E0E0;
-    /* Example: Cyan Title */
     font-size: 14px;
 }
 
 .shop-item-card:last-child .pass-price {
     color: #FFFFFF;
-    /* Example: White Price */
 }
 
-/* This rule adds the "pop" when you click */
 .shop-item-vertical .shop-item-card:active {
     transform: scale(0.95);
 }
 
-/* --- Animated Brilliant Gold Effect (v3) --- */
-.shop-item-card:first-child .pass-title.animated-gold-text {
-
-    /* 1. New Gradient: Rich Gold -> Main Gold -> Bright Glint -> Main Gold */
+.shop-item-card:first-child .pass-title.animated-gold-text,
+.perk-list .animated-gold-text {
     background: linear-gradient(to right,
             #D4AF37 0%,
-            /* A rich, classic gold (not too dark) */
             #FFD700 30%,
-            /* Your main gold color */
             #FFF7B6 50%,
-            /* A very pale, bright "glint" */
             #FFD700 70%,
-            /* Your main gold color */
             #D4AF37 100%
-            /* The rich, classic gold */
         );
     background-size: 200% 100%;
-    /* Keeps the wave smooth */
-
-    /* 2. The "Clip" (Stays the same) */
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-
-    /* 3. The Animation (uses our non-conflicting name) */
     animation: rainbow-wave 6s linear infinite;
 }
 
-/* --- Animated Silver Text Effect (V2 - 6-Stop) --- */
-.shop-item-card:last-child .pass-title.animated-silver-text {
-
-    /* 1. New 6-Stop Gradient (Dark -> Mid -> Bright -> Glint -> Bright -> Mid) */
+.shop-item-card:last-child .pass-title.animated-silver-text,
+.perk-list .animated-silver-text {
     background: linear-gradient(to right,
             #A9A9A9 0%,
-            /* 1. Dark Steel Silver */
-            #C0C0C0 20%,
-            /* 2. Standard Silver */
-            #E0E0E0 40%,
-            /* 3. Light Metallic */
+            #C0C0C0 30%,
             #FFFFFF 50%,
-            /* 4. Pure White Glint */
-            #E0E0E0 60%,
-            /* 5. Light Metallic */
-            #C0C0C0 80%,
-            /* 6. Standard Silver */
+            #C0C0C0 70%,
             #A9A9A9 100%
-            /* Loop back to Dark Steel */
         );
     background-size: 200% 100%;
-
-    /* 2. The "Clip" */
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-
-    /* 3. The Animation (using your 6-second speed) */
     animation: rainbow-wave 6s linear infinite;
-
-    /* 4. THE FIX: Remove the shadow */
     text-shadow: none;
+}
+
+#gold-pass-modal,
+#silver-pass-modal {
+    z-index: 101;
+}
+
+#close-gold-pass-button,
+#close-silver-pass-button {
+    position: absolute;
+    left: 350px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 30px;
+    height: 29px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.shop-footer .card-buy-button {
+    width: 100%;
+    min-height: 60px;
+    margin-bottom: 5px;
+    margin-top: -5px;
+}
+
+.perk-list {
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    color: #f0f0f0;
+    padding: 0 10px;
+}
+
+.perk-list ul {
+    list-style-type: '✓ ';
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.perk-list li {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.perk-subtitle {
+    font-family: 'Graduate', serif;
+    color: #dfc117;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 15px;
 }
 
 @keyframes rainbow-wave {
     0% {
         background-position: 200% 0;
-        /* Start far right */
     }
 
     100% {
         background-position: -200% 0;
-        /* End far left */
     }
 }
 

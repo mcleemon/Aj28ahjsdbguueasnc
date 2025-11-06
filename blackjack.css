@@ -24,13 +24,13 @@
     display: flex;
     flex-direction: column;
     /* Updated padding to make room for status bar */
-    padding: calc(135px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom)) 15px;
+    padding: calc(145px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom)) 15px;
     font-family: 'Graduate', serif;
 }
 
 #blackjack-back-button {
     position: absolute;
-    top: calc(75px + env(safe-area-inset-top));
+    top: calc(85px + env(safe-area-inset-top));
     right: 15px;
     width: 30px;
     height: 29px;
@@ -168,7 +168,7 @@
 /* --- 6. NEW Status Bar (Phase 1) --- */
 #blackjack-status-bar {
     position: absolute;
-    top: calc(75px + env(safe-area-inset-top));
+    top: calc(85px + env(safe-area-inset-top));
     left: 15px;
     right: 15px;
     height: 40px;

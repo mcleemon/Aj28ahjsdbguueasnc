@@ -1,4 +1,8 @@
 // shop.js
+// v1.0.7 - Upgraded to use assets.js map
+
+// 1. Import the asset map
+import { GAME_ASSETS } from './assets.js';
 
 // === SHOP ITEM DATA ===
 // We define all our shop items here.
@@ -9,7 +13,8 @@ const SHOP_ITEMS = {
         {
             id: "bundle_small",
             title: "Small Bundle",
-            img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true", // Placeholder image
+            // --- FIXED: Now uses the asset map ---
+            img: GAME_ASSETS.iconCrystalDust, 
             description: "10,000 Dust",
             price: 1.99,
             currency: "stars"

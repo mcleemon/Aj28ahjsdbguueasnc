@@ -13,20 +13,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="preload" as="image"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true">
-    <link rel="preload" as="image"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true">
-    <link rel="preload" as="image"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true">
-    <link rel="preload" as="image"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true">
-    <link rel="preload" as="image"
-        href="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true">
-    <link rel="stylesheet" href="style.css?v=2.13.72">
+    <link rel="stylesheet" href="style.css?v=2.13.73">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.1">
+
 </head>
 
-<body>
+<body data-asset-bg-key="background">
     <div class="game-container">
         <div class="header-container">
             <div class="player-bar">
@@ -37,29 +29,33 @@
                         <span id="player-level">Lv. 1</span>
                     </div>
                 </div>
-                <button id="settings-button"></button>
+
+                <div class="header-right-buttons">
+
+                    <button id="header-calendar-button" data-asset-bg-key="iconCalendar"></button>
+
+                    <button id="settings-button" data-asset-bg-key="settingButton"></button>
+
+                </div>
             </div>
             <div class="stats-container">
                 <div class="stat">
                     <span class="label">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                            alt="Crystal Dust" class="icon-crystaldust">
+                        <img data-asset-key="iconCrystalDust" alt="Crystal Dust" class="icon-crystaldust">
                         Crystal Dust
                     </span>
                     <span id="dust-counter">0</span>
                 </div>
                 <div class="stat">
                     <span class="label">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true"
-                            alt="Gem Shard" class="icon-gem">
+                        <img data-asset-key="iconGem" alt="Gem Shard" class="icon-gem">
                         Gem Shards
                     </span>
                     <span id="gem-shards-counter">0</span>
                 </div>
                 <div class="stat">
                     <span class="label">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true"
-                            alt="Battery" class="icon-battery">
+                        <img data-asset-key="iconBattery" alt="Battery" class="icon-battery">
                         Drone Battery
                     </span>
                     <span id="battery-status">100%</span>
@@ -68,17 +64,16 @@
         </div>
         <div class="egg-container">
             <div id="frenzy-wrapper">
-                <div id="frenzy-timer-container" class="frenzy-timer-container hidden">
+                <div id="frenzy-timer-container" class="frenzy-timer-container hidden" data-asset-bg-key="frenzyFrame">
                     Frenzy! <span id="frenzy-timer">15s</span>
                 </div>
-                <div id="temporary-message" class="temporary-message hidden"></div>
+                <div id="temporary-message" class="temporary-message hidden" data-asset-bg-key="frenzyFrame"></div>
             </div>
             <div class="egg-image-wrapper">
                 <div id="particle-container"></div>
                 <div id="golem-egg" class="golem-egg egg-image"></div>
                 <div id="levelup-popup" class="levelup-popup hidden">
-                    <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true"
-                        alt="Level Up!">
+                    <img data-asset-key="iconLevelUp" alt="Level Up!">
                 </div>
                 <div id="click-effect-container"></div>
             </div>
@@ -89,7 +84,7 @@
                     <div id="egg-level-label" class="egg-ui-label">Egg Level</div>
                     <div id="egg-level-value" class="egg-ui-value egg-level-value">Lv. 1 / 10</div>
                     <div id="level-up-container" class="level-up-container hidden">
-                        <button id="level-up-button">
+                        <button id="level-up-button" data-asset-bg-key="levelUpButton">
                             <span class="level-up-text">LEVEL UP!</span>
                             <span id="level-up-cost" class="level-up-cost-text"></span>
                         </button>
@@ -97,99 +92,82 @@
                 </div>
             </div>
             <div id="slot-popup" class="slot-popup hidden">
-                <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true"
-                    alt="Spin to Win" class="slot-popup-img">
+                <img data-asset-key="popupSpinToWin" alt="Spin to Win" class="slot-popup-img">
             </div>
         </div>
 
         <div class="scroll-menu-container">
             <div class="scroll-menu">
-                <img id="scroll-roulette-button" class="scroll-menu-icon"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishingicon.png?raw=true"
-                    alt="Roulette">
-                <img id="scroll-slot-button" class="scroll-menu-icon"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/tetrisicon.png?raw=true"
-                    alt="Slot">
-                <img id="scroll-roulette-button" class="scroll-menu-icon"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/rouletteicon.png?raw=true"
-                    alt="Roulette">
-                <img id="scroll-slot-button" class="scroll-menu-icon"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/sloticon.png?raw=true"
-                    alt="Slot">
-                <img id="scroll-calendar-button" class="scroll-menu-icon"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true"
-                    alt="Calendar">
+                <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing" alt="Fishing">
+                <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
+                    alt="Blackjack">
+                <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette" alt="Roulette">
+                <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
+                <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
             </div>
         </div>
         <div class="button-bar">
-            <button id="upgrade-button">UPGRADE</button>
-            <button id="new-shop-button" disabled>SHOP</button>
-            <button id="tasks-button" disabled>TASKS</button>
-            <button id="grotto-button" disabled>GROTTO</button>
+            <button id="upgrade-button" data-asset-bg-key="buttonNav">UPGRADE</button>
+            <button id="new-shop-button" data-asset-bg-key="buttonNav" disabled>SHOP</button>
+            <button id="tasks-button" data-asset-bg-key="buttonNav" disabled>TASKS</button>
+            <button id="grotto-button" data-asset-bg-key="buttonNav" disabled>GROTTO</button>
         </div>
     </div>
-    <div id="upgrade-modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="close-upgrade-button" class="close-button"></span>
 
+    <div id="upgrade-modal" class="modal hidden">
+        <div class="modal-content" data-asset-bg-key="modalFrameUpgrade">
+            <span id="close-upgrade-button" class="close-button" data-asset-bg-key="closeButton"></span>
             <div class="modal-inner">
-                <div class="upgrade-item">
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
                     <h3>Crystal Chisel</h3>
                     <p>Level: <span id="chisel-level">1</span></p>
                     <p>Increase Tap Power</p>
                     <p>Rate: <span id="chisel-effect">+1</span> Power</p>
-                    <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p> <button
-                        id="buy-chisel-button">
+                    <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p>
+                    <button id="buy-chisel-button" data-asset-bg-key="buttonGeneric">
                         Upgrade (Cost: <span id="chisel-cost">100</span>)
                     </button>
                 </div>
-
-                <div class="upgrade-item">
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
                     <h3>Mining Drone</h3>
                     <p>Level: <span id="drone-level">0</span></p>
                     <p>Generates Dust Automatically</p>
                     <p>Rate: <span id="drone-effect">+0</span> Dust/Sec</p>
-                    <p class="next-level-preview">Next: <span id="drone-next-effect"></span></p> <button
-                        id="buy-drone-button">
+                    <p class="next-level-preview">Next: <span id="drone-next-effect"></span></p>
+                    <button id="buy-drone-button" data-asset-bg-key="buttonGeneric">
                         Upgrade (Cost: <span id="drone-cost">250</span>)
                     </button>
                 </div>
-
-                <div class="upgrade-item">
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
                     <h3>Drone Battery</h3>
                     <p>Level: <span id="battery-level">1</span></p>
                     <p>Increases Drone Offline Time</p>
                     <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
-                    <p class="next-level-preview">Next: <span id="battery-next-capacity"></span></p> <button
-                        id="buy-battery-button">
+                    <p class="next-level-preview">Next: <span id="battery-next-capacity"></span></p>
+                    <button id="buy-battery-button" data-asset-bg-key="buttonGeneric">
                         Upgrade (Cost: <span id="battery-cost">1K</span>)
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
-            <img id="login-frame-img"
-                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
-                alt="Login Reward Frame">
+            <img id="login-frame-img" data-asset-key="welcomeFrame" alt="Login Reward Frame">
             <div class="modal-text-content">
-                <img id="daily-login-title"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true"
-                    alt="Daily Login!">
-
+                <img id="daily-login-title" data-asset-key="titleDailyLogin" alt="Daily Login!">
                 <span id="login-streak-text"></span>
                 <span id="login-reward-text"></span>
             </div>
         </div>
     </div>
+
     <div id="calendar-modal" class="modal hidden">
-        <div class="modal-content">
-            <span id="close-calendar-button" class="close-button"></span>
+        <div class="modal-content" data-asset-bg-key="calendarFrame">
+            <span id="close-calendar-button" class="close-button" data-asset-bg-key="closeButton"></span>
             <div class="modal-inner">
-                <img id="calendar-title-img"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak2.png?raw=true"
-                    alt="Daily Streak">
+                <img id="calendar-title-img" data-asset-key="titleDailyStreak" alt="Daily Streak">
                 <p id="calendar-streak-count">0 Days</p>
                 <div id="calendar-next-reward">
                     <span id="next-reward-label">Next Reward</span>
@@ -198,6 +176,7 @@
             </div>
         </div>
     </div>
+
     <div id="cheat-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Cheat Detected</h2>
@@ -205,33 +184,28 @@
             <p>Please contact game support if you believe this is a mistake.</p>
         </div>
     </div>
-    <div id="settings-modal" class="modal hidden">
-        <div class="settings-modal-content">
-            <div class="modal-inner">
 
-                <img id="wallet-connect-button" class="settings-img-button"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true"
+    <div id="settings-modal" class="modal hidden">
+        <div class="settings-modal-content" data-asset-bg-key="welcomeFrame">
+            <div class="modal-inner">
+                <img id="wallet-connect-button" class="settings-img-button" data-asset-key="settingsConnectWallet"
                     alt="Connect Wallet">
-                <img id="achievement-button" class="settings-img-button"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/achievement.png?raw=true"
+                <img id="achievement-button" class="settings-img-button" data-asset-key="settingsAchievement"
                     alt="Achievements">
             </div>
-
-            <span id="close-settings-button" class="close-button"></span>
+            <span id="close-settings-button" class="close-button" data-asset-bg-key="closeButton"></span>
         </div>
     </div>
+
     <div id="offline-progress-modal" class="modal hidden">
         <div class="modal-content">
-            <img id="welcome-frame-img"
-                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true"
-                alt="Welcome Back Frame">
+            <img id="welcome-frame-img" data-asset-key="welcomeFrame" alt="Welcome Back Frame">
             <div class="modal-text-content">
-                <img id="welcome-back-title"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true"
-                    alt="Welcome Back">
+                <img id="welcome-back-title" data-asset-key="titleWelcomeBack" alt="Welcome Back">
             </div>
         </div>
     </div>
+
     <div id="slot-overlay" class="hidden">
         <div class="slot-machine-container">
             <div class="slot-machine">
@@ -245,31 +219,30 @@
                     <div class="symbols"></div>
                 </div>
             </div>
-            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true"
-                alt="slot frame" class="slot-frame">
-
+            <img data-asset-key="slotFrame" alt="slot frame" class="slot-frame">
             <div class="slot-ui">
                 <button id="slot-spin-btn">SPIN</button>
                 <div id="slot-result" class="hidden"></div>
             </div>
         </div>
     </div>
+
     <div id="shop-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
-                <button id="close-shop-button"></button>
+                <button id="close-shop-button" data-asset-bg-key="closeButton"></button>
                 <h2>SHOP</h2>
             </div>
             <div class="shop-content">
                 <h3>LIFETIME PRESTIGE PASS</h3>
                 <div class="shop-item-vertical">
-                    <button class="shop-item-card">
+                    <button class="shop-item-card" data-asset-bg-key="prestigePass1">
                         <span class="twinkle-wrapper">
                             <span class="pass-title animated-gold-text">PRESTIGE GOLD PASS</span>
                         </span>
                         <span class="pass-price">$4.99</span>
                     </button>
-                    <button class="shop-item-card">
+                    <button class="shop-item-card" data-asset-bg-key="prestigePass2">
                         <span class="pass-title animated-silver-text">PRESTIGE SILVER PASS</span>
                         <span class="pass-price">$1.99</span>
                     </button>
@@ -277,233 +250,209 @@
 
                 <h3>BUNDLES</h3>
                 <div class="shop-item-grid">
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle1" alt="Bundle">
                         </div>
                         <div class="card-title">100K</div>
                         <div class="card-bonus">30% BONUS</div>
-                        <button class="card-buy-button"><span>$0.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle1" alt="Bundle">
                         </div>
                         <div class="card-title">600K</div>
                         <div class="card-bonus">55% BONUS</div>
-                        <button class="card-buy-button"><span>$4.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle2" alt="Bundle">
                         </div>
                         <div class="card-title">1.4M</div>
                         <div class="card-bonus">70% BONUS</div>
-                        <button class="card-buy-button"><span>$9.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle2" alt="Bundle">
                         </div>
                         <div class="card-title">3.7M</div>
                         <div class="card-bonus">100% BONUS</div>
-                        <button class="card-buy-button"><span>$19.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle2" alt="Bundle">
                         </div>
                         <div class="card-title">11M</div>
                         <div class="card-bonus">150% BONUS</div>
-                        <button class="card-buy-button"><span>$49.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles3.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="bundle3" alt="Bundle">
                         </div>
                         <div class="card-title">24M</div>
                         <div class="card-bonus">200% BONUS</div>
-                        <button class="card-buy-button"><span>$99.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
 
                 <h3>CRYSTAL DUST</h3>
                 <div class="shop-item-grid">
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust" alt="Bundle">
                         </div>
                         <div class="card-title">100K</div>
                         <div class="card-bonus">30% BONUS</div>
-                        <button class="card-buy-button"><span>$0.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust" alt="Bundle">
                         </div>
                         <div class="card-title">600K</div>
                         <div class="card-bonus">55% BONUS</div>
-                        <button class="card-buy-button"><span>$4.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
                         </div>
                         <div class="card-title">1.4M</div>
                         <div class="card-bonus">70% BONUS</div>
-                        <button class="card-buy-button"><span>$9.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
                         </div>
                         <div class="card-title">3.7M</div>
                         <div class="card-bonus">100% BONUS</div>
-                        <button class="card-buy-button"><span>$19.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
                         </div>
                         <div class="card-title">11M</div>
                         <div class="card-bonus">150% BONUS</div>
-                        <button class="card-buy-button"><span>$49.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust3.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="iconCrystalDust3" alt="Bundle">
                         </div>
                         <div class="card-title">24M</div>
                         <div class="card-bonus">200% BONUS</div>
-                        <button class="card-buy-button"><span>$99.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
 
                 <h3>REEL TICKET</h3>
                 <div class="shop-item-grid">
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket" alt="Bundle">
                         </div>
                         <div class="card-title">100K</div>
                         <div class="card-bonus">30% BONUS</div>
-                        <button class="card-buy-button"><span>$0.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket" alt="Bundle">
                         </div>
                         <div class="card-title">600K</div>
                         <div class="card-bonus">55% BONUS</div>
-                        <button class="card-buy-button"><span>$4.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
                         <div class="card-title">1.4M</div>
                         <div class="card-bonus">70% BONUS</div>
-                        <button class="card-buy-button"><span>$9.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
                         <div class="card-title">3.7M</div>
                         <div class="card-bonus">100% BONUS</div>
-                        <button class="card-buy-button"><span>$19.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
                         <div class="card-title">11M</div>
                         <div class="card-bonus">150% BONUS</div>
-                        <button class="card-buy-button"><span>$49.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/reelticket2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="reelTicket2" alt="Bundle">
                         </div>
                         <div class="card-title">24M</div>
                         <div class="card-bonus">200% BONUS</div>
-                        <button class="card-buy-button"><span>$99.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
 
                 <h3>FISH BAIT</h3>
                 <div class="shop-item-grid">
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait" alt="Bundle">
                         </div>
                         <div class="card-title">100K</div>
                         <div class="card-bonus">30% BONUS</div>
-                        <button class="card-buy-button"><span>$0.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait1" alt="Bundle">
                         </div>
                         <div class="card-title">600K</div>
                         <div class="card-bonus">55% BONUS</div>
-                        <button class="card-buy-button"><span>$4.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait1.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait1" alt="Bundle">
                         </div>
                         <div class="card-title">1.4M</div>
                         <div class="card-bonus">70% BONUS</div>
-                        <button class="card-buy-button"><span>$9.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait2" alt="Bundle">
                         </div>
                         <div class="card-title">3.7M</div>
                         <div class="card-bonus">100% BONUS</div>
-                        <button class="card-buy-button"><span>$19.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait2.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait2" alt="Bundle">
                         </div>
                         <div class="card-title">11M</div>
                         <div class="card-bonus">150% BONUS</div>
-                        <button class="card-buy-button"><span>$49.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
-                    <div class="shop-item-card">
+                    <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait3.png?raw=true"
-                                alt="Bundle">
+                            <img data-asset-key="fishBait3" alt="Bundle">
                         </div>
                         <div class="card-title">24M</div>
                         <div class="card-bonus">200% BONUS</div>
-                        <button class="card-buy-button"><span>$99.99</span></button>
+                        <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
             </div>
@@ -511,16 +460,14 @@
         </div>
     </div>
 
-    </div>
     <div id="gold-pass-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
-                <button id="close-gold-pass-button"></button>
+                <button id="close-gold-pass-button" data-asset-bg-key="closeButton"></button>
                 <h2>PRESTIGE GOLD</h2>
             </div>
             <div class="shop-content">
                 <div class="perk-list">
-
                     <h2 class="perk-subtitle">Limited Time Gold Prestige Bonus:</h2>
                     <ul>
                         <li>Limited Special <span class="animated-gold-text">Gold Plated Name</span></li>
@@ -553,21 +500,21 @@
                 </div>
             </div>
             <div class="shop-footer">
-                <button id="buy-gold-pass-button" class="card-buy-button">
+                <button id="buy-gold-pass-button" class="card-buy-button" data-asset-bg-key="buttonShop">
                     <span>BUY FOR $4.99</span>
                 </button>
             </div>
         </div>
     </div>
+
     <div id="silver-pass-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
-                <button id="close-silver-pass-button"></button>
+                <button id="close-silver-pass-button" data-asset-bg-key="closeButton"></button>
                 <h2>PRESTIGE SILVER</h2>
             </div>
             <div class="shop-content">
                 <div class="perk-list">
-
                     <h2 class="perk-subtitle">Limited Time Silver Prestige Bonus:</h2>
                     <ul>
                         <li>Limited Special <span class="animated-silver-text">Silver Plated Name</span></li>
@@ -594,7 +541,7 @@
                 </div>
             </div>
             <div class="shop-footer">
-                <button id="buy-silver-pass-button" class="card-buy-button">
+                <button id="buy-silver-pass-button" class="card-buy-button" data-asset-bg-key="buttonShop">
                     <span>BUY FOR $1.99</span>
                 </button>
             </div>
@@ -603,40 +550,36 @@
 
     <div id="tasks-modal" class="modal hidden">
         <div class="task-panel">
-            <div class="task-header"> <button id="close-tasks-button"></button>
+            <div class="task-header">
+                <button id="close-tasks-button" data-asset-bg-key="closeButton"></button>
                 <h2>TASKS</h2>
             </div>
             <div class="task-content">
                 <div class="task-list">
-                    <h3>EARN GEMS</h3>
+                    <h3>DAILY TASKS</h3>
                     <div class="task-item">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                            alt="Task Icon" class="task-icon">
+                        <img data-asset-key="iconCrystalDust" alt="Task Icon" class="task-icon">
                         <div class="task-info">
                             <span class="task-title">Tap 500 Times</span>
                             <span class="task-reward">Reward: 1,000 Dust</span>
                         </div>
-                        <button class="task-claim-button" disabled>GO</button>
+                        <button class="task-claim-button" data-asset-bg-key="buttonShop" disabled>GO</button>
                     </div>
-
                     <div class="task-item">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                            alt="Task Icon" class="task-icon">
+                        <img data-asset-key="iconCrystalDust" alt="Task Icon" class="task-icon">
                         <div class="task-info">
                             <span class="task-title">Tap 1,000 Times</span>
                             <span class="task-reward">Reward: 2,500 Dust</span>
                         </div>
-                        <button class="task-claim-button" disabled>GO</button>
+                        <button class="task-claim-button" data-asset-bg-key="buttonShop" disabled>GO</button>
                     </div>
-
                     <div class="task-item">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true"
-                            alt="Task Icon" class="task-icon">
+                        <img data-asset-key="iconCrystalDust" alt="Task Icon" class="task-icon">
                         <div class="task-info">
                             <span class="task-title">Tap 1,500 Times</span>
                             <span class="task-reward">Reward: 5,000 Dust</span>
                         </div>
-                        <button class="task-claim-button" disabled>GO</button>
+                        <button class="task-claim-button" data-asset-bg-key="buttonShop" disabled>GO</button>
                     </div>
                 </div>
             </div>
@@ -646,77 +589,120 @@
 
     <div id="grotto-modal" class="modal hidden">
         <div class="grotto-panel">
-            <div class="grotto-header"> <button id="close-grotto-button"></button>
+            <div class="grotto-header">
+                <button id="close-grotto-button" data-asset-bg-key="closeButton"></button>
                 <h2>GROTTO</h2>
             </div>
-            <div class="grotto-content"> <img id="grotto-display-image"
-                    src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
-                    alt="Golem Display">
+            <div class="grotto-content">
+                <img id="grotto-display-image" data-asset-key="eggDefault" alt="Golem Display">
                 <span id="grotto-counter">Hatch Card 0/10</span>
             </div>
             <div class="grotto-footer">
                 <div class="grotto-scroll-menu">
-                    <button class="grotto-menu-item active"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true"
-                            alt="Default Egg">
+                    <button class="grotto-menu-item active" data-egg-key="eggDefault">
+                        <img data-asset-key="eggDefault" alt="Default Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true"
-                            alt="Copper Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggCopper">
+                        <img data-asset-key="eggCopper" alt="Copper Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true"
-                            alt="Iron Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggIron">
+                        <img data-asset-key="eggIron" alt="Iron Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true"
-                            alt="Silver Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggSilver">
+                        <img data-asset-key="eggSilver" alt="Silver Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true"
-                            alt="Golden Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggGolden">
+                        <img data-asset-key="eggGolden" alt="Golden Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true"
-                            alt="Obsidian Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggObsidian">
+                        <img data-asset-key="eggObsidian" alt="Obsidian Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true"
-                            alt="Sapphire Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggSapphire">
+                        <img data-asset-key="eggSapphire" alt="Sapphire Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true"
-                            alt="Emerald Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggEmerald">
+                        <img data-asset-key="eggEmerald" alt="Emerald Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true"
-                            alt="Ruby Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggRuby">
+                        <img data-asset-key="eggRuby" alt="Ruby Egg">
                     </button>
-                    <button class="grotto-menu-item"
-                        data-egg-image="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true">
-                        <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true"
-                            alt="Diamond Egg">
+                    <button class="grotto-menu-item" data-egg-key="eggDiamond">
+                        <img data-asset-key="eggDiamond" alt="Diamond Egg">
                     </button>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="shop.js?v=1.0.6" defer></script>
-    <script src="tasks.js?v=1.0.2" defer></script>
-    <script src="grotto.js?v=1.0.2" defer></script>
-    <script src="script.js?v=2.13.72"></script>
 
+    <div id="blackjack-screen" class="hidden">
+        <div id="blackjack-status-bar">
+            <div id="blackjack-dust-counter">
+                <img data-asset-key="iconCrystalDust" alt="Dust">
+                <span id="blackjack-dust-amount">0</span>
+            </div>
+            <div id="blackjack-level-container">
+                <span id="blackjack-level-text">Lv. 1</span>
+                <div class="level-bar-outer">
+                    <div id="level-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="blackjack-table">
+            <button id="blackjack-back-button" data-asset-bg-key="closeButton"></button>
+
+            <div class="blackjack-hand-container">
+                <h2>Dealer's Hand (<span id="dealer-score">0</span>)</h2>
+                <div id="dealer-hand" class="hand">
+                </div>
+            </div>
+
+            <div class="blackjack-hand-container">
+                <h2>Your Hand (<span id="player-score">0</span>)</h2>
+                <div id="player-hand" class="hand">
+                </div>
+            </div>
+
+            <div class="blackjack-info" id="blackjack-message">
+                Place your bet to start.
+            </div>
+
+            <div id="blackjack-controls" class="blackjack-controls">
+                <div id="chip-betting-row">
+                    <button class="chip-button" data-bet="10000">10K</button>
+                    <button class="chip-button" data-bet="50000">50K</button>
+                    <button class="chip-button" data-bet="250000">250K</button>
+                    <button class="chip-button" data-bet="500000">500K</button>
+                    <button class="chip-button" data-bet="1000000">1M</button>
+                    <button class="chip-button" data-bet="5000000">5M</button>
+                </div>
+
+                <div id="action-button-row">
+                    <div id="insurance-row" class="hidden">
+                        <span id="insurance-text">Buy Insurance?</span>
+                        <button id="btn-insurance-yes" class="blackjack-button">Yes</button>
+                        <button id="btn-insurance-no" class="blackjack-button">No</button>
+                    </div>
+                    <button id="btn-clear-bet" class="blackjack-button">Clear</button>
+                    <button id="btn-deal" class="blackjack-button">Deal</button>
+
+                    <button id="btn-stand" class="blackjack-button hidden">Stand</button>
+                    <button id="btn-hit" class="blackjack-button hidden">Hit</button>
+                    <button id="btn-double" class="blackjack-button hidden" disabled>Double</button>
+                    <button id="btn-split" class="blackjack-button hidden" disabled>Split</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script src="script.js?v=2.13.73" type="module"></script>
+    <script src="assets.js?v=1.0.1" type="module"></script>
+    <script src="loader.js?v=1.0.1" type="module"></script>
+    <script src="shop.js?v=1.0.7" type="module"></script>
+    <script src="tasks.js?v=1.0.3" type="module"></script>
+    <script src="grotto.js?v=1.0.3" type="module"></script>
+    <script src="blackjack.js?v=1.1.4" type="module"></script>
 </body>
 
 </html>

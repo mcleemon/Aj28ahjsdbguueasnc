@@ -11,7 +11,7 @@
 
 body {
     background-color: var(--tg-theme-bg-color);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: cover;
     background-position: center;
     color: var(--universal-text-color);
@@ -98,14 +98,25 @@ button:active {
     border-radius: 5px;
 }
 
-#settings-button {
+#settings-button,
+#header-calendar-button {
     width: 35px;
     height: 35px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true');
     background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     background-color: transparent;
     border: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s ease;
+}
+
+.header-right-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Adds a nice space between the two buttons */
 }
 
 .stats-container {
@@ -162,7 +173,7 @@ button:active {
 }
 
 #golem-egg {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true');
+    /* background-image: url(...) REMOVED. script.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -288,7 +299,7 @@ button:active {
     top: 5%;
     width: 30px;
     height: 29px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -439,7 +450,7 @@ button:active {
     position: absolute;
     top: 0;
     z-index: 10;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -473,7 +484,7 @@ button:active {
     transform: translateX(-50%);
     z-index: 110;
     pointer-events: none;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -852,7 +863,10 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true") center/contain no-repeat;
+    /* background: url(...) REMOVED. Replaced with individual properties */
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-color: transparent;
     border: none;
     overflow: hidden;
@@ -897,7 +911,7 @@ button:active {
     top: 28%;
     width: 30px;
     height: 29px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -970,7 +984,10 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe2.png?raw=true") center/contain no-repeat;
+    /* background: url(...) REMOVED. Replaced with individual properties */
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-color: transparent;
     border: none;
     overflow: hidden;
@@ -1000,7 +1017,7 @@ button:active {
 }
 
 .upgrade-item {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -1027,7 +1044,7 @@ button:active {
 }
 
 .upgrade-item button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1136,7 +1153,7 @@ button:active {
 #new-shop-button,
 #tasks-button,
 #grotto-button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1162,7 +1179,10 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    background: url("https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true") center/contain no-repeat;
+    /* background: url(...) REMOVED. Replaced with individual properties */
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-color: transparent;
     border: none;
     overflow: hidden;
@@ -1192,7 +1212,7 @@ button:active {
     top: 88%;
     width: 30px;
     height: 29px;
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -1290,12 +1310,27 @@ img {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 5px 0 10px 10px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+
+    /* --- SCROLLBAR STYLES ADDED --- */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    -ms-overflow-style: auto;
 }
 
 .scroll-menu::-webkit-scrollbar {
-    display: none;
+    /* Was 'display: none', now has a size */
+    height: 8px;
+}
+
+.scroll-menu::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0 10px;
+}
+
+.scroll-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .scroll-menu-icon {
@@ -1313,7 +1348,7 @@ img {
 }
 
 #level-up-button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1449,7 +1484,7 @@ img {
     ;
     top: 50%;
     transform: translateY(-50%);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1496,7 +1531,7 @@ img {
 }
 
 .shop-item-card {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: 100% 100%;
     background-repeat: no-repeat;
     padding: 10px;
@@ -1539,7 +1574,7 @@ img {
 
 .shop-item-card .card-buy-button,
 .shop-footer .card-buy-button {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1594,16 +1629,6 @@ img {
     align-items: center;
 }
 
-/* --- Prestige Pass Card 1 --- */
-.shop-item-vertical .shop-item-card:first-child {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass1.png?raw=true');
-}
-
-/* --- Prestige Pass Card 2 --- */
-.shop-item-vertical .shop-item-card:last-child {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true');
-}
-
 .shop-item-vertical .shop-item-card span {
     font-family: 'Graduate', serif;
     font-weight: bold;
@@ -1650,8 +1675,7 @@ img {
             #D4AF37 40%,
             #FFF7B6 50%,
             #D4AF37 60%,
-            #D4AF37 100%
-        );
+            #D4AF37 100%);
 
     background-size: 200% 100%;
     background-clip: text;
@@ -1668,8 +1692,7 @@ img {
             #A9A9A9 40%,
             #FFFFFF 50%,
             #A9A9A9 60%,
-            #A9A9A9 100%
-        );
+            #A9A9A9 100%);
 
     background-size: 200% 100%;
     background-clip: text;
@@ -1691,7 +1714,7 @@ img {
     ;
     top: 50%;
     transform: translateY(-50%);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1748,7 +1771,7 @@ img {
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1811,7 +1834,7 @@ img {
     font-size: 14px;
     color: #dfc117;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1934,7 +1957,7 @@ img {
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true');
+    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;

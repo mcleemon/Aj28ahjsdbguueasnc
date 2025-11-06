@@ -1,8 +1,12 @@
 // grotto.js - Logic for the Grotto Modal
+// v1.0.3 - Upgraded to use assets.js map
+
+// 1. Import the asset map
+import { GAME_ASSETS } from './assets.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Get All the Elements ---
+    // --- 2. Get All the Elements ---
     const grottoButton = document.getElementById('grotto-button');
     const grottoModal = document.getElementById('grotto-modal');
     const closeGrottoButton = document.getElementById('close-grotto-button');
@@ -17,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // --- 2. Activate the Main Grotto Button ---
+    // --- 3. Activate the Main Grotto Button ---
     grottoButton.disabled = false;
 
-    // --- 3. Add Open Listener ---
+    // --- 4. Add Open Listener ---
     grottoButton.addEventListener('click', () => {
         grottoModal.classList.remove('hidden');
         if (window.Telegram && window.Telegram.WebApp) {
@@ -28,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 4. Add Close Listener ---
+    // --- 5. Add Close Listener ---
     closeGrottoButton.addEventListener('click', () => {
         grottoModal.classList.add('closing');
         setTimeout(() => {
@@ -37,14 +41,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300); // 300ms matches your .closing animation
     });
 
-    // --- 5. Add Scroll Menu Click Listeners ---
+    // --- 6. Add Scroll Menu Click Listeners (UPGRADED) ---
     grottoMenuItems.forEach(button => {
         button.addEventListener('click', () => {
-            // Get the new image URL from the button's "data-egg-image" attribute
-            const newImage = button.dataset.eggImage;
+            // Get the asset KEY from the button's "data-egg-key" attribute
+            const eggKey = button.dataset.eggKey;
             
-            // Set the main display image's src to the new URL
-            grottoDisplayImage.src = newImage;
+            // Get the REAL URL from our asset map
+            const newImageURL = GAME_ASSETS[eggKey];
+            
+            if (newImageURL) {
+                // Set the main display image's src to the new URL
+                grottoDisplayImage.src = newImageURL;
+            } else {
+                console.warn(`Grotto: Could not find asset key "${eggKey}" in GAME_ASSETS.`);
+            }
 
             // Handle the "active" class
             // 1. Remove "active" from all buttons

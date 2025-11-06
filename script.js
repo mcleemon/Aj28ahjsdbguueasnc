@@ -1,3 +1,6 @@
+// 1. IMPORT THE ASSET MAP AT THE VERY TOP
+import { GAME_ASSETS } from './assets.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
         ? window.Telegram.WebApp
@@ -44,6 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Failed to load user info:", error);
     }
 
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'golemEggGameState') {
+            try {
+                const newState = JSON.parse(event.newValue);
+                if (newState && typeof newState.dust !== 'undefined') {
+                    gameState.dust = newState.dust;
+                    if (typeof updateUI === 'function') updateUI();
+                }
+            } catch (err) {
+                console.warn('Failed to sync gameState from Blackjack:', err);
+            }
+        }
+    });
+
+
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');
@@ -60,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const upgradeButton = document.getElementById('upgrade-button');
     const upgradeModal = document.getElementById('upgrade-modal');
     const loginRewardModal = document.getElementById('login-reward-modal');
-    const scrollCalendarButton = document.getElementById('scroll-calendar-button');
+    const headerCalendarButton = document.getElementById('header-calendar-button');
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
     const closeUpgradeButton = document.getElementById('close-upgrade-button');
@@ -117,57 +135,64 @@ document.addEventListener('DOMContentLoaded', () => {
         "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 390625000 }
     };
 
-    // --- NEW: EGG IMAGE MAPPING ---
+    // --- NEW: EGG IMAGE MAPPING (Reading from assets.js) ---
     const EGG_IMAGES = {
-        "Default Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true",
-        "Copper Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true",
-        "Iron Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true",
-        "Silver Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true",
-        "Golden Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true",
-        "Obsidian Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true",
-        "Sapphire Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true",
-        "Emerald Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true",
-        "Ruby Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true",
-        "Diamond Egg": "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true"
+        "Default Egg": GAME_ASSETS.eggDefault,
+        "Copper Egg": GAME_ASSETS.eggCopper,
+        "Iron Egg": GAME_ASSETS.eggIron,
+        "Silver Egg": GAME_ASSETS.eggSilver,
+        "Golden Egg": GAME_ASSETS.eggGolden,
+        "Obsidian Egg": GAME_ASSETS.eggObsidian,
+        "Sapphire Egg": GAME_ASSETS.eggSapphire,
+        "Emerald Egg": GAME_ASSETS.eggEmerald,
+        "Ruby Egg": GAME_ASSETS.eggRuby,
+        "Diamond Egg": GAME_ASSETS.eggDiamond
     };
 
     // --- GAME STATE ---
-    let gameState = {
-        dust: 0,
-        dustPerTap: 1,
-        chiselLevel: 1,
-        chiselBaseCost: 100,
-        egg: {
-            name: "Default Egg",
-            level: 1,
-            progress: 0,
-            goal: 100
-        },
-        dustPerSecond: 0,
-        droneLevel: 0,
-        droneBaseCost: 250,
-        lastLoginDate: null,
-        loginStreak: 0,
-        gemShards: 0,
-        checksum: null,
-        lastSavedTimestamp: Date.now(),
-        batteryLevel: 1,
-        batteryCapacity: 3600,
-        batteryBaseCost: 1000,
-        geodesFoundToday: 0,
-        rechargeBaseCost: 1000,
-        droneCooldownEndTimestamp: 0,
-        isFrenzyMode: false,
-        frenzyCooldownUntil: 0,
-        tapsSinceLastSpin: 0,
-        tapsSinceLastGeode: 0,
-        lastTapTimestamp: 0
-    };
+    if (!window.gameState) {
+        window.gameState = {
+            dust: 0,
+            dustPerTap: 1,
+            chiselLevel: 1,
+            chiselBaseCost: 100,
+            egg: {
+                name: "Default Egg",
+                level: 1,
+                progress: 0,
+                goal: 100
+            },
+            dustPerSecond: 0,
+            droneLevel: 0,
+            droneBaseCost: 250,
+            lastLoginDate: null,
+            loginStreak: 0,
+            gemShards: 0,
+            checksum: null,
+            lastSavedTimestamp: Date.now(),
+            batteryLevel: 1,
+            batteryCapacity: 3600,
+            batteryBaseCost: 1000,
+            geodesFoundToday: 0,
+            rechargeBaseCost: 1000,
+            droneCooldownEndTimestamp: 0,
+            isFrenzyMode: false,
+            frenzyCooldownUntil: 0,
+            tapsSinceLastSpin: 0,
+            tapsSinceLastGeode: 0,
+            lastTapTimestamp: 0,
+            blackjack_level: 1,
+            blackjack_exp: 0
+        };
+    }
 
+    let gameState = window.gameState;
+
+    // --- NEW: SLOT SYMBOLS (Reading from assets.js) ---
     const slotSymbols = [
-        { name: "crystaldust", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" },
-        { name: "geode", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true" },
-        { name: "gem", img: "https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" }
+        { name: "crystaldust", img: GAME_ASSETS.iconCrystalDust },
+        { name: "geode", img: GAME_ASSETS.iconGeode },
+        { name: "gem", img: GAME_ASSETS.iconGem }
     ];
 
     const weightedSlotProbabilities = [];
@@ -288,7 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gs: state.gemShards,
             el: state.egg.level,
             ep: state.egg.progress,
-            bl: state.batteryLevel
+            bl: state.batteryLevel,
+            bjl: state.blackjack_level,
+            bjx: state.blackjack_exp
         };
         const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
         return btoa(stringToHash);
@@ -399,7 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const inner = document.createElement('div');
         inner.className = 'treasure-box-inner';
         const img = document.createElement('img');
-        img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true';
+        // --- MODIFIED ---
+        img.src = GAME_ASSETS.treasureBox;
         img.alt = 'Treasure Box';
         inner.appendChild(img);
         box.appendChild(inner);
@@ -445,7 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const inner = document.createElement('div');
         inner.className = 'geode-box-inner';
         const img = document.createElement('img');
-        img.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true';
+        // --- MODIFIED ---
+        img.src = GAME_ASSETS.iconGeode;
         img.alt = 'Geode';
         inner.appendChild(img);
         box.appendChild(inner);
@@ -514,76 +543,11 @@ document.addEventListener('DOMContentLoaded', () => {
         golemEgg.style.backgroundImage = `url(${url})`;
     }
 
-    // --- IMAGE PRELOADER FUNCTION --- 
+    // --- NEW: IMAGE PRELOADER FUNCTION (Reading from assets.js) --- 
     function preloadImages() {
-        const imageUrls = [
-            // Main UI & Background
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
-
-            // Icons
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust3.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
-
-            // Bottom Buttons
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
-
-            // Scroll Menu Icons
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/rouletteicon.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/sloticon.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishingicon.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/tetrisicon.png?raw=true',
-
-            // Modals & Frames
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe2.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe3.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcomeback.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true',
-
-            // Settings Modal
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/connectwallet.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/achievement.png?raw=true',
-
-            // Objects & Popups
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/spintowin.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
-
-            // --- EGG IMAGES ---
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1defaultegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2copperegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3ironegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4silveregg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5goldenegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6obisidianegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7sapphireegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8emeraldegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9rubyegg.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10diamondegg.png?raw=true',
-
-            // --- NEWLY ADDED IMAGES (Nov 4) ---
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailystreak2.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass1.png?raw=true',
-            'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true'
-        ];
+        // This function now just preloads everything in our asset map.
+        // Object.values(GAME_ASSETS) gets all the URLs from our map.
+        const imageUrls = Object.values(GAME_ASSETS);
 
         console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
         imageUrls.forEach(url => {
@@ -719,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cost = getDustFee();
             levelUpCostText.innerHTML = `
             ${formatNumber(cost)}
-            <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">
+            <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">
         `;
             levelUpButton.disabled = gameState.dust < cost;
         }
@@ -743,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chiselNextEffect.parentElement.style.display = 'block';
                 }
             }
-            buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+            buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
             buyChiselButton.disabled = gameState.dust < cost;
         }
         const droneNextEffect = document.getElementById('drone-next-effect');
@@ -764,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     droneNextEffect.parentElement.style.display = 'block';
                 }
             }
-            buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+            buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
             buyDroneButton.disabled = gameState.dust < cost;
         }
         const batteryNextCapacity = document.getElementById('battery-next-capacity');
@@ -792,10 +756,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     batteryNextCapacity.parentElement.style.display = 'block';
                 }
             }
-            buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+            buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
             buyBatteryButton.disabled = gameState.dust < cost;
         }
     }
+
+    window.refreshGameUI = updateUI;
 
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
@@ -848,7 +814,8 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
-                rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+                // --- MODIFIED ---
+                rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
                 break;
             case 'gem_shard':
                 gameState.gemShards += rewardInfo.amount;
@@ -869,7 +836,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardInfo = dailyRewards[nextRewardIndex];
         let rewardText = '';
         if (rewardInfo.type === 'dust') {
-            rewardText = `<span class="dust-amount-color">${formatWithCommas(rewardInfo.amount)}</span> <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Crystal Dust">`;
+            // --- MODIFIED ---
+            rewardText = `<span class="dust-amount-color">${formatWithCommas(rewardInfo.amount)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
         } else {
             rewardText = rewardInfo.label;
         }
@@ -961,7 +929,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 180000;
         if (frenzyAccumulatedDust > 0) {
-            const iconHtml = `<img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="inline-icon" alt="Dust">`;
+            // --- MODIFIED ---
+            const iconHtml = `<img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">`;
             temporaryMessage.innerHTML = `Got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
             temporaryMessage.classList.remove('hidden');
             temporaryMessage.classList.add('show');
@@ -1031,15 +1000,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameState.egg.goal = getTapGoal();
 
-        // --- DYNAMIC POPUP IMAGE LOGIC ---
+        // --- DYNAMIC POPUP IMAGE LOGIC (Reading from assets.js) ---
         const levelupPopup = document.getElementById('levelup-popup');
         const popupImage = levelupPopup.querySelector('img');
 
         if (isEvolving) {
-            popupImage.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true';
+            // --- MODIFIED ---
+            popupImage.src = GAME_ASSETS.iconEvolve;
             popupImage.alt = 'Evolve!';
         } else {
-            popupImage.src = 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true';
+            // --- MODIFIED ---
+            popupImage.src = GAME_ASSETS.iconLevelUp;
             popupImage.alt = 'Level Up!';
         }
         // --- END OF DYNAMIC LOGIC ---
@@ -1169,8 +1140,8 @@ document.addEventListener('DOMContentLoaded', () => {
             upgradeModal.classList.remove('closing');
         }, 300);
     });
-    if (scrollCalendarButton) {
-        scrollCalendarButton.addEventListener('click', () => {
+    if (headerCalendarButton) {
+        headerCalendarButton.addEventListener('click', () => {
             updateCalendarModal();
             calendarModal.classList.remove('hidden');
         });
@@ -1324,22 +1295,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (winningSymbolName === 'crystaldust') {
                 const dustReward = 50000;
                 gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                // --- MODIFIED ---
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             } else if (winningSymbolName === 'geode') {
                 const dustReward = 100000;
                 gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+                // --- MODIFIED ---
+                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 const gemReward = 5;
                 gameState.gemShards += gemReward;
-                rewardDisplayHtml = `${gemReward} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true" class="slot-icon-small">`;
+                // --- MODIFIED ---
+                rewardDisplayHtml = `${gemReward} <img src="${GAME_ASSETS.iconGem}" class="slot-icon-small">`;
             }
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
         } else {
             let dustReward = 10000;
             gameState.dust += dustReward;
-            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true" class="slot-icon-small">`;
+            // --- MODIFIED ---
+            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
         }
@@ -1423,7 +1398,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 progress: 0,
                 goal: getTapGoal()
             };
+            // Also initialize blackjack stats for new players
+            gameState.blackjack_level = 1;
+            gameState.blackjack_exp = 0;
             saveGame();
+        } else {
+            // Initialize for existing players if missing
+            if (typeof gameState.blackjack_level === 'undefined') {
+                gameState.blackjack_level = 1;
+            }
+            if (typeof gameState.blackjack_exp === 'undefined') {
+                gameState.blackjack_exp = 0;
+            }
         }
 
         setEggImage(gameState.egg.name);

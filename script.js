@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotResult = document.getElementById("slot-result");
     const slotReels = document.querySelectorAll(".symbols");
 
-    let isGameDirty = false; //
+    window.isGameDirty = false;
     let slotActive = false;
     let frenzyAccumulatedDust = 0;
     let activeTreasureBox = null;
@@ -532,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 localStorage.setItem('golemEggGameState', saveString);
             }
+            window.isGameDirty = false;
 
         } catch (error) {
             console.error("Failed to save game:", error);
@@ -762,6 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.refreshGameUI = updateUI;
+    window.saveGameGlobal = saveGame;
 
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
@@ -1026,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.HapticFeedback.notificationOccurred('success');
         saveGame();
         updateUI();
-        isGameDirty = true;
+        window.isGameDirty = true;
     });
 
     golemEgg.addEventListener('click', () => {
@@ -1092,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateUI();
-        isGameDirty = true;
+        window.isGameDirty = true;
         if (isCritical) {
             tg.HapticFeedback.notificationOccurred('warning');
         } else {
@@ -1162,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             gameState.dustPerTap = gameState.chiselLevel + (currentEggIndex * 5);
             updateUI();
-            isGameDirty = true;
+            window.isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1178,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
             }
             updateUI();
-            isGameDirty = true;
+            window.isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1192,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
             gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
             updateUI();
-            isGameDirty = true;
+            window.isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
         }
     });
@@ -1319,7 +1321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotResult.className = "slot-result win";
         }
         updateUI();
-        isGameDirty = true;
+        window.isGameDirty = true;
         slotResult.classList.remove("hidden");
         slotResult.classList.add("show");
         slotOverlay.addEventListener("click", () => {
@@ -1366,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => effect.remove(), 4000);
         gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
         updateUI();
-        isGameDirty = true;
+        window.isGameDirty = true;
     });
 
     // --- INITIALIZE GAME ---
@@ -1420,9 +1422,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setInterval(gameLoop, 1000);
         function saveGameIfDirty() {
-            if (isGameDirty) {
+            if (window.isGameDirty) {
                 saveGame();
-                isGameDirty = false;
+                window.isGameDirty = false;
             }
         }
         setInterval(saveGameIfDirty, 5000);

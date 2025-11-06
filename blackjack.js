@@ -107,9 +107,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveGameState() {
         try {
-            gameState.lastSavedTimestamp = Date.now();
-            localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
-            if (window.updateUI) window.updateUI();
+            if (window.saveGameGlobal) {
+                // Call the main script's save function
+                // This version handles Cloud Storage and Checksums!
+                window.saveGameGlobal();
+            } else {
+                // Fallback just in case (the old, buggy way)
+                console.warn("Global save function not found. Falling back to local-only save.");
+                gameState.lastSavedTimestamp = Date.now();
+                localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
+            }
         } catch (e) {
             console.error("Failed to save game state from Blackjack:", e);
         }
@@ -485,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. Pay for the new hand
         gameState.dust -= currentBet;
-        // We'll track this new bet in the endGame logic
+        saveGameState();
 
         // 3. Get the current hand and the two cards
         let handToSplit = playerHands[currentHandIndex];
@@ -535,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. Subtract the additional bet
         gameState.dust -= currentBet;
+        saveGameState();
 
         handBets[currentHandIndex] = currentBet * 2;
 
@@ -583,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Calculate and pay for the insurance
         insuranceBet = currentBet / 2;
         gameState.dust -= insuranceBet;
+        saveGameState();
 
         // 2. Hide the insurance row
         insuranceRow.classList.add('hidden');
@@ -621,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // The hand is over. Let endGame handle the main bet loss.
-            saveGameState();
+            window.isGameDirty = true;
             endGame(false, false); // false = player didn't win, false = not player blackjack
 
         } else {

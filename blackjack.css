@@ -66,6 +66,7 @@
     color: #ffd55c;
     margin: 0 0 10px 0;
     text-align: center;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 
 .hand {
@@ -88,7 +89,7 @@
     padding: 5px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     position: relative;
-    font-family: 'Georgia', serif;
+    font-family: 'Arvo', serif;
     font-weight: bold;
     font-size: 1.8em;
     box-sizing: border-box;
@@ -96,15 +97,15 @@
 
 .card .rank {
     position: absolute;
-    top: 5px;
-    left: 8px;
+    top: 1px;
+    left: 6px;
 }
 
 .card .suit {
     position: absolute;
-    bottom: 5px;
-    right: 8px;
-    font-size: 1.5em;
+    bottom: 1px;
+    right: 10px;
+    font-size: 1.7em;
 }
 
 .card-spades,
@@ -119,10 +120,19 @@
 }
 
 .card.hidden-card {
-    background-color: #b00000;
-    background-image: linear-gradient(145deg, #b00000 0%, #800000 100%);
-    border: 1px solid #500;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/cardcover.png?raw=true');
+    background-size: cover;
+    /* Make the image fill the card */
+    background-position: center;
+    border: 0px solid #aaa;
     color: transparent;
+    /* Hide any text */
+
+    /* --- ADD THESE TWO LINES TO FIX THE BUG --- */
+    padding: 0;
+    /* Remove the 5px padding */
+    background-color: transparent;
+    /* Override the white background */
 }
 
 
@@ -243,18 +253,23 @@
     font-size: 0.9em;
     font-weight: bold;
     color: #fff;
-    background-color: #555;
-    /* Placeholder color */
-    border: 2px solid #ccc;
+
+    /* --- COPIED FROM .blackjack-button --- */
+    background-color: #a00000;
+    border: 2px solid #ffc107;
+    text-shadow: 1px 1px 2px #000;
+    box-shadow: 0 4px 0 #600;
+    /* --- END OF COPY --- */
+
     border-radius: 50px;
-    /* Make them round like chips */
-    text-shadow: 1px 1px 1px #000;
+    /* Keep them round */
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.1s ease;
 }
 
-.chip-button:hover {
-    background-color: #777;
+.chip-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #600;
 }
 
 #action-button-row {

@@ -1471,6 +1471,7 @@ img {
     font-size: 28px;
     margin: 0;
     color: #ffd55c;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 
 .shop-footer {
@@ -1886,6 +1887,7 @@ img {
     font-size: 28px;
     margin: 0;
     color: #ffd55c;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 
 .task-content {
@@ -1950,6 +1952,7 @@ img {
     font-size: 28px;
     margin: 0;
     color: #ffd55c;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 }
 
 #close-grotto-button {

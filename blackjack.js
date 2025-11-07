@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSplit.classList.add('hidden'); // This is the fix
         btnSplit.disabled = true;
 
-        messageEl.innerText = "Place your bet.";
+        messageEl.innerText = "PLACE YOUR BET";
         updateBlackjackUI();
     }
 
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSplit.disabled = true;
         }
 
-        messageEl.innerHTML = `Your turn. Bet: ${formatNumber(currentBet)} ${dustIconHtml}`;
+        messageEl.innerHTML = `YOUR TURN. BET: ${formatNumber(currentBet)} ${dustIconHtml}`;
 
         renderHands(true); // Cards are dealt, dealer's 1st card is visible
 

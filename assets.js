@@ -34,6 +34,7 @@ export const GAME_ASSETS = {
     iconGeode: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
     iconLevelUp: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
     iconEvolve: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
+    cardCover: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/cardcover.png?raw=true',
 
     // --- Scroll Menu Icons ---
     iconCalendar: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon2.png?raw=true',
@@ -71,7 +72,7 @@ export const GAME_ASSETS = {
 
     // --- Mini-Slot ---
     slotFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',
-    slotButtonSpin: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true', // This was in preload, but not used? Keeping it.
+    slotButtonSpin: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons4.png?raw=true',
 
     // --- Shop Items ---
     shopItemFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true',

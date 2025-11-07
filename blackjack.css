@@ -81,8 +81,8 @@
 
 /* --- 4. HTML Card Styling (Option B) --- */
 .card {
-    width: 70px;
-    height: 100px;
+    width: 66px;
+    height: 93px;
     background-color: #fff;
     border: 1px solid #aaa;
     border-radius: 8px;
@@ -120,7 +120,6 @@
 }
 
 .card.hidden-card {
-    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/cardcover.png?raw=true');
     background-size: cover;
     /* Make the image fill the card */
     background-position: center;

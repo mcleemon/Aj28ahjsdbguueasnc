@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isHidden) {
             cardEl.classList.add('hidden-card');
+            cardEl.style.backgroundImage = `url('${GAME_ASSETS.cardCover}')`;
             return cardEl;
         }
 

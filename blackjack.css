@@ -93,6 +93,7 @@
     font-weight: bold;
     font-size: 1.8em;
     box-sizing: border-box;
+    transition: transform 0.4s ease-out, opacity 0.3s ease-out;
 }
 
 .card .rank {
@@ -385,4 +386,43 @@
     background-color: var(--insurance-no-bg);
     /* Stays red */
     box-shadow: 0 2px 0 var(--insurance-no-shadow);
+}
+
+/* --- 11. NEW Card Animations --- */
+
+/* This is the card's "starting" state (invisible, up near the dealer) */
+.card.dealing {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.8);
+}
+
+.card.is-fading-out {
+    /* Fades out in 0.3s */
+    animation: fade-out-fast 0.3s ease-out forwards;
+}
+
+.card.is-fading-in {
+    opacity: 0;
+    /* Fades in in 0.3s, but *after* a 0.3s delay */
+    animation: fade-in-fast 0.3s ease-in 0.3s forwards;
+}
+
+/* --- 12. NEW Flip Animation --- */
+@keyframes fade-out-fast {
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes fade-in-fast {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

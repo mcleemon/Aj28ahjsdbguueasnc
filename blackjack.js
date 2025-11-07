@@ -349,6 +349,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderHands(true); // Cards are dealt, dealer's 1st card is visible
 
+        const allCards = document.querySelectorAll('#blackjack-screen .card');
+        allCards.forEach(card => card.classList.add('dealing'));
+
+        setTimeout(() => {
+            allCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.remove('dealing');
+                }, index * 100); // Staggered deal
+            });
+        }, 10);
+
         // --- NEW INSURANCE LOGIC ---
         const dealerUpCard = dealerHand[0]; // Get the dealer's visible card
 
@@ -396,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create a new div for this specific hand
             const handDiv = document.createElement('div');
             handDiv.classList.add('split-hand');
+            handDiv.dataset.handIndex = index;
             if (index === currentHandIndex && playerHands.length > 1) {
                 handDiv.classList.add('active-hand'); // Highlight the current hand
             }
@@ -428,18 +440,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playerHit() {
-        btnDouble.disabled = true; // Can't double after hitting
-        btnSplit.disabled = true; // Can't split after hitting
+        // --- 1. Disable all play buttons IMMEDIATELY ---
+        btnDouble.disabled = true;
+        btnSplit.disabled = true;
+        btnHit.disabled = true;   // <-- NEW
+        btnStand.disabled = true; // <-- NEW
 
         let hand = playerHands[currentHandIndex];
-        hand.push(dealCard());
-        renderHands(true);
+        const newCard = dealCard();
+        hand.push(newCard);
 
+        const newCardEl = createCardElement(newCard);
+        newCardEl.classList.add('dealing'); // Add animation class
+        const handDiv = playerHandEl.querySelector(`.split-hand[data-hand-index="${currentHandIndex}"]`);
+        handDiv.appendChild(newCardEl);
+
+        // This is the animation duration from your CSS (400ms) + a 100ms buffer
+        const animationTime = 500;
+
+        // Trigger the animation
+        setTimeout(() => {
+            newCardEl.classList.remove('dealing');
+        }, 10);
+
+        // Update score
         playerScores[currentHandIndex] = calculateHandScore(hand);
+        playerScoreEl.innerText = playerScores[currentHandIndex];
 
         if (playerScores[currentHandIndex] > 21) {
+            // --- 2. THIS IS THE BUST FIX ---
             messageEl.innerText = "Bust on this hand!";
-            playerStand();
+
+            // Wait for the animation to finish, THEN call playerStand
+            setTimeout(() => {
+                playerStand();
+            }, animationTime);
+
+        } else {
+            // --- 3. NOT A BUST ---
+            // Wait for the animation to finish, then re-enable buttons
+            setTimeout(() => {
+                btnHit.disabled = false;
+                btnStand.disabled = false;
+            }, animationTime);
         }
     }
 
@@ -477,10 +520,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btnStand.classList.add('hidden');
             btnDouble.classList.add('hidden');
             btnSplit.classList.add('hidden');
-
-            renderHands(false); // Reveal dealer's hand
-            messageEl.innerText = "Dealer's turn...";
-            setTimeout(dealerTurn, 1000);
+            // Use our new flip animation function
+            revealDealerHand(false); // false = game does NOT end
         }
     }
 
@@ -532,6 +573,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 8. Re-render the UI
         renderHands(true);
+        const allCards = document.querySelectorAll('#blackjack-screen .card');
+        allCards.forEach(card => card.classList.add('dealing'));
+
+        setTimeout(() => {
+            allCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.remove('dealing');
+                }, index * 100); // Staggered deal
+            });
+        }, 10);
     }
 
     function playerDouble() {
@@ -544,25 +595,86 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Subtract the additional bet
         gameState.dust -= currentBet;
         saveGameState();
-
         handBets[currentHandIndex] = currentBet * 2;
-
         messageEl.innerText = `Doubled bet for this hand. One card...`;
 
+        // 2. Disable all buttons
         btnHit.disabled = true;
         btnStand.disabled = true;
         btnDouble.disabled = true;
         btnSplit.disabled = true;
 
-        // 4. Deal ONE card to the current hand
+        // 3. Deal ONE card
         let hand = playerHands[currentHandIndex];
-        hand.push(dealCard());
-        renderHands(true);
+        const newCard = dealCard();
+        hand.push(newCard);
 
+        // --- NEW ANIMATION LOGIC ---
+        // 4. Create the new card element
+        const newCardEl = createCardElement(newCard);
+        newCardEl.classList.add('dealing'); // Add dealing class
+
+        // 5. Find the correct hand-div to append to
+        const handDiv = playerHandEl.querySelector(`.split-hand[data-hand-index="${currentHandIndex}"]`);
+        handDiv.appendChild(newCardEl);
+
+        // 6. Trigger the animation for just this new card
+        setTimeout(() => {
+            newCardEl.classList.remove('dealing');
+        }, 10);
+        // --- END OF NEW LOGIC ---
+
+        // 7. Update score manually
         playerScores[currentHandIndex] = calculateHandScore(hand);
+        playerScoreEl.innerText = playerScores[currentHandIndex];
 
-        // 5. Automatically stand (move to next hand or dealer)
+        // 8. Automatically stand (move to next hand or dealer)
         setTimeout(playerStand, 1000);
+    }
+
+    // --- NEW FUNCTION for Card Flip ---
+    // --- NEW FUNCTION for Card Flip (CORRECTED) ---
+    function revealDealerHand(gameEnds = false) {
+        dealerScore = calculateHandScore(dealerHand);
+        dealerScoreEl.innerText = dealerScore;
+
+        // 1. Find the hidden card element
+        const hiddenCardEl = dealerHandEl.querySelector('.hidden-card');
+
+        if (hiddenCardEl) {
+            // 2. Create the new face-up card
+            // (dealerHand[1] is the card that was hidden)
+            const faceUpCard = createCardElement(dealerHand[1]);
+            // This class makes it start faded out and fade in *after* 0.3s
+            faceUpCard.classList.add('is-fading-in');
+
+            // 3. Make the hidden card fade out
+            hiddenCardEl.classList.add('is-fading-out');
+
+            // 4. Wait for the fade-out (0.3s) to finish
+            setTimeout(() => {
+                // 5. AT THE HALFWAY POINT:
+                // Instantly replace the (now invisible) hidden card
+                // with the (still invisible) face-up card.
+                hiddenCardEl.replaceWith(faceUpCard);
+
+                // The 'is-fading-in' class on the new card will
+                // now take over and fade it in *in the correct spot*.
+
+                // 6. Continue the game
+                if (!gameEnds) {
+                    messageEl.innerText = "Dealer's turn...";
+                    setTimeout(dealerTurn, 1000);
+                }
+            }, 300); // 300ms MUST match the 'fade-out-fast' animation time
+
+        } else {
+            // Fallback in case it was already revealed
+            if (!gameEnds) {
+                messageEl.innerText = "Dealer's turn...";
+                setTimeout(dealerTurn, 1000);
+            }
+        }
     }
 
     function dealerTurn() {
@@ -580,11 +692,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (dealerScore < 17 || isSoft17) {
-            dealerHand.push(dealCard());
-            renderHands(false);
+            // --- NEW LOGIC: Manually add one card ---
+            const newCard = dealCard();
+            dealerHand.push(newCard);
+
+            // 1. Create new card element
+            const newCardEl = createCardElement(newCard);
+            newCardEl.classList.add('dealing');
+
+            // 2. Append it
+            dealerHandEl.appendChild(newCardEl);
+
+            // 3. Trigger animation
+            setTimeout(() => {
+                newCardEl.classList.remove('dealing');
+            }, 10);
+
+            // 4. Update score manually
+            dealerScore = calculateHandScore(dealerHand);
+            dealerScoreEl.innerText = dealerScore;
+            // --- END OF NEW LOGIC ---
+
             setTimeout(dealerTurn, 1000);
         } else {
-            endGame();
+            endGame(); // endGame will not re-render, which is fine
         }
     }
 
@@ -617,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // SCENARIO 1: DEALER HAS BLACKJACK
         if (dealerHiddenCard.value === 10) {
-            renderHands(false); // Reveal the dealer's hand
+            revealDealerHand(true);
 
             if (insuranceBet > 0) {
                 // Player bought insurance and won

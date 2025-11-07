@@ -24,7 +24,7 @@
     display: flex;
     flex-direction: column;
     /* Updated padding to make room for status bar */
-    padding: calc(160px + env(safe-area-inset-top)) 15px calc(50px + env(safe-area-inset-bottom)) 15px;
+    padding: calc(160px + env(safe-area-inset-top)) 15px calc(45px + env(safe-area-inset-bottom)) 15px;
     font-family: 'Graduate', serif;
 }
 
@@ -50,6 +50,7 @@
     text-shadow: 1px 1px 2px #000;
     min-height: 50px;
     margin-bottom: 10px;
+    flex-grow: 1;
 }
 
 /* --- 3. Hand Containers --- */
@@ -75,7 +76,7 @@
     /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
-    min-height: 125px;
+    min-height: 100x;
     gap: 10px;
 }
 
@@ -142,7 +143,6 @@
     /* UPDATED: now column */
     flex-direction: column;
     gap: 10px;
-    margin-top: auto;
     /* Pushes buttons to the bottom */
 }
 

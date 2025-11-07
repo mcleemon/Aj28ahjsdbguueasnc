@@ -24,7 +24,7 @@
     display: flex;
     flex-direction: column;
     /* Updated padding to make room for status bar */
-    padding: calc(160px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom)) 15px;
+    padding: calc(140px + env(safe-area-inset-top)) 15px calc(40px + env(safe-area-inset-bottom)) 15px;
     font-family: 'Graduate', serif;
 }
 
@@ -54,7 +54,7 @@
 
 /* --- 3. Hand Containers --- */
 .blackjack-hand-container {
-    margin: 10px 0;
+    margin: 5px 0;
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
@@ -75,7 +75,7 @@
     /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
-    min-height: 100px;
+    min-height: 95px;
     gap: 10px;
 }
 
@@ -249,7 +249,7 @@
 
 .chip-button {
     width: 100%;
-    max-width: 70px;
+    max-width: 60px;
     /* Set a max size */
     height: auto;
     /* Maintain aspect ratio */
@@ -321,7 +321,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 10px;
+    padding: 1px;
     border: 2px solid transparent;
     border-radius: 10px;
     margin: 5px;
@@ -454,7 +454,7 @@
 /* --- 14. NEW Bet Stack Area --- */
 #bet-stack-area {
     width: 100%;
-    height: 70px;
+    height: 50px;
     /* Give it some space */
     margin-bottom: 10px;
     position: relative;

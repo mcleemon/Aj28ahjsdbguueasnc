@@ -15,7 +15,7 @@
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.13.77">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.7">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.8">
 
 </head>
 
@@ -636,6 +636,7 @@
     </div>
 
     <div id="blackjack-screen" class="hidden">
+        <div id="blackjack-animation-container"></div>
         <div id="blackjack-status-bar">
             <div id="blackjack-dust-counter">
                 <img data-asset-key="iconCrystalDust" alt="Dust">
@@ -668,13 +669,26 @@
             </div>
 
             <div id="blackjack-controls" class="blackjack-controls">
+                <div id="bet-stack-area"></div>
                 <div id="chip-betting-row">
-                    <button class="chip-button" data-bet="10000">10K</button>
-                    <button class="chip-button" data-bet="50000">50K</button>
-                    <button class="chip-button" data-bet="250000">250K</button>
-                    <button class="chip-button" data-bet="500000">500K</button>
-                    <button class="chip-button" data-bet="1000000">1M</button>
-                    <button class="chip-button" data-bet="5000000">5M</button>
+                    <img class="chip-button" data-bet="10000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true"
+                        alt="10K Chip">
+                    <img class="chip-button" data-bet="50000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true"
+                        alt="50K Chip">
+                    <img class="chip-button" data-bet="250000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true"
+                        alt="250K Chip">
+                    <img class="chip-button" data-bet="500000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip500K.png?raw=true"
+                        alt="500K Chip">
+                    <img class="chip-button" data-bet="1000000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip1M.png?raw=true"
+                        alt="1M Chip">
+                    <img class="chip-button" data-bet="5000000"
+                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip5M.png?raw=true"
+                        alt="5M Chip">
                 </div>
 
                 <div id="action-button-row">
@@ -703,7 +717,7 @@
     <script src="shop.js?v=1.0.9" type="module"></script>
     <script src="tasks.js?v=1.0.5" type="module"></script>
     <script src="grotto.js?v=1.0.5" type="module"></script>
-    <script src="blackjack.js?v=1.1.9" type="module"></script>
+    <script src="blackjack.js?v=1.1.10" type="module"></script>
 </body>
 
 </html>

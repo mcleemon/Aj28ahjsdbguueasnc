@@ -75,7 +75,7 @@
     /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
-    min-height: 100px;
+    min-height: 125px;
     gap: 10px;
 }
 
@@ -248,28 +248,27 @@
 }
 
 .chip-button {
-    padding: 10px 5px;
-    font-family: 'Graduate', serif;
-    font-size: 0.9em;
-    font-weight: bold;
-    color: #fff;
-
-    /* --- COPIED FROM .blackjack-button --- */
-    background-color: #a00000;
-    border: 2px solid #ffc107;
-    text-shadow: 1px 1px 2px #000;
-    box-shadow: 0 4px 0 #600;
-    /* --- END OF COPY --- */
-
-    border-radius: 50px;
-    /* Keep them round */
+    width: 100%;
+    max-width: 70px;
+    /* Set a max size */
+    height: auto;
+    /* Maintain aspect ratio */
+    margin: 0 auto;
+    /* Center the chip in the grid */
+    display: block;
     cursor: pointer;
-    transition: all 0.1s ease;
+    transition: transform 0.1s ease, filter 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .chip-button:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #600;
+    transform: translateY(2px) scale(0.98);
+}
+
+.chip-button.disabled {
+    filter: grayscale(100%) opacity(0.5);
+    cursor: not-allowed;
+    transform: none;
 }
 
 #action-button-row {
@@ -327,6 +326,7 @@
     border-radius: 10px;
     margin: 5px;
     min-width: 150px;
+    gap: 10px;
     /* Min width for a 2-card hand */
 }
 
@@ -425,4 +425,46 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+/* --- 13. NEW Chip Animation --- */
+#blackjack-animation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Allows clicks to pass through */
+    z-index: 100;
+    /* Make sure it's on top */
+    overflow: hidden;
+}
+
+.flying-chip {
+    position: absolute;
+    /* Use a fixed size for the animation */
+    width: 60px;
+    height: 60px;
+    z-index: 101;
+    /* This transition is what makes it move */
+    transition: transform 0.3s cubic-bezier(0.5, 0, 0.75, 0);
+    /* <-- FIXED! */
+}
+
+/* --- 14. NEW Bet Stack Area --- */
+#bet-stack-area {
+    width: 100%;
+    height: 70px;
+    /* Give it some space */
+    margin-bottom: 10px;
+    position: relative;
+    /* This is essential for stacking */
+}
+
+/* --- 15. NEW Chip Payout Animation --- */
+.flying-chip.moving-out {
+    /* Make the "fly away" animation a bit faster */
+    transition: transform 0.5s ease-in, 
+                opacity 0.7s ease-in 0.1s; /* Fade out *after* moving */
 }

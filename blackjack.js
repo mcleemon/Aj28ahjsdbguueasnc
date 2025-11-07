@@ -144,7 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Update Bet buttons
         chipButtons.forEach(button => {
             const betValue = parseInt(button.dataset.bet);
-            button.disabled = gameState.dust < (currentBet + betValue);
+            // Use classes instead of .disabled property
+            if (gameState.dust < (currentBet + betValue)) {
+                button.classList.add('disabled');
+            } else {
+                button.classList.remove('disabled');
+            }
         });
 
         // 4. Update Deal button
@@ -157,6 +162,98 @@ document.addEventListener('DOMContentLoaded', () => {
             btnDeal.disabled = true;
             btnClearBet.disabled = true;
         }
+    }
+
+    function animateBet(chipButton) {
+        // 1. Get Start and End positions
+        const startRect = chipButton.getBoundingClientRect();
+        const stackRect = document.getElementById('bet-stack-area').getBoundingClientRect();
+        const containerRect = blackjackScreen.getBoundingClientRect();
+
+        // 2. Create the chip
+        const flyingChip = document.createElement('img');
+        flyingChip.src = chipButton.src;
+        flyingChip.className = 'flying-chip';
+
+        // 3. Set start position
+        const startX = startRect.left - containerRect.left + (startRect.width - 60) / 2;
+        const startY = startRect.top - containerRect.top + (startRect.height - 60) / 2;
+        flyingChip.style.left = `${startX}px`;
+        flyingChip.style.top = `${startY}px`;
+
+        // 4. Calculate end position (center of the stack)
+        const endX = stackRect.left - containerRect.left + (stackRect.width - 60) / 2;
+        const endY = stackRect.top - containerRect.top + (stackRect.height - 60) / 2;
+
+        // 5. Calculate travel distance
+        const travelX = endX - startX;
+        const travelY = endY - startY;
+
+        // 6. Add to DOM and animate
+        const animationContainer = document.getElementById('blackjack-animation-container');
+        if (animationContainer) {
+            animationContainer.appendChild(flyingChip);
+        }
+
+        // --- THIS IS THE MODIFIED PART ---
+        // We wait 10ms for it to render, then send it to its final spot.
+        setTimeout(() => {
+            // Add a random offset to make a "messy" stack
+            const offsetX = (Math.random() - 0.5) * 30; // +/- 15px
+            const offsetY = (Math.random() - 0.5) * 10; // +/- 5px
+            const rotation = (Math.random() - 0.5) * 20; // +/- 10 degrees
+
+            flyingChip.style.transform = `translate(${travelX + offsetX}px, ${travelY + offsetY}px) rotate(${rotation}deg) scale(0.9)`;
+            // NO opacity change, and NO .remove() timeout
+        }, 10);
+    }
+
+    function animateChipPayout(totalProfit) {
+        const stackedChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
+        if (stackedChips.length === 0) return;
+
+        const containerRect = blackjackScreen.getBoundingClientRect();
+
+        stackedChips.forEach((chip, index) => {
+            // Apply the 'moving-out' class to all chips.
+            // This class has the transitions for both movement and opacity.
+            chip.classList.add('moving-out');
+
+            // Add a small delay to each chip for a "spray" effect
+            setTimeout(() => {
+
+                if (totalProfit < 0) {
+                    // --- LOSS: Fly to Dealer (Top) ---
+                    const targetEl = dealerHandEl;
+                    const targetRect = targetEl.getBoundingClientRect();
+                    const endX = targetRect.left - containerRect.left + (targetRect.width / 2) - 30; // 30 is half chip width
+                    const endY = targetRect.top - containerRect.top + (targetRect.height / 2) - 30;
+
+                    const chipRect = chip.getBoundingClientRect();
+                    const startX = chipRect.left - containerRect.left;
+                    const startY = chipRect.top - containerRect.top;
+
+                    const travelX = endX - startX;
+                    const travelY = endY - startY;
+
+                    // Apply the transform (to fly) AND the opacity (to fade)
+                    chip.style.transform = `translate(${travelX}px, ${travelY}px) scale(0.5)`;
+                    chip.style.opacity = '0';
+
+                } else {
+                    // --- WIN/PUSH: Just Fade Out ---
+                    // By ONLY setting opacity, the 'moving-out' transition
+                    // will just fade the chip in place.
+                    chip.style.opacity = '0';
+                }
+
+                // Remove the chip from the DOM after the animation finishes
+                setTimeout(() => {
+                    chip.remove();
+                }, 800); // 500ms matches the CSS transition
+
+            }, index * 50); // 50ms delay per chip
+        });
     }
 
     // --- 6. SCREEN TOGGLING ---
@@ -263,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearBet() {
         currentBet = 0;
+        document.getElementById('blackjack-animation-container').innerHTML = '';
         updateBlackjackUI();
     }
 
@@ -800,15 +898,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dealerScore = calculateHandScore(dealerHand);
         let finalMessage = '';
         let totalWinnings = 0;
-        let totalProfit = 0;
         let totalExpGained = 0;
+        const totalBet = handBets.reduce((a, b) => a + b, 0);
 
         // Loop through each hand the player played
         playerHands.forEach((hand, index) => {
-            // --- THIS IS THE FIX ---
-            const betForThisHand = handBets[index]; // Get the bet for *this* hand
-            // --- END OF FIX ---
-
+            const betForThisHand = handBets[index];
             const handScore = calculateHandScore(hand);
             let handResultMsg = (playerHands.length > 1) ? `Hand ${index + 1}: ` : '';
             let handWinnings = 0;
@@ -822,7 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Check for forced player bust
             else if (handScore > 21) {
-                handResultMsg += `Bust (21). You lose. `;
+                handResultMsg += `Bust (${handScore}). You lose. `;
                 handWinnings = 0; // You already paid the bet
             }
             // Check dealer bust
@@ -849,6 +944,9 @@ document.addEventListener('DOMContentLoaded', () => {
             totalWinnings += handWinnings;
             totalExpGained += handExp;
         });
+
+        const totalProfit = totalWinnings - totalBet;
+        animateChipPayout(totalProfit);
 
         // Add the total winnings back to dust
         gameState.dust += totalWinnings;
@@ -891,11 +989,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chipButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const betValue = parseInt(button.dataset.bet);
-            if (gameState.dust >= (currentBet + betValue)) {
-                currentBet += betValue;
-                updateBlackjackUI();
+            // 1. Check if the button is visually disabled
+            if (button.classList.contains('disabled')) {
+                return; // Do nothing
             }
+
+            // 2. Add the bet value
+            const betValue = parseInt(button.dataset.bet);
+            currentBet += betValue;
+
+            // 3. Call the animation!
+            animateBet(button);
+
+            // 4. Update the UI (which will update the 'Deal' button)
+            updateBlackjackUI();
         });
     });
 

@@ -208,54 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
     }
 
-    function animateChipPayout(totalProfit) {
-        const stackedChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
-        if (stackedChips.length === 0) return;
-
-        const containerRect = blackjackScreen.getBoundingClientRect();
-
-        stackedChips.forEach((chip, index) => {
-            // Apply the 'moving-out' class to all chips.
-            // This class has the transitions for both movement and opacity.
-            chip.classList.add('moving-out');
-
-            // Add a small delay to each chip for a "spray" effect
-            setTimeout(() => {
-
-                if (totalProfit < 0) {
-                    // --- LOSS: Fly to Dealer (Top) ---
-                    const targetEl = dealerHandEl;
-                    const targetRect = targetEl.getBoundingClientRect();
-                    const endX = targetRect.left - containerRect.left + (targetRect.width / 2) - 30; // 30 is half chip width
-                    const endY = targetRect.top - containerRect.top + (targetRect.height / 2) - 30;
-
-                    const chipRect = chip.getBoundingClientRect();
-                    const startX = chipRect.left - containerRect.left;
-                    const startY = chipRect.top - containerRect.top;
-
-                    const travelX = endX - startX;
-                    const travelY = endY - startY;
-
-                    // Apply the transform (to fly) AND the opacity (to fade)
-                    chip.style.transform = `translate(${travelX}px, ${travelY}px) scale(0.5)`;
-                    chip.style.opacity = '0';
-
-                } else {
-                    // --- WIN/PUSH: Just Fade Out ---
-                    // By ONLY setting opacity, the 'moving-out' transition
-                    // will just fade the chip in place.
-                    chip.style.opacity = '0';
-                }
-
-                // Remove the chip from the DOM after the animation finishes
-                setTimeout(() => {
-                    chip.remove();
-                }, 800); // 500ms matches the CSS transition
-
-            }, index * 50); // 50ms delay per chip
-        });
-    }
-
     // --- 6. SCREEN TOGGLING ---
 
     function toggleScreen(showMainGame) {
@@ -367,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetGame() {
         currentBet = 0;
         insuranceBet = 0;
+        document.getElementById('blackjack-animation-container').innerHTML = '';
         playerHands = []; // Updated to plural
         playerScores = []; // Added this
         handBets = [];
@@ -898,12 +851,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dealerScore = calculateHandScore(dealerHand);
         let finalMessage = '';
         let totalWinnings = 0;
+        let totalProfit = 0;
         let totalExpGained = 0;
-        const totalBet = handBets.reduce((a, b) => a + b, 0);
 
         // Loop through each hand the player played
         playerHands.forEach((hand, index) => {
-            const betForThisHand = handBets[index];
+            // --- THIS IS THE FIX ---
+            const betForThisHand = handBets[index]; // Get the bet for *this* hand
+            // --- END OF FIX ---
+
             const handScore = calculateHandScore(hand);
             let handResultMsg = (playerHands.length > 1) ? `Hand ${index + 1}: ` : '';
             let handWinnings = 0;
@@ -944,9 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
             totalWinnings += handWinnings;
             totalExpGained += handExp;
         });
-
-        const totalProfit = totalWinnings - totalBet;
-        animateChipPayout(totalProfit);
 
         // Add the total winnings back to dust
         gameState.dust += totalWinnings;

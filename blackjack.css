@@ -75,7 +75,7 @@
     /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
-    min-height: 125px;
+    min-height: 100px;
     gap: 10px;
 }
 
@@ -326,6 +326,7 @@
     border-radius: 10px;
     margin: 5px;
     min-width: 150px;
+    /* Min width for a 2-card hand */
 }
 
 .active-hand {
@@ -446,7 +447,7 @@
     height: 60px;
     z-index: 101;
     /* This transition is what makes it move */
-    transition: transform 0.3s cubic-bezier(0.5, 0, 0.75, 0);
+    transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0);
     /* <-- FIXED! */
 }
 
@@ -458,11 +459,4 @@
     margin-bottom: 10px;
     position: relative;
     /* This is essential for stacking */
-}
-
-/* --- 15. NEW Chip Payout Animation --- */
-.flying-chip.moving-out {
-    /* Make the "fly away" animation a bit faster */
-    transition: transform 0.5s ease-in, 
-                opacity 0.7s ease-in 0.1s; /* Fade out *after* moving */
 }

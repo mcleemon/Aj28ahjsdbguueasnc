@@ -15,7 +15,7 @@
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.13.77">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.11">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.12">
 
 </head>
 
@@ -652,61 +652,65 @@
         <div class="blackjack-table">
             <button id="blackjack-back-button" data-asset-bg-key="closeButton"></button>
 
-            <div class="blackjack-hand-container">
-                <h2>Dealer's Hand (<span id="dealer-score">0</span>)</h2>
-                <div id="dealer-hand" class="hand">
-                </div>
-            </div>
+            <div class="blackjack-scroll-wrapper">
 
-            <div class="blackjack-hand-container">
-                <h2>Player Hand (<span id="player-score">0</span>)</h2>
-                <div id="player-hand" class="hand">
-                </div>
-            </div>
-
-            <div class="blackjack-info" id="blackjack-message">
-                Place your bet to start.
-            </div>
-
-            <div id="blackjack-controls" class="blackjack-controls">
-                <div id="bet-stack-area"></div>
-                <div id="chip-betting-row">
-                    <img class="chip-button" data-bet="10000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true"
-                        alt="10K Chip">
-                    <img class="chip-button" data-bet="50000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true"
-                        alt="50K Chip">
-                    <img class="chip-button" data-bet="250000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true"
-                        alt="250K Chip">
-                    <img class="chip-button" data-bet="500000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip500K.png?raw=true"
-                        alt="500K Chip">
-                    <img class="chip-button" data-bet="1000000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip1M.png?raw=true"
-                        alt="1M Chip">
-                    <img class="chip-button" data-bet="5000000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip5M.png?raw=true"
-                        alt="5M Chip">
-                </div>
-
-                <div id="action-button-row">
-                    <div id="insurance-row" class="hidden">
-                        <span id="insurance-text">Buy Insurance?</span>
-                        <button id="btn-insurance-yes" class="blackjack-button">Yes</button>
-                        <button id="btn-insurance-no" class="blackjack-button">No</button>
+                <div class="blackjack-hand-container">
+                    <h2>Dealer's Hand (<span id="dealer-score">0</span>)</h2>
+                    <div id="dealer-hand" class="hand">
                     </div>
-                    <button id="btn-clear-bet" class="blackjack-button">Clear</button>
-                    <button id="btn-deal" class="blackjack-button">Deal</button>
-
-                    <button id="btn-stand" class="blackjack-button hidden">Stand</button>
-                    <button id="btn-hit" class="blackjack-button hidden">Hit</button>
-                    <button id="btn-double" class="blackjack-button hidden" disabled>Double</button>
-                    <button id="btn-split" class="blackjack-button hidden" disabled>Split</button>
                 </div>
+
+                <div class="blackjack-hand-container">
+                    <h2>Player Hand (<span id="player-score">0</span>)</h2>
+                    <div id="player-hand" class="hand">
+                    </div>
+                </div>
+
+                <div class="blackjack-info" id="blackjack-message">
+                    Place your bet to start.
+                </div>
+
+                <div id="blackjack-controls" class="blackjack-controls">
+                </div>
+
             </div>
         </div>
+        <div id="bet-stack-area"></div>
+        <div id="chip-betting-row">
+            <img class="chip-button" data-bet="10000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true"
+                alt="10K Chip">
+            <img class="chip-button" data-bet="50000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true"
+                alt="50K Chip">
+            <img class="chip-button" data-bet="250000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true"
+                alt="250K Chip">
+            <img class="chip-button" data-bet="500000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip500K.png?raw=true"
+                alt="500K Chip">
+            <img class="chip-button" data-bet="1000000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip1M.png?raw=true" alt="1M Chip">
+            <img class="chip-button" data-bet="5000000"
+                src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip5M.png?raw=true" alt="5M Chip">
+        </div>
+
+        <div id="action-button-row">
+            <div id="insurance-row" class="hidden">
+                <span id="insurance-text">Buy Insurance?</span>
+                <button id="btn-insurance-yes" class="blackjack-button">Yes</button>
+                <button id="btn-insurance-no" class="blackjack-button">No</button>
+            </div>
+            <button id="btn-clear-bet" class="blackjack-button">Clear</button>
+            <button id="btn-deal" class="blackjack-button">Deal</button>
+
+            <button id="btn-stand" class="blackjack-button hidden">Stand</button>
+            <button id="btn-hit" class="blackjack-button hidden">Hit</button>
+            <button id="btn-double" class="blackjack-button hidden" disabled>Double</button>
+            <button id="btn-split" class="blackjack-button hidden" disabled>Split</button>
+        </div>
+    </div>
+    </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>

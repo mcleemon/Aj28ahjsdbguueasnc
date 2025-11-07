@@ -75,7 +75,7 @@
     /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
-    min-height: 95px;
+    min-height: 100px;
     gap: 10px;
 }
 
@@ -324,9 +324,8 @@
     padding: 1px;
     border: 2px solid transparent;
     border-radius: 10px;
-    margin: 5px;
     min-width: 150px;
-    /* Min width for a 2-card hand */
+    gap: 10px;
 }
 
 .active-hand {

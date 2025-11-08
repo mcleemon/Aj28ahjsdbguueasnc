@@ -10,6 +10,7 @@ export const GAME_ASSETS = {
     closeButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
     frenzyFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true',
     levelUpButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
+    blackjackBackground: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/BlackjackBackground.jpg?raw=true',
 
     // --- Modal Frames ---
     modalFrameShop: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',
@@ -87,5 +88,13 @@ export const GAME_ASSETS = {
     fishBait: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait.png?raw=true',
     fishBait1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait1.png?raw=true',
     fishBait2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait2.png?raw=true',
-    fishBait3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait3.png?raw=true'
+    fishBait3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait3.png?raw=true',
+
+    // --- Blackjack Chips ---
+    chip10k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true',
+    chip50k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true',
+    chip250k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true',
+    chip500k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip500K.png?raw=true',
+    chip1m: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip1M.png?raw=true',
+    chip5m: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip5M.png?raw=true',
 };

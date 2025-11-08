@@ -1401,16 +1401,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 goal: getTapGoal()
             };
             // Also initialize blackjack stats for new players
-            gameState.blackjack_level = 1;
+            gameState.blackjack_level = 0;
             gameState.blackjack_exp = 0;
+            gameState.mimicStage = 1;
+            gameState.mimicFeedProgress = 0;
+            gameState.mimicFeedsToday = 0;
+            gameState.mimicLastFeedDate = null;
             saveGame();
         } else {
             // Initialize for existing players if missing
             if (typeof gameState.blackjack_level === 'undefined') {
-                gameState.blackjack_level = 1;
+                gameState.blackjack_level = 0;
             }
             if (typeof gameState.blackjack_exp === 'undefined') {
                 gameState.blackjack_exp = 0;
+            }
+
+            if (typeof gameState.mimicStage === 'undefined') {
+                gameState.mimicStage = 1;
+                gameState.mimicFeedProgress = 0;
+                gameState.mimicFeedsToday = 0;
+                gameState.mimicLastFeedDate = null;
             }
         }
 

@@ -14,8 +14,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.77">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.16">
+    <link rel="stylesheet" href="style.css?v=2.13.78">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.17">
 
 </head>
 
@@ -255,7 +255,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle1" alt="Bundle">
                         </div>
-                        <div class="card-title">100K</div>
+                        <div class="card-title">200K</div>
                         <div class="card-bonus">30% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
@@ -263,7 +263,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle1" alt="Bundle">
                         </div>
-                        <div class="card-title">600K</div>
+                        <div class="card-title">1.2M</div>
                         <div class="card-bonus">55% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
@@ -271,7 +271,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle2" alt="Bundle">
                         </div>
-                        <div class="card-title">1.4M</div>
+                        <div class="card-title">2.8M</div>
                         <div class="card-bonus">70% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
@@ -279,7 +279,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle2" alt="Bundle">
                         </div>
-                        <div class="card-title">3.7M</div>
+                        <div class="card-title">7.4M</div>
                         <div class="card-bonus">100% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
@@ -287,7 +287,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle2" alt="Bundle">
                         </div>
-                        <div class="card-title">11M</div>
+                        <div class="card-title">22M</div>
                         <div class="card-bonus">150% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
@@ -295,7 +295,7 @@
                         <div class="card-image-container">
                             <img data-asset-key="bundle3" alt="Bundle">
                         </div>
-                        <div class="card-title">24M</div>
+                        <div class="card-title">48M</div>
                         <div class="card-bonus">200% BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
@@ -635,7 +635,33 @@
         </div>
     </div>
 
-    <div id="blackjack-screen" class="hidden">
+    <div id="mimic-modal" class="modal hidden">
+        <div class="task-panel">
+            <div class="task-header"> <button id="close-mimic-button" data-asset-bg-key="closeButton"></button>
+                <h2>Feed the Mimic</h2>
+            </div>
+            <div id="mimic-content" class="task-content"> <span id="mimic-stage-text">Mimic Stage: 1</span>
+                <img id="mimic-image" data-asset-key="iconMimic" alt="Mimic">
+
+                <div id="mimic-progress-container">
+                    <div id="mimic-progress-bar-outer">
+                        <div id="mimic-progress-bar-inner"></div>
+                    </div>
+                    <span id="mimic-progress-text">0 / 5</span>
+                </div>
+
+                <span id="mimic-cost-text">Cost: 10,000</span>
+                <span id="mimic-attempts-text">Daily Feeds Remaining: 3 / 3</span>
+                <span id="mimic-result-text">The Mimic looks hungry...</span>
+
+                <button id="feed-mimic-button" class="card-buy-button" data-asset-bg-key="buttonShop">
+                    <span>FEED</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="blackjack-screen" class="hidden" data-asset-bg-key="blackjackBackground">
         <div id="blackjack-animation-container"></div>
         <div id="blackjack-status-bar">
             <div id="blackjack-dust-counter">
@@ -671,24 +697,12 @@
             <div id="blackjack-controls" class="blackjack-controls">
                 <div id="bet-stack-area"></div>
                 <div id="chip-betting-row">
-                    <img class="chip-button" data-bet="10000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true"
-                        alt="10K Chip">
-                    <img class="chip-button" data-bet="50000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true"
-                        alt="50K Chip">
-                    <img class="chip-button" data-bet="250000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true"
-                        alt="250K Chip">
-                    <img class="chip-button" data-bet="500000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip500K.png?raw=true"
-                        alt="500K Chip">
-                    <img class="chip-button" data-bet="1000000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip1M.png?raw=true"
-                        alt="1M Chip">
-                    <img class="chip-button" data-bet="5000000"
-                        src="https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip5M.png?raw=true"
-                        alt="5M Chip">
+                    <img class="chip-button" data-bet="10000" data-asset-key="chip10k">
+                    <img class="chip-button" data-bet="50000" data-asset-key="chip50k">
+                    <img class="chip-button" data-bet="250000" data-asset-key="chip250k">
+                    <img class="chip-button" data-bet="500000" data-asset-key="chip500k">
+                    <img class="chip-button" data-bet="1000000" data-asset-key="chip1m">
+                    <img class="chip-button" data-bet="5000000" data-asset-key="chip5m">
                 </div>
 
                 <div id="action-button-row">
@@ -711,13 +725,14 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script src="script.js?v=2.13.77" type="module"></script>
-    <script src="assets.js?v=1.0.2" type="module"></script>
-    <script src="loader.js?v=1.0.2" type="module"></script>
-    <script src="shop.js?v=1.0.9" type="module"></script>
-    <script src="tasks.js?v=1.0.5" type="module"></script>
-    <script src="grotto.js?v=1.0.5" type="module"></script>
-    <script src="blackjack.js?v=1.1.14" type="module"></script>
+    <script src="script.js?v=2.13.78" type="module"></script>
+    <script src="assets.js?v=1.0.3" type="module"></script>
+    <script src="loader.js?v=1.0.3" type="module"></script>
+    <script src="shop.js?v=1.0.10" type="module"></script>
+    <script src="tasks.js?v=1.0.6" type="module"></script>
+    <script src="grotto.js?v=1.0.6" type="module"></script>
+    <script src="blackjack.js?v=1.1.15" type="module"></script>
+    <script src="mimic.js?v=1.0.0" type="module"></script>
 </body>
 
 </html>

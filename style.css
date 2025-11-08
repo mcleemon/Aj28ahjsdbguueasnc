@@ -2089,6 +2089,151 @@ img {
     border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
+#close-mimic-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 30px;
+    height: 29px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- 19. MIMIC MODAL STYLES --- */
+
+/* Override task-content to center our new UI */
+#mimic-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#mimic-stage-text {
+    font-family: 'Graduate', serif;
+    font-size: 18px;
+    color: #dfc117;
+    margin-bottom: 10px;
+}
+
+#mimic-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+#mimic-progress-container {
+    width: 90%;
+    position: relative;
+    margin-bottom: 25px;
+}
+
+#mimic-progress-bar-outer {
+    width: 100%;
+    height: 30px;
+    background-color: #333;
+    border: 2px solid #000;
+    border-radius: 15px;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+#mimic-progress-bar-inner {
+    width: 0%;
+    /* e.g., 2/5 = 40% */
+    height: 100%;
+    background-color: #FFD700;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+#mimic-progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-family: 'Lilita One', cursive;
+    font-size: 16px;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+#mimic-cost-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#mimic-attempts-text {
+    font-size: 14px;
+    color: #ccc;
+    margin-top: 15px;
+}
+
+#mimic-result-text {
+    font-size: 14px;
+    color: #ffd55c;
+    margin-top: 15px;
+    min-height: 20px;
+    /* Prevents layout shift */
+}
+
+/* --- 20. MIMIC BUTTON FIX --- */
+
+/* This styles the button itself */
+#feed-mimic-button {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: 100px; /* A fixed width, like the shop */
+    min-height: 50px; /* Same height as shop buttons */
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    margin-top: 20px; /* Space above the button */
+    position: relative;
+    padding: 0;
+}
+
+#feed-mimic-button:active {
+    transform: scale(0.95);
+}
+
+/* This styles the "FEED" text on the button */
+#feed-mimic-button span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    white-space: nowrap;
+    font-family: 'Graduate', serif;
+    font-size: 14px;
+    color: #dfc117;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    transform: translate(-52%, -50%); /* Copied from shop button */
+}
+
+/* This handles the disabled state */
+#feed-mimic-button:disabled {
+    filter: grayscale(80%) opacity(0.6);
+    cursor: not-allowed;
+    transform: none;
+}
+
 @keyframes rainbow-wave {
     0% {
         background-position: 200% 0;

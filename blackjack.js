@@ -273,12 +273,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
         const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
-        for (let suit of suits) {
-            for (let rank of ranks) {
-                let value = parseInt(rank);
-                if (['J', 'Q', 'K'].includes(rank)) value = 10;
-                if (rank === 'A') value = 11;
-                deck.push({ suit, rank, value });
+        // --- ADD THIS LOOP ---
+        for (let i = 0; i < 6; i++) {
+            // --- (This is your old code, just indented) ---
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    let value = parseInt(rank);
+                    if (['J', 'Q', 'K'].includes(rank)) value = 10;
+                    if (rank === 'A') value = 11;
+                    deck.push({ suit, rank, value });
+                }
             }
         }
     }
@@ -548,12 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btnHit.disabled = false;
             btnStand.disabled = false;
 
-            // Check if new hand can be Doubled
-            if (gameState.dust >= currentBet) {
-                btnDouble.disabled = false;
-            } else {
-                btnDouble.disabled = true;
-            }
+            // No Doubling After Splitting
+            btnDouble.disabled = true;
 
             // Check if new hand can be Split
             const firstCard = playerHands[currentHandIndex][0];
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Check if new hand can be doubled
         if (gameState.dust >= currentBet) {
-            btnDouble.disabled = false;
+            btnDouble.disabled = true;
         } else {
             btnDouble.disabled = true;
         }
@@ -906,11 +906,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add EXP and check for level up
         gameState.blackjack_exp += totalExpGained;
-        const expNeeded = gameState.blackjack_level * EXP_PER_LEVEL;
+        const expNeeded = (gameState.blackjack_level + 1) * EXP_PER_LEVEL; // <-- FORMULA FIX
+
         if (gameState.blackjack_exp >= expNeeded) {
-            gameState.blackjack_level++;
+            gameState.blackjack_level++; // e.g., Level 0 -> 1
             gameState.blackjack_exp -= expNeeded; // Reset EXP bar, keep overflow
-            finalMessage += ` (Level Up to ${gameState.blackjack_level}!)`;
+
+            // --- 1. NEW DUST REWARD ---
+            // 10k, 15k, 20k...
+            const levelUpReward = 10000 + ((gameState.blackjack_level - 1) * 5000);
+            gameState.dust += levelUpReward;
+
+            let levelUpMessage = ` (Level Up to ${gameState.blackjack_level}!)<br>+${formatNumber(levelUpReward)} ${dustIconHtml} Reward!`;
+
+            // --- 2. NEW GEM REWARD ---
+            if (gameState.blackjack_level % 5 === 0) {
+                const gemReward = gameState.blackjack_level / 5; // Lv 5=1, Lv 10=2
+                gameState.gemShards += gemReward;
+
+                // We can re-use the GAME_ASSETS import
+                const gemIconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
+                levelUpMessage += `<br>+${gemReward} ${gemIconHtml} Bonus!`;
+            }
+
+            finalMessage += levelUpMessage; // Add all messages
         }
 
         messageEl.innerHTML = finalMessage; // Use .innerHTML for the <br>

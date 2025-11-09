@@ -43,7 +43,7 @@ button:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: calc(70px + env(safe-area-inset-top));
+    padding-top: calc(80px + env(safe-area-inset-top));
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
@@ -248,12 +248,14 @@ button:active {
 }
 
 .modal {
-    position: absolute;
+    position: fixed;
+    /* Revert to fixed */
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    /* 100% of 812px wrapper */
+    width: 100vw;
+    /* 100% of Viewport Width */
+    height: 100vh;
+    /* 100% of Viewport Height */
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;

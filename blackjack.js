@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. GET ALL ELEMENTS ---
 
     // Screen containers
+    const bodyEl = document.body;
     const gameContainer = document.querySelector('.game-container');
     const blackjackScreen = document.getElementById('blackjack-screen');
 
@@ -212,20 +213,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleScreen(showMainGame) {
         if (showMainGame) {
+            // --- HIDE BLACKJACK ---
             gameContainer.classList.remove('hidden');
             blackjackScreen.classList.add('hidden');
 
-            // --- THIS IS THE FIX ---
+            // --- RESTORE THE MAIN BACKGROUND ---
+            bodyEl.style.backgroundImage = `url('${GAME_ASSETS.background}')`;
+
             // Manually update the main screen's UI
             if (mainDustCounter) {
                 mainDustCounter.innerText = formatNumber(gameState.dust);
             }
-            // --- END OF FIX ---
 
         } else {
+            // --- SHOW BLACKJACK ---
             loadGameState();
             updateBlackjackUI();
             resetGame();
+
+            // --- SET THE BLACKJACK BACKGROUND ---
+            bodyEl.style.backgroundImage = `url('${GAME_ASSETS.blackjackBackground}')`;
+
             gameContainer.classList.add('hidden');
             blackjackScreen.classList.remove('hidden');
         }
@@ -935,10 +943,26 @@ document.addEventListener('DOMContentLoaded', () => {
         messageEl.innerHTML = finalMessage; // Use .innerHTML for the <br>
         saveGameState();
 
-        // Wait 3.5 seconds, then reset for next bet
+        // Wait 2.5 seconds, then reset for next bet
         setTimeout(() => {
-            resetGame();
-        }, 3500);
+
+            // 1. Find all cards and chips
+            const allCards = document.querySelectorAll('#blackjack-screen .card');
+            const allChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
+
+            // 2. Apply fade-out class to all of them
+            allCards.forEach(card => {
+                card.classList.remove('is-fading-in'); // <-- FIX: Remove old animation
+                card.classList.add('clearing-table'); // Add new one
+            });
+            allChips.forEach(chip => chip.classList.add('clearing-table'));
+
+            // 3. Wait for the animation (500ms) to finish, THEN reset
+            setTimeout(() => {
+                resetGame();
+            }, 500); // 500ms matches the animation time
+
+        }, 2500); // <-- CHANGED: Shortened delay from 3500ms to 2500ms
     }
 
     // --- 10. ATTACH EVENT LISTENERS ---

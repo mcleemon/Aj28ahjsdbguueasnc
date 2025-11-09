@@ -35,7 +35,6 @@ export const GAME_ASSETS = {
     iconGeode: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
     iconLevelUp: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
     iconEvolve: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
-    cardCover: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/cardcover.png?raw=true',
 
     // --- Scroll Menu Icons ---
     iconCalendar: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon2.png?raw=true',
@@ -45,6 +44,11 @@ export const GAME_ASSETS = {
     iconTetris: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/tetrisicon.png?raw=true',
     iconBlackjack: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/blackjackicon.png?raw=true',
     iconMimic: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mimic.png?raw=true',
+
+    // --- Mimic ---
+    mimicClose: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mimicclosingeye.png?raw=true',
+    mimicOpen: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mimicopeneye.png?raw=true',
+    mimicMouth: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mimicopenmouth.png?raw=true',
 
     // --- Popups & Titles ---
     titleDailyLogin: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/dailylogin.png?raw=true',
@@ -90,7 +94,8 @@ export const GAME_ASSETS = {
     fishBait2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait2.png?raw=true',
     fishBait3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/fishbait3.png?raw=true',
 
-    // --- Blackjack Chips ---
+    // --- Blackjack ---
+    cardCover: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/cardcover.png?raw=true',
     chip10k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip10K.png?raw=true',
     chip50k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip50K.png?raw=true',
     chip250k: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/chip250K.png?raw=true',

@@ -764,6 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.refreshGameUI = updateUI;
     window.saveGameGlobal = saveGame;
+    window.formatNumberGlobal = formatNumber;
 
     function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
     function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
@@ -893,7 +894,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const geodeMessage = document.createElement('div');
         geodeMessage.className = `geode-effect ${rarityClass}`;
         geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
-        document.body.appendChild(geodeMessage);
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(geodeMessage);
+        } else {
+            document.body.appendChild(geodeMessage); // Fallback
+        }
         setTimeout(() => {
             geodeMessage.remove();
         }, 4000);
@@ -1364,7 +1370,12 @@ document.addEventListener('DOMContentLoaded', () => {
         effect.innerText = `+${formatNumber(dustEarned)}`;
         effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`;
         effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;
-        document.body.appendChild(effect);
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(effect);
+        } else {
+            document.body.appendChild(effect); // Fallback
+        }
         setTimeout(() => effect.remove(), 4000);
         gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
         updateUI();
@@ -1477,8 +1488,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // ✨ Add crystal dust
             case 'c':
-                console.log('[DEV] +1000 Crystal Dust');
-                gameState.dust = (gameState.dust || 0) + 1000;
+                console.log('[DEV] +1M Crystal Dust (for testing)');
+                gameState.dust = (gameState.dust || 0) + 1000000;
                 updateUI();
                 break;
 
@@ -1496,6 +1507,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleDailyLogin();
                 saveGame();
                 break;
+
+            // --- NEW MIMIC CHEATS ---
+
+            // M: Mimic Force Feed
+            case 'm':
+                if (window.dev_forceFeed) {
+                    window.dev_forceFeed();
+                } else {
+                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                }
+                break;
+
+            // N: Next Mimic Reward (sets to 24/25)
+            case 'n':
+                if (window.dev_setNextReward) {
+                    window.dev_setNextReward();
+                } else {
+                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                }
+                break;
+
+            case 'k':
+                if (window.dev_resetFeeds) {
+                    window.dev_resetFeeds();
+                } else {
+                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                }
+                break;
+
 
             // 🔄 Reset all progress
             case 'r':

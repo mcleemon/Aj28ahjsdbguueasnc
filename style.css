@@ -37,8 +37,9 @@ button:active {
 
 .game-container {
     width: 100%;
-    max-width: 400px;
-    height: var(--tg-viewport-stable-height, 100vh);
+    /* 100% of 400px wrapper */
+    height: 100%;
+    /* 100% of 812px wrapper */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -47,7 +48,10 @@ button:active {
     padding-right: 15px;
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
     box-sizing: border-box;
-    position: relative;
+    position: absolute;
+    /* Changed from relative */
+    top: 0;
+    left: 0;
 }
 
 .header-container {
@@ -244,11 +248,12 @@ button:active {
 }
 
 .modal {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    /* 100% of 812px wrapper */
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
@@ -357,7 +362,8 @@ button:active {
 }
 
 .drone-claim-effect {
-    position: fixed;
+    position: absolute;
+    /* CHANGED from fixed */
     font-size: 24px;
     font-weight: bold;
     transform: translateX(-50%);
@@ -417,6 +423,7 @@ button:active {
 
 .geode-effect {
     position: absolute;
+    /* CHANGED from fixed */
     font-size: 20px;
     font-weight: bold;
     pointer-events: none;
@@ -2126,10 +2133,13 @@ img {
 }
 
 #mimic-image {
-    width: 150px;
-    height: 150px;
+    width: 170px;
+    /* A bit wider */
+    height: 170px;
+    /* Taller to fit the mouth */
     object-fit: contain;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    /* Reduced margin */
 }
 
 #mimic-progress-container {
@@ -2162,7 +2172,7 @@ img {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #000;
+    color: #ebebeb;
     font-family: 'Lilita One', cursive;
     font-size: 16px;
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
@@ -2200,11 +2210,14 @@ img {
     background-repeat: no-repeat;
     background-color: transparent;
     border: none;
-    width: 100px; /* A fixed width, like the shop */
-    min-height: 50px; /* Same height as shop buttons */
+    width: 100px;
+    /* A fixed width, like the shop */
+    min-height: 50px;
+    /* Same height as shop buttons */
     cursor: pointer;
     transition: transform 0.1s ease;
-    margin-top: 20px; /* Space above the button */
+    margin-top: 20px;
+    /* Space above the button */
     position: relative;
     padding: 0;
 }
@@ -2224,7 +2237,8 @@ img {
     color: #dfc117;
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    transform: translate(-52%, -50%); /* Copied from shop button */
+    transform: translate(-52%, -50%);
+    /* Copied from shop button */
 }
 
 /* This handles the disabled state */
@@ -2232,6 +2246,84 @@ img {
     filter: grayscale(80%) opacity(0.6);
     cursor: not-allowed;
     transform: none;
+}
+
+#mimic-reward-text {
+    font-size: 14px;
+    color: #ccc;
+    margin-top: 5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* This targets the part of the text we want to be gold */
+#mimic-reward-text .gem-reward-amount {
+    color: #ffd55c;
+    font-size: 16px;
+}
+
+#mimic-stage-info-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffd55c;
+    /* Gold color */
+    margin-top: -5px;
+    /* Pulls it closer to the stage text */
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 21. MIMIC ANIMATION FIX --- */
+
+#mimic-image-wrapper {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    margin-bottom: 10px;
+    /* Moved this from #mimic-image */
+}
+
+#mimic-image {
+    margin-bottom: 0;
+    /* Removed margin */
+}
+
+#mimic-reward-gem {
+    position: absolute;
+    top: 65%;
+    /* Position over the mouth */
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px #ffd55c);
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+    pointer-events: none;
+}
+
+/* This makes the gem fade in when 'hidden' is removed */
+#mimic-reward-gem:not(.hidden) {
+    opacity: 1;
+}
+
+/* --- 22. GAME SCALER --- */
+#game-wrapper {
+    /* Base design size (must match scaler.js) */
+    width: 400px;
+    height: 812px;
+
+    transform-origin: top center;
+
+    /* This is critical for modals */
+    position: relative;
+
+    /* Hide anything that sticks out */
+    overflow: hidden;
 }
 
 @keyframes rainbow-wave {

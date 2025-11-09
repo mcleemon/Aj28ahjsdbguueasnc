@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSplit.classList.add('hidden'); // This is the fix
         btnSplit.disabled = true;
 
-        messageEl.innerText = "PLACE YOUR BET";
+        messageEl.innerText = "PLACE MULTIPLE CHIPS";
         updateBlackjackUI();
     }
 

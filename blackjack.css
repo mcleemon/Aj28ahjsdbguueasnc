@@ -4,16 +4,18 @@
 /* --- 1. The Full Screen --- */
 #blackjack-screen {
     width: 100%;
-    max-width: 400px;
-    /* Matches your game-container */
-    height: var(--tg-viewport-stable-height, 100vh);
+    height: 100%;
+    /* 100% of 812px wrapper */
     background-size: cover;
     background-position: center;
     background-color: #0c3b0c;
     /* Classic green table color */
     display: flex;
     flex-direction: column;
-    position: relative;
+    position: absolute;
+    /* CHANGED from relative */
+    top: 0;
+    left: 0;
     box-sizing: border-box;
     overflow: hidden;
 }

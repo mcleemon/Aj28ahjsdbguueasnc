@@ -10,7 +10,7 @@ function resizeGame() {
     // We use 400px as the width, based on your max-width.
     const baseWidth = 400;
     // We'll use a common tall phone height (like iPhone X) as the base.
-    const baseHeight = 812; 
+    const baseHeight = 912; 
 
     const scale = Math.min(
         window.innerWidth / baseWidth,

@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.querySelector('.game-container');
     const blackjackScreen = document.getElementById('blackjack-screen');
 
-    // --- THIS IS NEW ---
     // Get the MAIN game's dust counter
     const mainDustCounter = document.getElementById('dust-counter');
 
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('blackjack-back-button');
     const messageEl = document.getElementById('blackjack-message');
 
-    // (rest of your elements... dealerHandEl, playerScoreEl, etc.)
     // Hand containers
     const dealerHandEl = document.getElementById('dealer-hand');
     const dealerScoreEl = document.getElementById('dealer-score');
@@ -35,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const chipBettingRow = document.getElementById('chip-betting-row');
     const chipButtons = document.querySelectorAll('.chip-button');
     const actionButtonRow = document.getElementById('action-button-row');
-
     const btnClearBet = document.getElementById('btn-clear-bet');
     const btnDeal = document.getElementById('btn-deal');
     const btnHit = document.getElementById('btn-hit');
@@ -50,10 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. GAME VARIABLES ---
     let gameState = window.gameState || {};
     let deck = [];
-    let playerHands = []; // Renamed to plural
-    let playerScores = []; // Renamed to plural
+    let playerHands = []; 
+    let playerScores = []; 
     let handBets = [];
-    let currentHandIndex = 0; // NEW: Tracks which hand we're playing
+    let currentHandIndex = 0;
     let dealerHand = [];
     let dealerScore = 0;
     let insuranceBet = 0;
@@ -84,13 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // --- 4. CORE GAME STATE FUNCTIONS ---
 
     function loadGameState() {
         try {
             if (window.gameState) {
-                gameState = window.gameState; // use shared state
+                gameState = window.gameState;
             } else {
                 const savedState = localStorage.getItem('golemEggGameState');
                 if (savedState) {
@@ -105,15 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     function saveGameState() {
         try {
             if (window.saveGameGlobal) {
-                // Call the main script's save function
-                // This version handles Cloud Storage and Checksums!
                 window.saveGameGlobal();
             } else {
-                // Fallback just in case (the old, buggy way)
                 console.warn("Global save function not found. Falling back to local-only save.");
                 gameState.lastSavedTimestamp = Date.now();
                 localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
@@ -123,37 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-
     // --- 5. UI FUNCTIONS ---
 
     function updateBlackjackUI() {
         loadGameState();
-
-        // 1. Update Dust Counter
         dustAmountEl.innerText = formatNumber(gameState.dust);
-
-        // 2. Update Level and EXP Bar
         const level = gameState.blackjack_level;
         const exp = gameState.blackjack_exp;
         const expNeeded = level * EXP_PER_LEVEL;
         const expPercent = (exp / expNeeded) * 100;
-
         levelTextEl.innerText = `Lv. ${level}`;
         levelBarInnerEl.style.width = `${expPercent}%`;
-
-        // 3. Update Bet buttons
         chipButtons.forEach(button => {
             const betValue = parseInt(button.dataset.bet);
-            // Use classes instead of .disabled property
             if (gameState.dust < (currentBet + betValue)) {
                 button.classList.add('disabled');
             } else {
                 button.classList.remove('disabled');
             }
         });
-
-        // 4. Update Deal button
         if (currentBet > 0) {
             btnDeal.innerText = `Deal ${formatNumber(currentBet)}`;
             btnDeal.disabled = false;
@@ -195,17 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (animationContainer) {
             animationContainer.appendChild(flyingChip);
         }
-
-        // --- THIS IS THE MODIFIED PART ---
-        // We wait 10ms for it to render, then send it to its final spot.
         setTimeout(() => {
-            // Add a random offset to make a "messy" stack
             const offsetX = (Math.random() - 0.5) * 30; // +/- 15px
             const offsetY = (Math.random() - 0.5) * 10; // +/- 5px
             const rotation = (Math.random() - 0.5) * 20; // +/- 10 degrees
-
             flyingChip.style.transform = `translate(${travelX + offsetX}px, ${travelY + offsetY}px) rotate(${rotation}deg) scale(0.9)`;
-            // NO opacity change, and NO .remove() timeout
         }, 10);
     }
 
@@ -213,27 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleScreen(showMainGame) {
         if (showMainGame) {
-            // --- HIDE BLACKJACK ---
             gameContainer.classList.remove('hidden');
             blackjackScreen.classList.add('hidden');
-
-            // --- RESTORE THE MAIN BACKGROUND ---
             bodyEl.style.backgroundImage = `url('${GAME_ASSETS.background}')`;
-
-            // Manually update the main screen's UI
             if (mainDustCounter) {
                 mainDustCounter.innerText = formatNumber(gameState.dust);
             }
-
         } else {
-            // --- SHOW BLACKJACK ---
             loadGameState();
             updateBlackjackUI();
             resetGame();
-
-            // --- SET THE BLACKJACK BACKGROUND ---
             bodyEl.style.backgroundImage = `url('${GAME_ASSETS.blackjackBackground}')`;
-
             gameContainer.classList.add('hidden');
             blackjackScreen.classList.remove('hidden');
         }
@@ -244,13 +208,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function createCardElement(card, isHidden = false) {
         const cardEl = document.createElement('div');
         cardEl.classList.add('card');
-
         if (isHidden) {
             cardEl.classList.add('hidden-card');
             cardEl.style.backgroundImage = `url('${GAME_ASSETS.cardCover}')`;
             return cardEl;
         }
-
         let suitSymbol = '', suitClass = '';
         switch (card.suit) {
             case 'Spades': suitSymbol = '♠'; suitClass = 'card-spades'; break;
@@ -259,18 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'Diamonds': suitSymbol = '♦'; suitClass = 'card-diamonds'; break;
         }
         cardEl.classList.add(suitClass);
-
         const rankEl = document.createElement('span');
         rankEl.classList.add('rank');
         rankEl.innerText = card.rank;
-
         const suitEl = document.createElement('span');
         suitEl.classList.add('suit');
         suitEl.innerText = suitSymbol;
-
         cardEl.appendChild(rankEl);
         cardEl.appendChild(suitEl);
-
         return cardEl;
     }
 
@@ -280,10 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deck = [];
         const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
         const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-
-        // --- ADD THIS LOOP ---
         for (let i = 0; i < 6; i++) {
-            // --- (This is your old code, just indented) ---
             for (let suit of suits) {
                 for (let rank of ranks) {
                     let value = parseInt(rank);
@@ -332,32 +287,25 @@ document.addEventListener('DOMContentLoaded', () => {
         currentBet = 0;
         insuranceBet = 0;
         document.getElementById('blackjack-animation-container').innerHTML = '';
-        playerHands = []; // Updated to plural
-        playerScores = []; // Added this
+        playerHands = [];
+        playerScores = [];
         handBets = [];
-        currentHandIndex = 0; // Added this
+        currentHandIndex = 0;
         dealerHand = [];
-
-        // Clear hands on table
         playerHandEl.innerHTML = '';
         dealerHandEl.innerHTML = '';
         playerScoreEl.innerText = '0';
         dealerScoreEl.innerText = '0';
-
         chipBettingRow.classList.remove('hidden');
         actionButtonRow.classList.remove('playing-phase');
-
         btnDeal.classList.remove('hidden');
         btnClearBet.classList.remove('hidden');
-
         btnHit.classList.add('hidden');
         btnStand.classList.add('hidden');
-
-        btnDouble.classList.add('hidden'); // This is the fix
+        btnDouble.classList.add('hidden');
         btnDouble.disabled = true;
-        btnSplit.classList.add('hidden'); // This is the fix
+        btnSplit.classList.add('hidden');
         btnSplit.disabled = true;
-
         messageEl.innerText = "PLACE MULTIPLE CHIPS";
         updateBlackjackUI();
     }
@@ -366,40 +314,30 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.dust -= currentBet;
         saveGameState();
         syncDustCounters();
-
-
-        // Reset game state
         buildDeck();
         shuffleDeck();
-        playerHands = [[dealCard(), dealCard()]]; // Now an array of hands
-        playerScores = [0]; // One score for our one hand
+        playerHands = [[dealCard(), dealCard()]];
+        playerScores = [0];
         handBets = [currentBet];
         currentHandIndex = 0;
         dealerHand = [dealCard(), dealCard()];
-
-        // Show/Hide buttons
         chipBettingRow.classList.add('hidden');
         actionButtonRow.classList.add('playing-phase');
-
         btnDeal.classList.add('hidden');
         btnClearBet.classList.add('hidden');
-
         btnHit.classList.remove('hidden');
         btnStand.classList.remove('hidden');
-
         btnHit.disabled = false;
         btnStand.disabled = false;
-        btnDouble.classList.remove('hidden'); // Ensure it's visible
-        btnSplit.classList.remove('hidden'); // Ensure it's visible
+        btnDouble.classList.remove('hidden');
+        btnSplit.classList.remove('hidden');
 
-        // --- PHASE 2: Enable Double Button ---
         if (gameState.dust >= currentBet) {
             btnDouble.disabled = false;
         } else {
             btnDouble.disabled = true;
         }
-
-        // --- PHASE 3: Enable Split Button ---
+        
         const firstCard = playerHands[0][0];
         const secondCard = playerHands[0][1];
         if (firstCard.rank === secondCard.rank && gameState.dust >= currentBet) {
@@ -409,48 +347,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         messageEl.innerHTML = `YOUR TURN. BET: ${formatNumber(currentBet)} ${dustIconHtml}`;
-
-        renderHands(true); // Cards are dealt, dealer's 1st card is visible
-
+        renderHands(true);
         const allCards = document.querySelectorAll('#blackjack-screen .card');
         allCards.forEach(card => card.classList.add('dealing'));
-
         setTimeout(() => {
             allCards.forEach((card, index) => {
                 setTimeout(() => {
                     card.classList.remove('dealing');
-                }, index * 100); // Staggered deal
+                }, index * 100);
             });
         }, 10);
 
-        // --- NEW INSURANCE LOGIC ---
-        const dealerUpCard = dealerHand[0]; // Get the dealer's visible card
-
+        // --- INSURANCE LOGIC ---
+        const dealerUpCard = dealerHand[0];
         if (dealerUpCard.rank === 'A') {
-            // Dealer has an Ace - Offer Insurance
             messageEl.innerText = "Dealer has an Ace.";
-
-            // Hide normal buttons
             btnHit.classList.add('hidden');
             btnStand.classList.add('hidden');
             btnDouble.classList.add('hidden');
             btnSplit.classList.add('hidden');
-
-            // Show insurance buttons
             insuranceRow.classList.remove('hidden');
-
-            // Disable 'Yes' if player can't afford it
             const insuranceCost = currentBet / 2;
             if (gameState.dust < insuranceCost) {
                 btnInsuranceYes.disabled = true;
             } else {
                 btnInsuranceYes.disabled = false;
             }
-
         } else {
-            // Dealer does NOT have an Ace - Continue as normal
-
-            // Check for immediate Blackjack
             playerScores[0] = calculateHandScore(playerHands[0]);
             if (playerScores[0] === 21) {
                 messageEl.innerText = "Blackjack!";
@@ -459,40 +382,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Renders the cards on the table
     function renderHands(hideDealerCard = false) {
-        // Clear old cards
-        playerHandEl.innerHTML = ''; // This is our main container
+        playerHandEl.innerHTML = '';
         dealerHandEl.innerHTML = '';
-
-        // Redraw player hands
         playerHands.forEach((hand, index) => {
-            // Create a new div for this specific hand
             const handDiv = document.createElement('div');
             handDiv.classList.add('split-hand');
             handDiv.dataset.handIndex = index;
             if (index === currentHandIndex && playerHands.length > 1) {
-                handDiv.classList.add('active-hand'); // Highlight the current hand
+                handDiv.classList.add('active-hand');
             }
-
-            // Add cards to this hand's div
             hand.forEach(card => {
                 handDiv.appendChild(createCardElement(card));
             });
-
-            // Add this hand's div to the main container
             playerHandEl.appendChild(handDiv);
         });
-
-        // Update the main score display for the CURRENTLY active hand
         playerScores[currentHandIndex] = calculateHandScore(playerHands[currentHandIndex]);
         playerScoreEl.innerText = playerScores[currentHandIndex];
-
-        // Redraw dealer hand
         if (hideDealerCard) {
-            dealerScoreEl.innerText = '??'; // Hide score
+            dealerScoreEl.innerText = '??';
             dealerHandEl.appendChild(createCardElement(dealerHand[0]));
-            dealerHandEl.appendChild(createCardElement(dealerHand[1], true)); // The hidden card
+            dealerHandEl.appendChild(createCardElement(dealerHand[1], true));
         } else {
             dealerScore = calculateHandScore(dealerHand);
             dealerScoreEl.innerText = dealerScore;
@@ -503,45 +413,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playerHit() {
-        // --- 1. Disable all play buttons IMMEDIATELY ---
         btnDouble.disabled = true;
         btnSplit.disabled = true;
-        btnHit.disabled = true;   // <-- NEW
-        btnStand.disabled = true; // <-- NEW
-
+        btnHit.disabled = true;
+        btnStand.disabled = true;
         let hand = playerHands[currentHandIndex];
         const newCard = dealCard();
         hand.push(newCard);
-
         const newCardEl = createCardElement(newCard);
-        newCardEl.classList.add('dealing'); // Add animation class
+        newCardEl.classList.add('dealing');
         const handDiv = playerHandEl.querySelector(`.split-hand[data-hand-index="${currentHandIndex}"]`);
         handDiv.appendChild(newCardEl);
-
-        // This is the animation duration from your CSS (400ms) + a 100ms buffer
         const animationTime = 500;
-
-        // Trigger the animation
         setTimeout(() => {
             newCardEl.classList.remove('dealing');
         }, 10);
-
-        // Update score
         playerScores[currentHandIndex] = calculateHandScore(hand);
         playerScoreEl.innerText = playerScores[currentHandIndex];
-
         if (playerScores[currentHandIndex] > 21) {
-            // --- 2. THIS IS THE BUST FIX ---
             messageEl.innerText = "Bust on this hand!";
-
-            // Wait for the animation to finish, THEN call playerStand
             setTimeout(() => {
                 playerStand();
             }, animationTime);
-
         } else {
-            // --- 3. NOT A BUST ---
-            // Wait for the animation to finish, then re-enable buttons
             setTimeout(() => {
                 btnHit.disabled = false;
                 btnStand.disabled = false;
@@ -550,20 +444,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playerStand() {
-        // Check if there are more hands to play
         if (currentHandIndex < playerHands.length - 1) {
-            // Move to the next hand
             currentHandIndex++;
             messageEl.innerText = `Playing Hand ${currentHandIndex + 1}`;
-
-            // Re-enable Hit/Stand
             btnHit.disabled = false;
             btnStand.disabled = false;
-
-            // No Doubling After Splitting
             btnDouble.disabled = true;
-
-            // Check if new hand can be Split
             const firstCard = playerHands[currentHandIndex][0];
             const secondCard = playerHands[currentHandIndex][1];
             if (firstCard.rank === secondCard.rank && gameState.dust >= currentBet) {
@@ -574,161 +460,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderHands(true);
         } else {
-            // Last hand finished, start dealer's turn
             btnHit.classList.add('hidden');
             btnStand.classList.add('hidden');
             btnDouble.classList.add('hidden');
             btnSplit.classList.add('hidden');
-            // Use our new flip animation function
-            revealDealerHand(false); // false = game does NOT end
+            revealDealerHand(false);
         }
     }
 
     function playerSplit() {
-        // 1. Check if player can afford it
         if (gameState.dust < currentBet) {
             messageEl.innerText = "Not enough dust to split.";
             return;
         }
-
-        // 2. Pay for the new hand
         gameState.dust -= currentBet;
         saveGameState();
-
-        // 3. Get the current hand and the two cards
         let handToSplit = playerHands[currentHandIndex];
         let card1 = handToSplit[0];
         let card2 = handToSplit[1];
-
-        // 4. Create the two new hands
         let newHand1 = [card1, dealCard()];
         let newHand2 = [card2, dealCard()];
-
-        // 5. Replace the old hand with the two new hands
-        // This line is complex: it replaces 1 item at currentHandIndex
-        // with 2 new items (newHand1, newHand2)
         playerHands.splice(currentHandIndex, 1, newHand1, newHand2);
-
-        // 6. Reset scores for the split hands
         playerScores.splice(currentHandIndex, 1, 0, 0);
-
-        // 6b. Replace the one bet with two separate bets
         handBets.splice(currentHandIndex, 1, currentBet, currentBet);
-
-        // 7. Hide split/double, show hit/stand
-        // 7. Update buttons
-        btnSplit.disabled = true; // Can't split a split (for now)
+        btnSplit.disabled = true;
         btnHit.disabled = false;
         btnStand.disabled = false;
-
-        // Check if new hand can be doubled
         if (gameState.dust >= currentBet) {
             btnDouble.disabled = true;
         } else {
             btnDouble.disabled = true;
         }
-
         messageEl.innerText = `Split! Playing Hand ${currentHandIndex + 1}`;
-
-        // 8. Re-render the UI
         renderHands(true);
         const allCards = document.querySelectorAll('#blackjack-screen .card');
         allCards.forEach(card => card.classList.add('dealing'));
-
         setTimeout(() => {
             allCards.forEach((card, index) => {
                 setTimeout(() => {
                     card.classList.remove('dealing');
-                }, index * 100); // Staggered deal
+                }, index * 100);
             });
         }, 10);
     }
 
     function playerDouble() {
-        // Safety check: can they afford it?
         if (gameState.dust < currentBet) {
             messageEl.innerText = "Not enough dust to double!";
             return;
         }
-
-        // 1. Subtract the additional bet
         gameState.dust -= currentBet;
         saveGameState();
         handBets[currentHandIndex] = currentBet * 2;
         messageEl.innerText = `Doubled bet for this hand. One card...`;
-
-        // 2. Disable all buttons
         btnHit.disabled = true;
         btnStand.disabled = true;
         btnDouble.disabled = true;
         btnSplit.disabled = true;
-
-        // 3. Deal ONE card
         let hand = playerHands[currentHandIndex];
         const newCard = dealCard();
         hand.push(newCard);
-
-        // --- NEW ANIMATION LOGIC ---
-        // 4. Create the new card element
         const newCardEl = createCardElement(newCard);
-        newCardEl.classList.add('dealing'); // Add dealing class
-
-        // 5. Find the correct hand-div to append to
+        newCardEl.classList.add('dealing');
         const handDiv = playerHandEl.querySelector(`.split-hand[data-hand-index="${currentHandIndex}"]`);
         handDiv.appendChild(newCardEl);
-
-        // 6. Trigger the animation for just this new card
         setTimeout(() => {
             newCardEl.classList.remove('dealing');
         }, 10);
-        // --- END OF NEW LOGIC ---
-
-        // 7. Update score manually
         playerScores[currentHandIndex] = calculateHandScore(hand);
         playerScoreEl.innerText = playerScores[currentHandIndex];
-
-        // 8. Automatically stand (move to next hand or dealer)
         setTimeout(playerStand, 1000);
     }
 
-    // --- NEW FUNCTION for Card Flip ---
-    // --- NEW FUNCTION for Card Flip (CORRECTED) ---
     function revealDealerHand(gameEnds = false) {
         dealerScore = calculateHandScore(dealerHand);
         dealerScoreEl.innerText = dealerScore;
-
-        // 1. Find the hidden card element
         const hiddenCardEl = dealerHandEl.querySelector('.hidden-card');
-
         if (hiddenCardEl) {
-            // 2. Create the new face-up card
-            // (dealerHand[1] is the card that was hidden)
             const faceUpCard = createCardElement(dealerHand[1]);
-            // This class makes it start faded out and fade in *after* 0.3s
             faceUpCard.classList.add('is-fading-in');
-
-            // 3. Make the hidden card fade out
             hiddenCardEl.classList.add('is-fading-out');
-
-            // 4. Wait for the fade-out (0.3s) to finish
             setTimeout(() => {
-                // 5. AT THE HALFWAY POINT:
-                // Instantly replace the (now invisible) hidden card
-                // with the (still invisible) face-up card.
                 hiddenCardEl.replaceWith(faceUpCard);
-
-                // The 'is-fading-in' class on the new card will
-                // now take over and fade it in *in the correct spot*.
-
-                // 6. Continue the game
                 if (!gameEnds) {
                     messageEl.innerText = "Dealer's turn...";
                     setTimeout(dealerTurn, 1000);
                 }
-            }, 300); // 300ms MUST match the 'fade-out-fast' animation time
-
+            }, 300);
         } else {
-            // Fallback in case it was already revealed
             if (!gameEnds) {
                 messageEl.innerText = "Dealer's turn...";
                 setTimeout(dealerTurn, 1000);
@@ -738,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function dealerTurn() {
         dealerScore = calculateHandScore(dealerHand);
-
         let isSoft17 = false;
         if (dealerScore === 17) {
             let aceCount = 0;
@@ -751,96 +569,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (dealerScore < 17 || isSoft17) {
-            // --- NEW LOGIC: Manually add one card ---
             const newCard = dealCard();
             dealerHand.push(newCard);
-
-            // 1. Create new card element
             const newCardEl = createCardElement(newCard);
             newCardEl.classList.add('dealing');
-
-            // 2. Append it
             dealerHandEl.appendChild(newCardEl);
-
-            // 3. Trigger animation
             setTimeout(() => {
                 newCardEl.classList.remove('dealing');
             }, 10);
-
-            // 4. Update score manually
             dealerScore = calculateHandScore(dealerHand);
             dealerScoreEl.innerText = dealerScore;
-            // --- END OF NEW LOGIC ---
-
             setTimeout(dealerTurn, 1000);
         } else {
-            endGame(); // endGame will not re-render, which is fine
+            endGame();
         }
     }
 
     function handleInsuranceYes() {
-        // 1. Calculate and pay for the insurance
         insuranceBet = currentBet / 2;
         gameState.dust -= insuranceBet;
         saveGameState();
-
-        // 2. Hide the insurance row
         insuranceRow.classList.add('hidden');
-
-        // 3. Check what happens next
         resolveInsurance();
     }
 
     function handleInsuranceNo() {
-        // 1. Set insurance to zero
         insuranceBet = 0;
-
-        // 2. Hide the insurance row
         insuranceRow.classList.add('hidden');
-
-        // 3. Check what happens next
         resolveInsurance();
     }
 
     function resolveInsurance() {
-        const dealerHiddenCard = dealerHand[1]; // Get the dealer's face-down card
-
-        // SCENARIO 1: DEALER HAS BLACKJACK
+        const dealerHiddenCard = dealerHand[1];
         if (dealerHiddenCard.value === 10) {
             revealDealerHand(true);
-
             if (insuranceBet > 0) {
-                // Player bought insurance and won
                 const winnings = insuranceBet * 2;
-                const totalReturn = winnings + insuranceBet; // Winnings + original bet back
+                const totalReturn = winnings + insuranceBet;
                 gameState.dust += totalReturn;
                 messageEl.innerHTML = `Dealer has Blackjack! You win ${formatNumber(winnings)} ${dustIconHtml} from insurance.`;
             } else {
-                // Player did not buy insurance and loses
                 messageEl.innerHTML = "Dealer has Blackjack! You lose.";
             }
-
-            // The hand is over. Let endGame handle the main bet loss.
             window.isGameDirty = true;
-            endGame(false, false); // false = player didn't win, false = not player blackjack
-
+            endGame(false, false);
         } else {
-            // SCENARIO 2: DEALER DOES NOT HAVE BLACKJACK
             if (insuranceBet > 0) {
-                // Player bought insurance and lost it
                 messageEl.innerHTML = `Dealer doesn't have Blackjack. You lose insurance. Your turn.`;
             } else {
-                // Player declined, game continues
                 messageEl.innerHTML = `Dealer doesn't have Blackjack. Your turn.`;
             }
-
-            // The game continues. Show the normal play buttons.
             btnHit.classList.remove('hidden');
             btnStand.classList.remove('hidden');
             btnDouble.classList.remove('hidden');
             btnSplit.classList.remove('hidden');
-
-            // Now, run the check for player's Blackjack that we skipped earlier
             playerScores[0] = calculateHandScore(playerHands[0]);
             if (playerScores[0] === 21) {
                 messageEl.innerText = "Blackjack!";
@@ -850,119 +632,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endGame(playerWon, isBlackjack = false) {
-        // Hide game buttons
         btnHit.classList.add('hidden');
         btnStand.classList.add('hidden');
         btnDouble.classList.add('hidden');
         btnSplit.classList.add('hidden');
-
         dealerScore = calculateHandScore(dealerHand);
         let finalMessage = '';
         let totalWinnings = 0;
         let totalProfit = 0;
         let totalExpGained = 0;
-
-        // Loop through each hand the player played
         playerHands.forEach((hand, index) => {
-            // --- THIS IS THE FIX ---
-            const betForThisHand = handBets[index]; // Get the bet for *this* hand
-            // --- END OF FIX ---
-
+            const betForThisHand = handBets[index];
             const handScore = calculateHandScore(hand);
             let handResultMsg = (playerHands.length > 1) ? `Hand ${index + 1}: ` : '';
             let handWinnings = 0;
             let handExp = EXP_FOR_PLAY;
-
-            // Check for forced blackjack (only possible on first hand)
             if (index === 0 && isBlackjack) {
-                handWinnings = Math.floor(betForThisHand * 2.5); // Use betForThisHand
+                handWinnings = Math.floor(betForThisHand * 2.5);
                 handResultMsg = `Blackjack! You Win ${formatNumber(handWinnings)} ${dustIconHtml}`;
                 handExp += EXP_FOR_BLACKJACK;
             }
-            // Check for forced player bust
             else if (handScore > 21) {
                 handResultMsg += `Bust (${handScore}). You lose. `;
-                handWinnings = 0; // You already paid the bet
+                handWinnings = 0;
             }
-            // Check dealer bust
             else if (dealerScore > 21) {
-                handWinnings = betForThisHand * 2; // Use betForThisHand
+                handWinnings = betForThisHand * 2;
                 handResultMsg += `Dealer busts! You win ${formatNumber(handWinnings)} ${dustIconHtml}`;
                 handExp += EXP_FOR_WIN;
             }
-            // Compare hands
             else if (handScore > dealerScore) {
-                handWinnings = betForThisHand * 2; // Use betForThisHand
+                handWinnings = betForThisHand * 2;
                 handResultMsg += `You win (${handScore} vs ${dealerScore})! ${formatNumber(handWinnings)} ${dustIconHtml}`;
                 handExp += EXP_FOR_WIN;
             } else if (handScore < dealerScore) {
                 handResultMsg += `You lose (${handScore} vs ${dealerScore}). `;
                 handWinnings = 0;
             } else {
-                // This is the "Push" (tie) case
-                handWinnings = betForThisHand; // Use betForThisHand
+                handWinnings = betForThisHand;
                 handResultMsg += `Push (${handScore} vs ${dealerScore}). Bet returned ${formatNumber(handWinnings)} ${dustIconHtml}`;
             }
-
             finalMessage += handResultMsg + "<br>";
             totalWinnings += handWinnings;
             totalExpGained += handExp;
         });
 
-        // Add the total winnings back to dust
         gameState.dust += totalWinnings;
-
-        // Add EXP and check for level up
         gameState.blackjack_exp += totalExpGained;
-        const expNeeded = (gameState.blackjack_level + 1) * EXP_PER_LEVEL; // <-- FORMULA FIX
-
+        const expNeeded = (gameState.blackjack_level + 1) * EXP_PER_LEVEL;
         if (gameState.blackjack_exp >= expNeeded) {
-            gameState.blackjack_level++; // e.g., Level 0 -> 1
-            gameState.blackjack_exp -= expNeeded; // Reset EXP bar, keep overflow
-
-            // --- 1. NEW DUST REWARD ---
-            // 10k, 15k, 20k...
+            gameState.blackjack_level++;
+            gameState.blackjack_exp -= expNeeded;
             const levelUpReward = 10000 + ((gameState.blackjack_level - 1) * 5000);
             gameState.dust += levelUpReward;
-
             let levelUpMessage = ` (Level Up to ${gameState.blackjack_level}!)<br>+${formatNumber(levelUpReward)} ${dustIconHtml} Reward!`;
-
-            // --- 2. NEW GEM REWARD ---
             if (gameState.blackjack_level % 5 === 0) {
-                const gemReward = gameState.blackjack_level / 5; // Lv 5=1, Lv 10=2
+                const gemReward = gameState.blackjack_level / 5;
                 gameState.gemShards += gemReward;
-
-                // We can re-use the GAME_ASSETS import
                 const gemIconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
                 levelUpMessage += `<br>+${gemReward} ${gemIconHtml} Bonus!`;
             }
-
-            finalMessage += levelUpMessage; // Add all messages
+            finalMessage += levelUpMessage;
         }
-
-        messageEl.innerHTML = finalMessage; // Use .innerHTML for the <br>
+        messageEl.innerHTML = finalMessage;
         saveGameState();
-
-        // Wait 2.5 seconds, then reset for next bet
         setTimeout(() => {
-
-            // 1. Find all cards and chips
             const allCards = document.querySelectorAll('#blackjack-screen .card');
             const allChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
-
-            // 2. Apply fade-out class to all of them
             allCards.forEach(card => {
-                card.classList.remove('is-fading-in'); // <-- FIX: Remove old animation
-                card.classList.add('clearing-table'); // Add new one
+                card.classList.remove('is-fading-in');
+                card.classList.add('clearing-table');
             });
             allChips.forEach(chip => chip.classList.add('clearing-table'));
-
-            // 3. Wait for the animation (500ms) to finish, THEN reset
             setTimeout(() => {
                 resetGame();
-            }, 500); // 500ms matches the animation time
-
-        }, 2500); // <-- CHANGED: Shortened delay from 3500ms to 2500ms
+            }, 500);
+        }, 2500);
     }
 
     // --- 10. ATTACH EVENT LISTENERS ---
@@ -974,30 +719,20 @@ document.addEventListener('DOMContentLoaded', () => {
     backButton.addEventListener('click', () => {
         saveGameState();
         toggleScreen(true);
-
-        // ADD THIS NEW LINE:
         if (window.refreshGameUI) {
-            window.refreshGameUI(); // Tell the main script to update!
+            window.refreshGameUI();
         }
     });
 
     btnClearBet.addEventListener('click', clearBet);
-
     chipButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // 1. Check if the button is visually disabled
             if (button.classList.contains('disabled')) {
-                return; // Do nothing
+                return;
             }
-
-            // 2. Add the bet value
             const betValue = parseInt(button.dataset.bet);
             currentBet += betValue;
-
-            // 3. Call the animation!
             animateBet(button);
-
-            // 4. Update the UI (which will update the 'Deal' button)
             updateBlackjackUI();
         });
     });

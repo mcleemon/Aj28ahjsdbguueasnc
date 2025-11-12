@@ -25,6 +25,7 @@ export const GAME_ASSETS = {
     buttonGeneric: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
     buttonShop: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true',
     buttonNav: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
+    buttonForceFeed: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2-5.png?raw=true',
 
     // --- Icons ---
     iconCrystalDust: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
@@ -83,6 +84,7 @@ export const GAME_ASSETS = {
     shopItemFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/shopitemframe.png?raw=true',
     prestigePass1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass1.png?raw=true',
     prestigePass2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prestigepass2.png?raw=true',
+    mimicPass: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mimicpass.png?raw=true',
     bundle1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles1.png?raw=true',
     bundle2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles2.png?raw=true',
     bundle3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bundles3.png?raw=true',

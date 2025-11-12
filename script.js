@@ -69,9 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const golemEgg = document.getElementById('golem-egg');
     const hatchProgressValue = document.getElementById('hatch-progress-value');
     const eggLevelValue = document.getElementById('egg-level-value');
-    const levelUpContainer = document.getElementById('level-up-container');
-    const levelUpButton = document.getElementById('level-up-button');
-    const levelUpCostText = document.getElementById('level-up-cost');
+    const hatchChoiceContainer = document.getElementById('hatch-choice-container');
+    const hatchEvolveButton = document.getElementById('hatch-evolve-button');
+    const hatchEvolveText = document.getElementById('hatch-evolve-text');
+    const hatchEvolveCost = document.getElementById('hatch-evolve-cost');
+    const hatchFarmButton = document.getElementById('hatch-farm-button');
     const clickEffectContainer = document.getElementById('click-effect-container');
     const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
     const frenzyTimer = document.getElementById('frenzy-timer');
@@ -113,8 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let frenzyAccumulatedDust = 0;
     let activeTreasureBox = null;
     let activeGeodeBox = null;
-    const MIN_TAPS_BETWEEN_SPINS = 150;
-    const MIN_TAPS_BETWEEN_GEODES = 120;
+    const MIN_TAPS_BETWEEN_SPINS = 250;
+    const MIN_TAPS_BETWEEN_GEODES = 200;
     const DUST_FEE_GROWTH_RATE = 1.003;
 
     const EGG_NAMES = [
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dust: 0,
             dustPerTap: 1,
             chiselLevel: 1,
-            chiselBaseCost: 100,
+            chiselBaseCost: 5000,
             egg: {
                 name: "Default Egg",
                 level: 1,
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             dustPerSecond: 0,
             droneLevel: 0,
-            droneBaseCost: 250,
+            droneBaseCost: 5000,
             lastLoginDate: null,
             loginStreak: 0,
             gemShards: 0,
@@ -172,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lastSavedTimestamp: Date.now(),
             batteryLevel: 1,
             batteryCapacity: 3600,
-            batteryBaseCost: 1000,
+            batteryBaseCost: 1500000,
             geodesFoundToday: 0,
             rechargeBaseCost: 1000,
             droneCooldownEndTimestamp: 0,
@@ -182,13 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
             tapsSinceLastGeode: 0,
             lastTapTimestamp: 0,
             blackjack_level: 1,
-            blackjack_exp: 0
+            blackjack_exp: 0,
+            farmRuns: 0
         };
     }
 
     let gameState = window.gameState;
-
-    // --- NEW: SLOT SYMBOLS (Reading from assets.js) ---
     const slotSymbols = [
         { name: "crystaldust", img: GAME_ASSETS.iconCrystalDust },
         { name: "geode", img: GAME_ASSETS.iconGeode },
@@ -216,8 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
             reel.appendChild(div);
         }
     }
-    slotReels.forEach(populateReel);
 
+    slotReels.forEach(populateReel);
     const dailyRewards = [
 
         // Week 1
@@ -299,10 +300,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
+    function formatDecimal(num) {
+        if (typeof num !== 'number') num = 0;
+        return num.toFixed(1);
+    }
+
     function formatDate(date) {
         const d = date || new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
+
     function generateChecksum(state) {
         const dataToHash = {
             dust: Math.floor(state.dust),
@@ -327,6 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = String(totalSeconds % 60).padStart(2, '0');
         return `${minutes}:${seconds}`;
     }
+
     function openSlot() {
         removeTreasureBox();
         if (slotActive) return;
@@ -345,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotSpinBtn.disabled = false;
         }, 2000);
     }
+
     function closeSlot() {
         const container = document.querySelector(".slot-machine-container");
         container.classList.add("fade-out");
@@ -355,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotActive = false;
         }, 1000);
     }
+
     function removeTreasureBox() {
         if (!activeTreasureBox) return;
         try {
@@ -362,10 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeTreasureBox.removeEventListener('click', activeTreasureBox._tbClickHandler);
             }
         } catch (e) {
-        }
-        if (activeTreasureBox._particleInterval) {
-            clearInterval(activeTreasureBox._particleInterval);
-            activeTreasureBox._particleInterval = null;
         }
         activeTreasureBox.remove();
         activeTreasureBox = null;
@@ -394,28 +400,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    function spawnTreasureParticle(box) {
-        if (!box) return;
-        const container = document.querySelector('.game-container');
-        if (!container) return;
-        const particle = document.createElement('div');
-        particle.className = 'treasure-particle';
-        container.appendChild(particle);
-        const boxRect = box.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const xOffset = (Math.random() - 0.5) * boxRect.width;
-        const startX = boxRect.left - containerRect.left + boxRect.width / 2 + xOffset - 5;
-        const startY = boxRect.top - containerRect.top + boxRect.height * 0.2;
-        particle.style.left = `${Math.round(startX)}px`;
-        particle.style.top = `${Math.round(startY)}px`;
-        const size = 6 + Math.random() * 6;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        setTimeout(() => {
-            try { particle.remove(); } catch (e) { }
-        }, 5000);
-    }
-
     function spawnTreasureBox() {
         if (activeTreasureBox || slotActive || gameState.isFrenzyMode) return;
         if (isAnyModalOpen()) return;
@@ -426,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const inner = document.createElement('div');
         inner.className = 'treasure-box-inner';
         const img = document.createElement('img');
-        // --- MODIFIED ---
         img.src = GAME_ASSETS.treasureBox;
         img.alt = 'Treasure Box';
         inner.appendChild(img);
@@ -453,14 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
         box.style.left = `${randLeft + box.clientWidth / 2}px`;
         box.style.top = `${randTop + box.clientHeight / 2}px`;
-        box._particleInterval = setInterval(() => {
-            if (!box.parentElement) {
-                clearInterval(box._particleInterval);
-                box._particleInterval = null;
-                return;
-            }
-            spawnTreasureParticle(box);
-        }, 700);
     }
 
     function spawnGeode() {
@@ -473,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const inner = document.createElement('div');
         inner.className = 'geode-box-inner';
         const img = document.createElement('img');
-        // --- MODIFIED ---
         img.src = GAME_ASSETS.iconGeode;
         img.alt = 'Geode';
         inner.appendChild(img);
@@ -481,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const clickHandler = (e) => {
             e.stopPropagation();
             removeGeodeBox();
-            handleGeodeEvent();
+            handleGeodeEvent(e);
         };
         box._geoClickHandler = clickHandler;
         box.addEventListener('click', clickHandler, { passive: true });
@@ -517,7 +491,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSave) {
                 localStorage.setItem('golemEggGameState_previous', currentSave);
             }
-
             gameState.lastSavedTimestamp = Date.now();
             gameState.checksum = generateChecksum(gameState);
             const saveString = JSON.stringify(gameState);
@@ -544,10 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
         golemEgg.style.backgroundImage = `url(${url})`;
     }
 
-    // --- NEW: IMAGE PRELOADER FUNCTION (Reading from assets.js) --- 
     function preloadImages() {
-        // This function now just preloads everything in our asset map.
-        // Object.values(GAME_ASSETS) gets all the URLs from our map.
         const imageUrls = Object.values(GAME_ASSETS);
 
         console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
@@ -599,7 +569,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (timePassedInSeconds > 300) {
                         offlineProgressModal.classList.remove('hidden');
                     }
-                    gameState.dustPerTap = gameState.chiselLevel || 1;
+                    const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
+                    const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+                    const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
+                    gameState.dustPerTap = baseChiselBenefit + eggBonus;
+                    gameState.dustPerSecond = (gameState.droneLevel || 0) * 0.1;
                 }
                 onLoadComplete(isNew);
             });
@@ -619,7 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (timePassedInSeconds > 300) {
                         offlineProgressModal.classList.remove('hidden');
                     }
-                    gameState.dustPerTap = gameState.chiselLevel || 1;
+                    const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
+                    const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
+                    const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
+                    gameState.dustPerTap = baseChiselBenefit + eggBonus;
+                    gameState.dustPerSecond = (gameState.droneLevel || 0) * 0.1;
                 }
             } catch (error) {
                 console.error("Critical error during local load:", error);
@@ -629,7 +607,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
-        // --- 1. ALWAYS UPDATE TOP STATS ---
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
         if (gameState.droneLevel === 0) {
@@ -646,8 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 batteryStatus.classList.remove('claimable');
             }
         }
-
-        // --- 3. UPDATE EGG LEVEL DISPLAY ---
         const config = getCurrentEggConfig();
         gameState.egg.goal = getTapGoal();
         const displayProgress = Math.min(gameState.egg.progress, gameState.egg.goal);
@@ -657,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (eggLevelValue) {
             eggLevelValue.innerText = `Lv. ${gameState.egg.level} / ${config.maxLevel}`;
         }
-        levelUpContainer.classList.add('hidden');
+        hatchChoiceContainer.classList.add('hidden');
         if (!gameState.isFrenzyMode) {
             golemEgg.classList.remove('egg-frenzy');
         }
@@ -666,34 +641,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
         const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
         if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
-            levelUpContainer.classList.remove('hidden');
-            const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
-            if (mainButtonTextElement) mainButtonTextElement.innerText = "Max Level";
-            levelUpCostText.innerText = "";
-            levelUpButton.disabled = true;
-            golemEgg.classList.remove('egg-frenzy');
+            hatchChoiceContainer.classList.remove('hidden');
+            hatchEvolveText.innerText = "Max Level";
+            hatchEvolveCost.innerText = "";
+            hatchEvolveButton.disabled = true;
+            hatchFarmButton.classList.add('hidden');
         } else if (isProgressBarFull) {
-            levelUpContainer.classList.remove('hidden');
+            hatchChoiceContainer.classList.remove('hidden');
+            hatchFarmButton.classList.remove('hidden');
             golemEgg.classList.add('egg-frenzy');
-            const mainButtonTextElement = levelUpButton.querySelector('.level-up-text');
+
             if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
-                if (mainButtonTextElement) mainButtonTextElement.innerText = "EVOLVE!";
+                hatchEvolveText.innerText = "EVOLVE!";
             } else {
-                if (mainButtonTextElement) mainButtonTextElement.innerText = "LEVEL UP!";
+                hatchEvolveText.innerText = "LEVEL UP!";
             }
             const cost = getDustFee();
-            levelUpCostText.innerHTML = `
-            ${formatNumber(cost)}
-            <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">
-        `;
-            levelUpButton.disabled = gameState.dust < cost;
+            hatchEvolveCost.innerHTML = `
+    ${formatNumber(cost)}
+    <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">
+`;
+            hatchEvolveButton.disabled = gameState.dust < cost;
         }
-
-        // --- 5. UPDATE UPGRADE SHOP ---
         const chiselNextEffect = document.getElementById('chisel-next-effect');
         chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatWithCommas(gameState.dustPerTap)}`;
-        if (gameState.chiselLevel >= 10) {
+        chiselEffectText.innerText = `+${formatDecimal(gameState.dustPerTap)}`;
+        if (gameState.chiselLevel >= 91) {
             buyChiselButton.innerText = "Max Level";
             buyChiselButton.disabled = true;
             if (chiselNextEffect && chiselNextEffect.parentElement) {
@@ -701,9 +674,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             const cost = getChiselCost();
-            const nextChiselLevelEffect = gameState.dustPerTap + 1;
+            const nextChiselBenefit = 1 + ((gameState.chiselLevel) * 0.1);
+            const eggBonus = (EGG_NAMES.indexOf(gameState.egg.name) >= 0 ? EGG_NAMES.indexOf(gameState.egg.name) : 0) * 5;
+            const nextTotalEffect = nextChiselBenefit + eggBonus;
             if (chiselNextEffect) {
-                chiselNextEffect.innerText = `+${formatWithCommas(nextChiselLevelEffect)} Dust/Tap`;
+                chiselNextEffect.innerText = `+${formatDecimal(nextTotalEffect)} Dust/Tap`;
                 if (chiselNextEffect.parentElement) {
                     chiselNextEffect.parentElement.style.display = 'block';
                 }
@@ -713,8 +688,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const droneNextEffect = document.getElementById('drone-next-effect');
         droneLevelText.innerText = gameState.droneLevel;
-        droneEffectText.innerText = `+${formatNumber(gameState.dustPerSecond)}`;
-        if (gameState.droneLevel >= 10) {
+        droneEffectText.innerText = `+${formatDecimal(gameState.dustPerSecond)}`;
+        if (gameState.droneLevel >= 100) {
             buyDroneButton.innerText = "Max Level";
             buyDroneButton.disabled = true;
             if (droneNextEffect && droneNextEffect.parentElement) {
@@ -722,9 +697,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             const cost = getDroneCost();
-            const nextEffect = gameState.dustPerSecond + 1;
+            const nextEffect = gameState.dustPerSecond + 0.1;
             if (droneNextEffect) {
-                droneNextEffect.innerText = `+${formatNumber(nextEffect)} Dust/Sec`;
+                droneNextEffect.innerText = `+${formatDecimal(nextEffect)} Dust/Sec`;
                 if (droneNextEffect.parentElement) {
                     droneNextEffect.parentElement.style.display = 'block';
                 }
@@ -765,14 +740,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.refreshGameUI = updateUI;
     window.saveGameGlobal = saveGame;
     window.formatNumberGlobal = formatNumber;
-
-    function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.5, gameState.chiselLevel - 1)); }
-    function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.8, gameState.droneLevel)); }
-    function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(2.2, gameState.batteryLevel - 1)); }
+    function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.055, gameState.chiselLevel - 1)); } // Multiplier 1.05 -> 1.055
+    function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.05, gameState.droneLevel)); } // Multiplier 1.06 -> 1.05
+    function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(6.0, gameState.batteryLevel - 1)); } // Multiplier 4.0 -> 6.0
     function getCurrentEggConfig() {
         const eggName = gameState.egg?.name || "Default Egg";
         return EGG_TIERS[eggName] || EGG_TIERS["Default Egg"];
     }
+
     function getTapGoal() {
         const config = getCurrentEggConfig();
         const currentLevel = gameState.egg?.level || 1;
@@ -780,21 +755,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const tapGoal = config.baseTaps + (config.tapsPerLevel * levelMultiplier);
         return Math.floor(tapGoal);
     }
+
     function getDustFee() {
         const config = getCurrentEggConfig();
         const currentLevel = gameState.egg?.level || 1;
+        let baseCost;
         if (currentLevel >= config.maxLevel) {
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
             const nextEggIndex = currentEggIndex + 1;
             if (nextEggIndex < EGG_NAMES.length) {
                 const nextEggName = EGG_NAMES[nextEggIndex];
                 const nextEggConfig = EGG_TIERS[nextEggName];
-                return nextEggConfig.baseCost;
+                baseCost = nextEggConfig.baseCost;
+            } else {
+                return 0;
             }
+        } else {
+            baseCost = config.baseCost * Math.pow(DUST_FEE_GROWTH_RATE, currentLevel);
         }
-        const dustFee = config.baseCost * Math.pow(DUST_FEE_GROWTH_RATE, currentLevel);
-        return Math.max(1, Math.floor(dustFee));
+        const FARM_PENALTY_RATE = 1.05; // 5% cost increase per farm run
+        const penaltyMultiplier = Math.pow(FARM_PENALTY_RATE, gameState.farmRuns || 0);
+        const finalCost = baseCost * penaltyMultiplier;
+        return Math.max(1, Math.floor(finalCost));
     }
+
     function gameLoop() {
         updateUI();
     }
@@ -817,7 +801,6 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
-                // --- MODIFIED ---
                 rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
                 break;
             case 'gem_shard':
@@ -831,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');
     }
+
     function updateCalendarModal() {
         const streakCount = document.getElementById('calendar-streak-count');
         const nextRewardValue = document.getElementById('next-reward-value');
@@ -839,17 +823,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardInfo = dailyRewards[nextRewardIndex];
         let rewardText = '';
         if (rewardInfo.type === 'dust') {
-            // --- MODIFIED ---
             rewardText = `<span class="dust-amount-color">${formatWithCommas(rewardInfo.amount)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
         } else {
             rewardText = rewardInfo.label;
         }
         nextRewardValue.innerHTML = rewardText;
     }
+
     function getGeodeChance() {
         return 0.03;
     }
-    function handleGeodeEvent() {
+
+    function handleGeodeEvent(e) {
+        const dustIconHtml = `<img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">`;
+        const gemIconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
         const prizeRoll = Math.random();
         let reward = 0;
         let rarity = '';
@@ -862,7 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rarity = "EPIC GEODE!";
             rarityClass = 'epic';
             reward = baseReward * 500; // 500k dust
-            rewardText = `+ ${formatNumber(reward)} Dust & 💠 3 Gem Shard!`;
+            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml} & 3 ${gemIconHtml}`;
             gameState.gemShards += 3;
             gameState.dust += reward;
 
@@ -871,7 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rarity = "Rare Geode!";
             rarityClass = 'rare';
             reward = baseReward * 100;
-            rewardText = `+ ${formatNumber(reward)} Dust!`;
+            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
             gameState.dust += reward;
 
         } else if (prizeRoll < 0.20) {
@@ -879,7 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rarity = "Uncommon Geode!";
             rarityClass = 'uncommon';
             reward = baseReward * 50;
-            rewardText = `+ ${formatNumber(reward)} Dust!`;
+            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
             gameState.dust += reward;
 
         } else {
@@ -887,18 +874,23 @@ document.addEventListener('DOMContentLoaded', () => {
             rarity = "Common Geode";
             rarityClass = 'common';
             reward = baseReward * 5; // 5k dust
-            rewardText = `+ ${formatNumber(reward)} Dust!`;
+            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
             gameState.dust += reward;
         }
 
         const geodeMessage = document.createElement('div');
         geodeMessage.className = `geode-effect ${rarityClass}`;
-        geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
         const gameContainer = document.querySelector('.game-container');
+        const containerRect = gameContainer.getBoundingClientRect();
+        const x = e.clientX - containerRect.left;
+        const y = e.clientY - containerRect.top;
+        geodeMessage.style.left = `${x}px`;
+        geodeMessage.style.top = `${y}px`;
+        geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
         if (gameContainer) {
             gameContainer.appendChild(geodeMessage);
         } else {
-            document.body.appendChild(geodeMessage); // Fallback
+            document.body.appendChild(geodeMessage);
         }
         setTimeout(() => {
             geodeMessage.remove();
@@ -937,7 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.isFrenzyMode = false;
         gameState.frenzyCooldownUntil = Date.now() + 180000;
         if (frenzyAccumulatedDust > 0) {
-            // --- MODIFIED ---
             const iconHtml = `<img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">`;
             temporaryMessage.innerHTML = `Got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
             temporaryMessage.classList.remove('hidden');
@@ -955,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
-    levelUpButton.addEventListener('click', () => {
+    hatchEvolveButton.addEventListener('click', () => {
         const config = getCurrentEggConfig();
         const cost = getDustFee();
         let isEvolving = false;
@@ -977,6 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.dust -= cost;
         gameState.egg.level++;
         gameState.egg.progress = 0;
+        gameState.farmRuns = 0;
 
         // --- PRESTIGE (UNLOCKING NEXT EGG) ---
         if (gameState.egg.level > config.maxLevel) {
@@ -990,17 +982,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.egg.level = 1;
                 gameState.egg.progress = 0;
                 setEggImage(newEggName);
-
-                // --- APPLY THE +5 TAP POWER BONUS 
-                gameState.dustPerTap = gameState.chiselLevel + (nextEggIndex * 5);
+                const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
+                const eggBonus = (nextEggIndex * 5);
+                gameState.dustPerTap = baseChiselBenefit + eggBonus;
+                const gemReward = 10 + (5 * (nextEggIndex - 1));
+                gameState.gemShards += gemReward;
+                const iconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
+                const rewardEffect = document.createElement('div');
+                rewardEffect.className = 'evolution-reward-effect';
+                rewardEffect.innerHTML = `Reward ${gemReward} ${iconHtml}`;
+                clickEffectContainer.appendChild(rewardEffect);
+                setTimeout(() => {
+                    rewardEffect.remove();
+                }, 3000);
                 tg.HapticFeedback.notificationOccurred('success');
-
             } else {
                 console.log("Congratulations! Reached max level on the final egg!");
                 gameState.egg.level = config.maxLevel;
                 gameState.egg.progress = 0;
             }
-
         } else if (gameState.egg.level === config.maxLevel) {
             console.log(`Reached Max Level ${config.maxLevel} for ${gameState.egg.name}. Next level up will prestige.`);
             if (gameState.egg.progress !== 0) gameState.egg.progress = 0;
@@ -1013,15 +1013,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const popupImage = levelupPopup.querySelector('img');
 
         if (isEvolving) {
-            // --- MODIFIED ---
             popupImage.src = GAME_ASSETS.iconEvolve;
             popupImage.alt = 'Evolve!';
         } else {
-            // --- MODIFIED ---
             popupImage.src = GAME_ASSETS.iconLevelUp;
             popupImage.alt = 'Level Up!';
         }
-        // --- END OF DYNAMIC LOGIC ---
 
         levelupPopup.classList.remove('hidden');
         levelupPopup.classList.add('show');
@@ -1037,6 +1034,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.isGameDirty = true;
     });
 
+
+    // --- LISTENER FOR THE FARM BUTTON ---
+    hatchFarmButton.addEventListener('click', () => {
+        gameState.farmRuns++;
+        gameState.egg.progress = 0;
+        tg.HapticFeedback.impactOccurred('medium');
+        window.isGameDirty = true;
+        saveGame();
+        updateUI();
+    });
+
     golemEgg.addEventListener('click', () => {
         let isOvercharge = false;
         const now = Date.now();
@@ -1045,6 +1053,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         gameState.lastTapTimestamp = now;
+        if (!gameState.isFrenzyMode && gameState.egg.progress >= gameState.egg.goal) {
+            tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
         let dustEarned = gameState.dustPerTap;
         let isCritical = false;
 
@@ -1084,12 +1096,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (!gameState.isFrenzyMode && gameState.egg.progress >= gameState.egg.goal) {
-            isOvercharge = true;
-            dustEarned *= 0.25;
-        }
-
-        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION (NEW HYBRID MODEL) ---
+        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION ---
         gameState.dust += dustEarned;
         if (gameState.egg && gameState.egg.progress < gameState.egg.goal) {
             const tapPower = gameState.dustPerTap || 1;
@@ -1108,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const effect = document.createElement('div');
         effect.className = 'click-effect';
-        effect.innerText = `+${formatNumber(dustEarned)}`;
+        effect.innerText = `+${formatDecimal(dustEarned)}`;
         if (isCritical) effect.classList.add('critical');
         if (isOvercharge) {
             effect.classList.add('overcharge');
@@ -1141,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
         upgradeModal.classList.remove('hidden');
     });
+
     closeUpgradeButton.addEventListener('click', () => {
         upgradeModal.classList.add('closing');
         setTimeout(() => {
@@ -1148,6 +1156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             upgradeModal.classList.remove('closing');
         }, 300);
     });
+
     if (headerCalendarButton) {
         headerCalendarButton.addEventListener('click', () => {
             updateCalendarModal();
@@ -1161,14 +1170,17 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarModal.classList.remove('closing');
         }, 300);
     });
+
     buyChiselButton.addEventListener('click', () => {
-        if (gameState.chiselLevel >= 10) return;
+        if (gameState.chiselLevel >= 91) return;
         const cost = getChiselCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.chiselLevel++;
+            const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
             const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-            gameState.dustPerTap = gameState.chiselLevel + (currentEggIndex * 5);
+            const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
+            gameState.dustPerTap = baseChiselBenefit + eggBonus;
             updateUI();
             window.isGameDirty = true;
             tg.HapticFeedback.notificationOccurred('success');
@@ -1176,12 +1188,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     buyDroneButton.addEventListener('click', () => {
-        if (gameState.droneLevel >= 10) return;
+        if (gameState.droneLevel >= 100) return;
         const cost = getDroneCost();
         if (gameState.dust >= cost) {
             gameState.dust -= cost;
             gameState.droneLevel++;
-            gameState.dustPerSecond++;
+            gameState.dustPerSecond = gameState.droneLevel * 0.1;
             if (gameState.droneLevel === 1) {
                 gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
             }
@@ -1292,28 +1304,23 @@ document.addEventListener('DOMContentLoaded', () => {
             slotSymbols[r1].name === slotSymbols[r2].name &&
             slotSymbols[r2].name === slotSymbols[r3].name
         );
-
         if (tg && tg.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred(win ? 'success' : 'warning');
         }
-
         let rewardDisplayHtml = '';
         if (win) {
             const winningSymbolName = slotSymbols[r1].name;
             if (winningSymbolName === 'crystaldust') {
                 const dustReward = 50000;
                 gameState.dust += dustReward;
-                // --- MODIFIED ---
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             } else if (winningSymbolName === 'geode') {
                 const dustReward = 100000;
                 gameState.dust += dustReward;
-                // --- MODIFIED ---
                 rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             } else if (winningSymbolName === 'gem') {
                 const gemReward = 5;
                 gameState.gemShards += gemReward;
-                // --- MODIFIED ---
                 rewardDisplayHtml = `${gemReward} <img src="${GAME_ASSETS.iconGem}" class="slot-icon-small">`;
             }
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
@@ -1321,7 +1328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             let dustReward = 10000;
             gameState.dust += dustReward;
-            // --- MODIFIED ---
             const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
             slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
             slotResult.className = "slot-result win";
@@ -1360,21 +1366,20 @@ document.addEventListener('DOMContentLoaded', () => {
             tg.HapticFeedback.notificationOccurred('error');
             return;
         }
-
         const dustEarned = gameState.dustPerSecond * gameState.batteryCapacity;
         gameState.dust += dustEarned;
         tg.HapticFeedback.notificationOccurred('success');
         const dustCounterRect = dustCounter.getBoundingClientRect();
         const effect = document.createElement('div');
         effect.className = 'drone-claim-effect';
-        effect.innerText = `+${formatNumber(dustEarned)}`;
+        effect.innerText = `+${formatDecimal(dustEarned)}`;
         effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`;
         effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;
         const gameContainer = document.querySelector('.game-container');
         if (gameContainer) {
             gameContainer.appendChild(effect);
         } else {
-            document.body.appendChild(effect); // Fallback
+            document.body.appendChild(effect);
         }
         setTimeout(() => effect.remove(), 4000);
         gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
@@ -1411,7 +1416,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 progress: 0,
                 goal: getTapGoal()
             };
-            // Also initialize blackjack stats for new players
             gameState.blackjack_level = 0;
             gameState.blackjack_exp = 0;
             gameState.mimicStage = 1;
@@ -1420,7 +1424,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.mimicLastFeedDate = null;
             saveGame();
         } else {
-            // Initialize for existing players if missing
             if (typeof gameState.blackjack_level === 'undefined') {
                 gameState.blackjack_level = 0;
             }
@@ -1435,7 +1438,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.mimicLastFeedDate = null;
             }
         }
-
         setEggImage(gameState.egg.name);
         handleDailyLogin();
         updateUI();
@@ -1493,6 +1495,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 break;
 
+            // --- NEW: SET DUST TO ZERO ---
+            case 'z':
+                console.log('[DEV] Setting Crystal Dust to 0...');
+                gameState.dust = 0;
+                updateUI();
+                break;
+
+            // --- NEW: SET HATCH PROGRESS TO MAX ---
+            case 'h':
+                console.log('[DEV] Setting Hatch Progress to Max...');
+                gameState.egg.progress = getTapGoal();
+                updateUI();
+                break;
+
             // 🧰 Spawn treasure box manually
             case 't':
                 console.log('[DEV] Spawning treasure box manually...');
@@ -1508,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveGame();
                 break;
 
-            // --- NEW MIMIC CHEATS ---
+            // --- MIMIC CHEATS ---
 
             // M: Mimic Force Feed
             case 'm':

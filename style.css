@@ -11,7 +11,6 @@
 
 body {
     background-color: var(--tg-theme-bg-color);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: cover;
     background-position: center;
     color: var(--universal-text-color);
@@ -37,9 +36,7 @@ button:active {
 
 .game-container {
     width: 100%;
-    /* 100% of 400px wrapper */
     height: 100%;
-    /* 100% of 812px wrapper */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -49,7 +46,6 @@ button:active {
     padding-bottom: calc(25px + env(safe-area-inset-bottom));
     box-sizing: border-box;
     position: absolute;
-    /* Changed from relative */
     top: 0;
     left: 0;
 }
@@ -120,7 +116,6 @@ button:active {
     display: flex;
     align-items: center;
     gap: 8px;
-    /* Adds a nice space between the two buttons */
 }
 
 .stats-container {
@@ -177,7 +172,6 @@ button:active {
 }
 
 #golem-egg {
-    /* background-image: url(...) REMOVED. script.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -249,13 +243,10 @@ button:active {
 
 .modal {
     position: fixed;
-    /* Revert to fixed */
     left: 0;
     top: 0;
     width: 100vw;
-    /* 100% of Viewport Width */
     height: 100vh;
-    /* 100% of Viewport Height */
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
@@ -306,7 +297,6 @@ button:active {
     top: 5%;
     width: 30px;
     height: 29px;
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -365,7 +355,6 @@ button:active {
 
 .drone-claim-effect {
     position: absolute;
-    /* CHANGED from fixed */
     font-size: 24px;
     font-weight: bold;
     transform: translateX(-50%);
@@ -425,7 +414,6 @@ button:active {
 
 .geode-effect {
     position: absolute;
-    /* CHANGED from fixed */
     font-size: 20px;
     font-weight: bold;
     pointer-events: none;
@@ -433,8 +421,9 @@ button:active {
     text-shadow: 0 0 5px black;
     text-align: center;
     transform: translateX(-50%);
-    position: fixed;
     z-index: 200;
+    top: 0;
+    left: 0;
 }
 
 .geode-effect.common {
@@ -459,7 +448,6 @@ button:active {
     position: absolute;
     top: 0;
     z-index: 10;
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -493,7 +481,6 @@ button:active {
     transform: translateX(-50%);
     z-index: 110;
     pointer-events: none;
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -872,7 +859,6 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    /* background: url(...) REMOVED. Replaced with individual properties */
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -920,7 +906,6 @@ button:active {
     top: 28%;
     width: 30px;
     height: 29px;
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -993,7 +978,6 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    /* background: url(...) REMOVED. Replaced with individual properties */
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -1026,7 +1010,6 @@ button:active {
 }
 
 .upgrade-item {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -1053,7 +1036,6 @@ button:active {
 }
 
 .upgrade-item button {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1162,7 +1144,6 @@ button:active {
 #new-shop-button,
 #tasks-button,
 #grotto-button {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1188,7 +1169,6 @@ button:active {
     position: relative;
     width: min(90vw, 540px);
     aspect-ratio: 2 / 3;
-    /* background: url(...) REMOVED. Replaced with individual properties */
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -1221,7 +1201,6 @@ button:active {
     top: 88%;
     width: 30px;
     height: 29px;
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     font-size: 0;
@@ -1319,15 +1298,12 @@ img {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 5px 0 10px 10px;
-
-    /* --- SCROLLBAR STYLES ADDED --- */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     -ms-overflow-style: auto;
 }
 
 .scroll-menu::-webkit-scrollbar {
-    /* Was 'display: none', now has a size */
     height: 8px;
 }
 
@@ -1357,7 +1333,6 @@ img {
 }
 
 #level-up-button {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1491,10 +1466,8 @@ img {
 #close-shop-button {
     position: absolute;
     right: 5px;
-    ;
     top: 50%;
     transform: translateY(-50%);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1541,7 +1514,6 @@ img {
 }
 
 .shop-item-card {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: 100% 100%;
     background-repeat: no-repeat;
     padding: 10px;
@@ -1584,7 +1556,6 @@ img {
 
 .shop-item-card .card-buy-button,
 .shop-footer .card-buy-button {
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1721,10 +1692,8 @@ img {
 #close-silver-pass-button {
     position: absolute;
     right: 5px;
-    ;
     top: 50%;
     transform: translateY(-50%);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1781,7 +1750,6 @@ img {
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -1844,7 +1812,6 @@ img {
     font-size: 14px;
     color: #dfc117;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -1969,7 +1936,6 @@ img {
     right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    /* background-image: url(...) REMOVED. loader.js handles this */
     background-size: contain;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -2115,9 +2081,6 @@ img {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* --- 19. MIMIC MODAL STYLES --- */
-
-/* Override task-content to center our new UI */
 #mimic-content {
     display: flex;
     flex-direction: column;
@@ -2136,12 +2099,9 @@ img {
 
 #mimic-image {
     width: 170px;
-    /* A bit wider */
     height: 170px;
-    /* Taller to fit the mouth */
     object-fit: contain;
     margin-bottom: 10px;
-    /* Reduced margin */
 }
 
 #mimic-progress-container {
@@ -2162,7 +2122,6 @@ img {
 
 #mimic-progress-bar-inner {
     width: 0%;
-    /* e.g., 2/5 = 40% */
     height: 100%;
     background-color: #FFD700;
     border-radius: 10px;
@@ -2200,51 +2159,79 @@ img {
     color: #ffd55c;
     margin-top: 15px;
     min-height: 20px;
-    /* Prevents layout shift */
 }
 
-/* --- 20. MIMIC BUTTON FIX --- */
+.mimic-button-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 5px;
+}
 
-/* This styles the button itself */
-#feed-mimic-button {
+#feed-mimic-button,
+#force-feed-mimic-button,
+#mimic-pass-button {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
     border: none;
-    width: 100px;
-    /* A fixed width, like the shop */
     min-height: 50px;
-    /* Same height as shop buttons */
     cursor: pointer;
     transition: transform 0.1s ease;
-    margin-top: 20px;
-    /* Space above the button */
     position: relative;
     padding: 0;
 }
 
-#feed-mimic-button:active {
+#feed-mimic-button {
+    width: 110px;
+    margin-top: 0;
+}
+
+#force-feed-mimic-button {
+    width: 110px;
+}
+
+#mimic-pass-button {
+    width: 150px;
+    margin-top: 0px;
+}
+
+#feed-mimic-button:active,
+#force-feed-mimic-button:active,
+#mimic-pass-button:active {
     transform: scale(0.95);
 }
 
-/* This styles the "FEED" text on the button */
-#feed-mimic-button span {
+#feed-mimic-button span,
+#force-feed-mimic-button span,
+#mimic-pass-button span {
     position: absolute;
     top: 50%;
     left: 50%;
     white-space: nowrap;
     font-family: 'Graduate', serif;
     font-size: 14px;
+    /* Default */
     color: #dfc117;
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    transform: translate(-52%, -50%);
-    /* Copied from shop button */
+    transform: translate(-50%, -50%);
 }
 
-/* This handles the disabled state */
-#feed-mimic-button:disabled {
+#mimic-pass-button span {
+    font-size: 10px;
+}
+
+#force-feed-mimic-button span {
+    font-size: 14px;
+}
+
+#feed-mimic-button:disabled,
+#force-feed-mimic-button:disabled,
+#mimic-pass-button:disabled {
     filter: grayscale(80%) opacity(0.6);
     cursor: not-allowed;
     transform: none;
@@ -2260,7 +2247,6 @@ img {
     gap: 4px;
 }
 
-/* This targets the part of the text we want to be gold */
 #mimic-reward-text .gem-reward-amount {
     color: #ffd55c;
     font-size: 16px;
@@ -2271,32 +2257,25 @@ img {
     font-size: 13px;
     font-weight: bold;
     color: #ffd55c;
-    /* Gold color */
     margin-top: -5px;
-    /* Pulls it closer to the stage text */
     margin-bottom: 10px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
-
-/* --- 21. MIMIC ANIMATION FIX --- */
 
 #mimic-image-wrapper {
     position: relative;
     width: 170px;
     height: 170px;
     margin-bottom: 10px;
-    /* Moved this from #mimic-image */
 }
 
 #mimic-image {
     margin-bottom: 0;
-    /* Removed margin */
 }
 
 #mimic-reward-gem {
     position: absolute;
     top: 65%;
-    /* Position over the mouth */
     left: 50%;
     transform: translate(-50%, -50%) scale(1.5);
     width: 70px;
@@ -2308,24 +2287,70 @@ img {
     pointer-events: none;
 }
 
-/* This makes the gem fade in when 'hidden' is removed */
 #mimic-reward-gem:not(.hidden) {
     opacity: 1;
 }
 
-/* --- 22. GAME SCALER --- */
 #game-wrapper {
-    /* Base design size (must match scaler.js) */
     width: 400px;
     height: 912px;
-
     transform-origin: top center;
-
-    /* This is critical for modals */
     position: relative;
-
-    /* Hide anything that sticks out */
     overflow: hidden;
+}
+
+.hatch-choice-container {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#hatch-evolve-button,
+.hatch-choice-button {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    width: 180px;
+    height: 65px;
+    padding-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+#hatch-evolve-button:active,
+.hatch-choice-button:active {
+    transform: scale(0.95);
+}
+
+#hatch-evolve-button:disabled {
+    filter: grayscale(80%) opacity(0.6);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.evolution-reward-effect {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Graduate', serif;
+    color: #FFD700;
+    text-shadow: 0 0 5px #000, 0 0 8px #FFD700;
+    pointer-events: none;
+    animation: float-up-geode 3s ease-out forwards;
+    z-index: 200;
+    text-align: center;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes rainbow-wave {

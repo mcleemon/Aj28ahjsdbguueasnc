@@ -1,19 +1,15 @@
 /* blackjack.css */
 /* v1.1.0 - Styles for new UI */
 
-/* --- 1. The Full Screen --- */
 #blackjack-screen {
     width: 100%;
     height: 100%;
-    /* 100% of 812px wrapper */
     background-size: cover;
     background-position: center;
     background-color: transparent;
-    /* Classic green table color */
     display: flex;
     flex-direction: column;
     position: absolute;
-    /* CHANGED from relative */
     top: 0;
     left: 0;
     box-sizing: border-box;
@@ -24,7 +20,6 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    /* Updated padding to make room for status bar */
     padding: calc(120px + env(safe-area-inset-top)) 15px calc(40px + env(safe-area-inset-bottom)) 15px;
     font-family: 'Graduate', serif;
 }
@@ -43,7 +38,6 @@
     z-index: 10;
 }
 
-/* --- 2. Info & Messages --- */
 .blackjack-info {
     text-align: center;
     font-size: 1.2em;
@@ -53,7 +47,6 @@
     margin-bottom: 10px;
 }
 
-/* --- 3. Hand Containers --- */
 .blackjack-hand-container {
     margin: 5px 0;
     padding: 10px;
@@ -73,14 +66,12 @@
 .hand {
     display: flex;
     flex-wrap: wrap;
-    /* Allows cards to wrap to a new line if needed */
     justify-content: center;
     align-items: center;
     min-height: 100px;
     gap: 10px;
 }
 
-/* --- 4. HTML Card Styling (Option B) --- */
 .card {
     width: 66px;
     height: 93px;
@@ -118,37 +109,25 @@
 .card-hearts,
 .card-diamonds {
     color: #D90000;
-    /* Red */
 }
 
 .card.hidden-card {
     background-size: cover;
-    /* Make the image fill the card */
     background-position: center;
     border: 0px solid #aaa;
     color: transparent;
-    /* Hide any text */
-
-    /* --- ADD THESE TWO LINES TO FIX THE BUG --- */
     padding: 0;
-    /* Remove the 5px padding */
     background-color: transparent;
-    /* Override the white background */
 }
 
-
-/* --- 5. OLD Control Buttons --- */
 .blackjack-controls {
     display: flex;
-    /* UPDATED: now column */
     flex-direction: column;
     gap: 10px;
     margin-top: auto;
-    /* Pushes buttons to the bottom */
 }
 
 .blackjack-button {
-    /* UPDATED: padding and font size */
     padding: 12px 10px;
     font-family: 'Graduate', serif;
     font-size: 1em;
@@ -176,7 +155,6 @@
     opacity: 0.7;
 }
 
-/* --- 6. NEW Status Bar (Phase 1) --- */
 #blackjack-status-bar {
     position: absolute;
     top: calc(80px + env(safe-area-inset-top));
@@ -187,9 +165,7 @@
     justify-content: space-between;
     align-items: center;
     z-index: 5;
-    /* Below the back button */
     padding-right: 40px;
-    /* Space for the back button */
 }
 
 #blackjack-dust-counter {
@@ -234,14 +210,12 @@
 
 #level-bar-inner {
     width: 0%;
-    /* Will be set by JavaScript */
     height: 100%;
     background-color: #3498db;
     border-radius: 5px;
     transition: width 0.5s ease;
 }
 
-/* --- 7. NEW Betting Controls (Phase 1) --- */
 #chip-betting-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -251,11 +225,8 @@
 .chip-button {
     width: 100%;
     max-width: 60px;
-    /* Set a max size */
     height: auto;
-    /* Maintain aspect ratio */
     margin: 0 auto;
-    /* Center the chip in the grid */
     display: block;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
@@ -275,50 +246,34 @@
 #action-button-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* 4 buttons for Hit/Stand/Double/Split */
     gap: 8px;
 }
 
-/* Make the Deal button span the full width */
 #btn-deal {
     grid-column: 1 / -1;
-    /* Span all columns */
 }
 
-/* --- 8. NEW Button Spanning (Phase 1) --- */
-
-/* By default, "Clear" and "Deal" span 2 columns each */
 #btn-clear-bet {
     grid-column: 1 / 3;
-    /* Spans first 2 columns */
 }
 
 #btn-deal {
     grid-column: 3 / 5;
-    /* Spans last 2 columns */
 }
 
-/* When the "playing" class is added, 
-  we reset the spans so all buttons are 1 column. 
-*/
 #action-button-row.playing-phase #btn-clear-bet,
 #action-button-row.playing-phase #btn-deal {
     grid-column: auto;
 }
 
-/* --- 9. NEW Split Hand Styling (Phase 3) --- */
-
 #player-hand.hand {
-    /* Change the container to allow hands to sit side-by-side */
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
-    /* Align hands to the top */
 }
 
 .split-hand {
-    /* Each hand is a flex container for its own cards */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -330,25 +285,16 @@
 }
 
 .active-hand {
-    /* This highlights the hand being played */
     border-color: #ffc107;
     box-shadow: 0 0 15px #ffc107;
 }
 
-/* --- 10. NEW Insurance Row Styles --- */
-
 #insurance-row {
-    /* This makes it span the full 4 columns */
     grid-column: 1 / -1;
-
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    /* Adds space between text and buttons */
-
-    /* Make the "No" button a different color */
-    /* This is optional, but common */
     --insurance-no-bg: #8c1a1a;
     --insurance-no-shadow: #5a0000;
 }
@@ -360,21 +306,16 @@
     text-shadow: 1px 1px 2px #000;
 }
 
-/* Style the new buttons */
 #btn-insurance-yes {
-    /* Make the 'Yes' button green */
     background-color: #0c6b0c;
     box-shadow: 0 4px 0 #003e00;
     min-width: 80px;
-    /* Give it some space */
 }
 
 #btn-insurance-no {
-    /* Make the 'No' button red */
     background-color: var(--insurance-no-bg);
     box-shadow: 0 4px 0 var(--insurance-no-shadow);
     min-width: 80px;
-    /* Give it some space */
 }
 
 #btn-insurance-yes:active {
@@ -383,30 +324,23 @@
 
 #btn-insurance-no:active {
     background-color: var(--insurance-no-bg);
-    /* Stays red */
     box-shadow: 0 2px 0 var(--insurance-no-shadow);
 }
 
-/* --- 11. NEW Card Animations --- */
-
-/* This is the card's "starting" state (invisible, up near the dealer) */
 .card.dealing {
     opacity: 0;
     transform: translateY(-80px) scale(0.8);
 }
 
 .card.is-fading-out {
-    /* Fades out in 0.3s */
     animation: fade-out-fast 0.3s ease-out forwards;
 }
 
 .card.is-fading-in {
     opacity: 0;
-    /* Fades in in 0.3s, but *after* a 0.3s delay */
     animation: fade-in-fast 0.3s ease-in 0.3s forwards;
 }
 
-/* --- 12. NEW Flip Animation --- */
 @keyframes fade-out-fast {
     to {
         opacity: 0;
@@ -426,7 +360,6 @@
     }
 }
 
-/* --- 13. NEW Chip Animation --- */
 #blackjack-animation-container {
     position: absolute;
     top: 0;
@@ -434,34 +367,25 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Allows clicks to pass through */
     z-index: 100;
-    /* Make sure it's on top */
     overflow: hidden;
 }
 
 .flying-chip {
     position: absolute;
-    /* Use a fixed size for the animation */
     width: 60px;
     height: 60px;
     z-index: 101;
-    /* This transition is what makes it move */
     transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0);
-    /* <-- FIXED! */
 }
 
-/* --- 14. NEW Bet Stack Area --- */
 #bet-stack-area {
     width: 100%;
     height: 50px;
-    /* Give it some space */
     margin-bottom: 10px;
     position: relative;
-    /* This is essential for stacking */
 }
 
-/* --- 16. NEW End-of-Round Fade Animation --- */
 @keyframes fade-out-slow {
     to {
         opacity: 0;
@@ -470,6 +394,5 @@
 }
 
 .clearing-table {
-    /* Fades out over 0.5s */
     animation: fade-out-slow 0.5s ease-out forwards;
 }

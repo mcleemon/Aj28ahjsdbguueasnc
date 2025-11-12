@@ -1,6 +1,5 @@
 // loader.js
 // v1.0.0
-// This script loads all assets from our map into the HTML.
 
 // 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';
@@ -9,7 +8,6 @@ import { GAME_ASSETS } from './assets.js';
 function preloadAssets() {
     const imageUrls = Object.values(GAME_ASSETS);
     // console.log(`[Loader] Preloading ${imageUrls.length} assets...`);
-    
     imageUrls.forEach(url => {
         const img = new Image();
         img.src = url;
@@ -19,7 +17,6 @@ function preloadAssets() {
 // 3. This function runs when the HTML content is ready
 function populateAssets() {
     // console.log("[Loader] Populating assets...");
-    
     // Find all <img> tags with [data-asset-key]
     const imgElements = document.querySelectorAll('[data-asset-key]');
     imgElements.forEach(el => {

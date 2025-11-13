@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -13,10 +14,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.85">
+    <link rel="stylesheet" href="style.css?v=2.13.86">
     <link rel="stylesheet" href="blackjack.css?v=1.0.23">
-    <link rel="stylesheet" href="slot.css?v=1.1.0">
+    <link rel="stylesheet" href="reel-game.css?v=1.0.0"> 
 </head>
+
 <body data-asset-bg-key="background">
     <div id="game-wrapper">
         <div class="game-container">
@@ -93,7 +95,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="scroll-menu-container">
                 <div class="scroll-menu">
                     <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing" alt="Fishing">
@@ -101,7 +102,9 @@
                         alt="Blackjack">
                     <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
                         alt="Roulette">
+                    
                     <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
+                    
                     <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
                 </div>
             </div>
@@ -112,7 +115,7 @@
                 <button id="grotto-button" data-asset-bg-key="buttonNav" disabled>GROTTO</button>
             </div>
         </div>
-
+        
         <div id="blackjack-screen" class="hidden">
             <div id="blackjack-animation-container"></div>
             <div id="blackjack-status-bar">
@@ -135,17 +138,14 @@
                     <div id="dealer-hand" class="hand">
                     </div>
                 </div>
-
                 <div class="blackjack-hand-container">
                     <h2>Player Hand (<span id="player-score">0</span>)</h2>
                     <div id="player-hand" class="hand">
                     </div>
                 </div>
-
                 <div class="blackjack-info" id="blackjack-message">
                     Place your bet to start.
                 </div>
-
                 <div id="blackjack-controls" class="blackjack-controls">
                     <div id="bet-stack-area"></div>
                     <div id="chip-betting-row">
@@ -156,7 +156,6 @@
                         <img class="chip-button" data-bet="1000000" data-asset-key="chip1m">
                         <img class="chip-button" data-bet="5000000" data-asset-key="chip5m">
                     </div>
-
                     <div id="action-button-row">
                         <div id="insurance-row" class="hidden">
                             <span id="insurance-text">Buy Insurance?</span>
@@ -165,7 +164,6 @@
                         </div>
                         <button id="btn-clear-bet" class="blackjack-button">Clear</button>
                         <button id="btn-deal" class="blackjack-button">Deal</button>
-
                         <button id="btn-stand" class="blackjack-button hidden">Stand</button>
                         <button id="btn-hit" class="blackjack-button hidden">Hit</button>
                         <button id="btn-double" class="blackjack-button hidden" disabled>Double</button>
@@ -175,68 +173,76 @@
             </div>
         </div>
     </div>
-
-    <div id="slot-screen" class="hidden">
-        <div id="slot-status-bar">
-            <div id="slot-dust-counter">
+    
+    <div id="reel-game-screen" class="hidden">
+        <div id="reel-game-status-bar">
+            <div id="reel-game-dust-counter">
                 <img data-asset-key="iconCrystalDust" alt="Dust">
-                <span id="slot-dust-amount">0</span>
+                <span id="reel-game-dust-amount">0</span>
             </div>
-            <div id="slot-level-container">
-                <span id="slot-level-text">Lv. 1</span>
+            <div id="reel-game-level-container">
+                <span id="reel-game-level-text">Lv. 1</span>
 
                 <div class="level-bar-outer">
-                    <div id="slot-level-bar-inner"></div>
+                    <div id="reel-game-level-bar-inner"></div>
                 </div>
             </div>
         </div>
-
-        <div id="slot-jackpot-text">
+        <div id="reel-game-jackpot-text">
             GRAND JACKPOT
         </div>
-        <div class="slot-game-container">
-            <button id="slot-back-button"></button>
-            <div class="slot-reel-window">
-                <div class="slot-reel-column">
-                    <div class="slot-reel-strip">
-                    </div>
-                </div>
-                <div class="slot-reel-column">
-                    <div class="slot-reel-strip">
-                    </div>
-                </div>
-                <div class="slot-reel-column">
-                    <div class="slot-reel-strip">
-                    </div>
-                </div>
-                <div class="slot-reel-column">
-                    <div class="slot-reel-strip">
-                    </div>
-                </div>
-                <div class="slot-reel-column">
-                    <div class="slot-reel-strip">
-                    </div>
-                </div>
-            </div>
-            <div id="slot-win-display">0</div>
-            <div class="slot-controls">
-                <div class="slot-info-bar">
-                    <div class="info-box" id="slot-info-bet">
-                        <span class="info-label">BET</span>
-                        <span class="info-value" id="slot-bet-value">0</span>
-                    </div>
-                    <div class="info-box" id="slot-info-win">
-                        <span class="info-label">LAST WIN</span>
-                        <span class="info-value" id="slot-last-win">0</span>
-                    </div>
-                </div>
-                <button id="slot-spin-button">
-                    <span>SPIN</span>
-                </button>
-            </div>
+        <div class="reel-game-container">
+            <button id="reel-game-back-button"></button>
 
+            <div class="reel-game-frame-wrapper">
+
+                <div class="reel-game-window">
+                    <div class="reel-game-column">
+                        <div class="reel-game-strip">
+                        </div>
+                    </div>
+                    <div class="reel-game-column">
+                        <div class="reel-game-strip">
+                        </div>
+                    </div>
+                    <div class="reel-game-column">
+                        <div class="reel-game-strip">
+                        </div>
+                    </div>
+                    <div class="reel-game-column">
+                        <div class="reel-game-strip">
+                        </div>
+                    </div>
+                    <div class="reel-game-column">
+                        <div class="reel-game-strip">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="reel-game-win-display">0</div>
+            <div class="reel-game-controls">
+                <div class="reel-game-info-bar">
+                    <div class="info-box" id="reel-game-info-bet">
+                        <span class="info-label">BET</span>
+                        <span class="info-value" id="reel-game-bet-value">0</span>
+                    </div>
+                    <div class="info-box" id="reel-game-info-win">
+                        <span class="info-label">LAST WIN</span>
+                        <span class="info-value" id="reel-game-last-win">0</span>
+                    </div>
+                </div>
+                <div class="spin-button-row">
+                    <button id="reel-game-bet-decrease" class="bet-adjust-button" disabled>&lt;</button>
+                    <button id="reel-game-spin-button">
+                        <span>SPIN</span>
+                    </button>
+                    <button id="reel-game-bet-increase" class="bet-adjust-button">&gt;</button>
+                </div>
+            </div>
         </div>
     </div>
+    
     <div id="slot-popup" class="slot-popup hidden">
         <img data-asset-key="popupSpinToWin" alt="Spin to Win" class="slot-popup-img">
     </div>
@@ -287,7 +293,6 @@
             </div>
         </div>
     </div>
-
     <div id="calendar-modal" class="modal hidden">
         <div class="modal-content" data-asset-bg-key="calendarFrame">
             <span id="close-calendar-button" class="close-button" data-asset-bg-key="closeButton"></span>
@@ -327,6 +332,7 @@
             </div>
         </div>
     </div>
+    
     <div id="slot-overlay" class="hidden">
         <div class="slot-machine-container">
             <div class="slot-machine">
@@ -347,6 +353,7 @@
             </div>
         </div>
     </div>
+    
     <div id="shop-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
@@ -418,7 +425,6 @@
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
-
                 <h3>CRYSTAL DUST</h3>
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
@@ -470,7 +476,6 @@
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
-
                 <h3>REEL TICKET</h3>
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
@@ -522,7 +527,6 @@
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
-
                 <h3>FISH BAIT</h3>
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
@@ -578,7 +582,6 @@
             <div class="shop-footer"></div>
         </div>
     </div>
-
     <div id="gold-pass-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
@@ -594,7 +597,6 @@
                         <li>Unlimited GOLD Lifetime Pass</li>
                         <li>More Future Update Rewards</li>
                     </ul>
-
                     <h2 class="perk-subtitle">Permanent Gold Feature:</h2>
                     <ul>
                         <li>Unlock Send Crystal Dust Feature</li>
@@ -608,7 +610,6 @@
                         <li>Increase Fishing Reward Rarity</li>
                         <li>Reel Crystal Dust Limit: 5,000,000</li>
                     </ul>
-
                     <h2 class="perk-subtitle">One Time Gift Bonus:</h2>
                     <ul>
                         <li>Bonus 3.5M Crystal Dust</li>
@@ -625,7 +626,6 @@
             </div>
         </div>
     </div>
-
     <div id="silver-pass-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
@@ -639,7 +639,6 @@
                         <li>Limited Special <span class="animated-silver-text">Silver Plated Name</span></li>
                         <li>Unlimited SILVER Lifetime Pass</li>
                     </ul>
-
                     <h2 class="perk-subtitle">Permanent Silver Feature:</h2>
                     <ul>
                         <li>Unlock Send Crystal Dust Feature</li>
@@ -651,7 +650,6 @@
                         <li>2x Geode Spawn Rate</li>
                         <li>Reel Crystal Dust Limit: 500,000</li>
                     </ul>
-
                     <h2 class="perk-subtitle">One Time Gift Bonus:</h2>
                     <ul>
                         <li>Bonus 1.0M Crystal Dust</li>
@@ -666,7 +664,6 @@
             </div>
         </div>
     </div>
-
     <div id="tasks-modal" class="modal hidden">
         <div class="task-panel">
             <div class="task-header">
@@ -705,7 +702,6 @@
             <div class="task-footer"></div>
         </div>
     </div>
-
     <div id="grotto-modal" class="modal hidden">
         <div class="grotto-panel">
             <div class="grotto-header">
@@ -752,7 +748,6 @@
             </div>
         </div>
     </div>
-
     <div id="mimic-modal" class="modal hidden">
         <div class="task-panel">
             <div class="task-header"> <button id="close-mimic-button" data-asset-bg-key="closeButton"></button>
@@ -761,24 +756,20 @@
             <div id="mimic-content" class="task-content">
                 <span id="mimic-stage-text">Mimic Stage: 1</span>
                 <span id="mimic-stage-info-text">Reward Increases Each Stage!</span>
-
                 <div id="mimic-image-wrapper">
                     <img id="mimic-image" data-asset-key="mimicClose" alt="Mimic">
                     <img id="mimic-reward-gem" class="hidden" data-asset-key="iconGem" alt="Gem Reward">
                 </div>
-
                 <div id="mimic-progress-container">
                     <div id="mimic-progress-bar-outer">
                         <div id="mimic-progress-bar-inner"></div>
                     </div>
                     <span id="mimic-progress-text">0 / 5</span>
                 </div>
-
                 <span id="mimic-cost-text">Cost: 10,000</span>
                 <span id="mimic-reward-text">Next Reward: 1 Gem Shard</span>
                 <span id="mimic-attempts-text">Daily Feeds Remaining: 3 / 3</span>
                 <span id="mimic-result-text">The Mimic looks hungry...</span>
-
                 <div class="mimic-button-row">
                     <button id="feed-mimic-button" class="card-buy-button" data-asset-bg-key="buttonShop">
                         <span>FEED</span>
@@ -791,14 +782,12 @@
                 <button id="mimic-pass-button" class="card-buy-button" data-asset-bg-key="mimicPass" disabled>
                     <span>Permanent +2 Feed</span>
                 </button>
-
             </div>
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <script src="script.js?v=2.13.85" type="module"></script>
-    <script src="assets.js?v=1.0.7" type="module"></script>
+    <script src="script.js?v=2.13.86" type="module"></script>
+    <script src="assets.js?v=1.0.8" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
     <script src="shop.js?v=1.0.13" type="module"></script>
@@ -806,7 +795,7 @@
     <script src="grotto.js?v=1.0.9" type="module"></script>
     <script src="blackjack.js?v=1.1.20" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
-    <script src="slot.js?v=1.5.0" type="module"></script>
+    <script src="reel-game.js?v=1.0.0" type="module"></script>
 </body>
 
 </html>

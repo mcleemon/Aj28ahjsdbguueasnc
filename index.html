@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -14,12 +13,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.84">
+    <link rel="stylesheet" href="style.css?v=2.13.85">
     <link rel="stylesheet" href="blackjack.css?v=1.0.23">
-    <link rel="stylesheet" href="slot.css?v=1.0.1">
-
+    <link rel="stylesheet" href="slot.css?v=1.1.0">
 </head>
-
 <body data-asset-bg-key="background">
     <div id="game-wrapper">
         <div class="game-container">
@@ -32,13 +29,9 @@
                             <span id="player-level">Lv. 1</span>
                         </div>
                     </div>
-
                     <div class="header-right-buttons">
-
                         <button id="header-calendar-button" data-asset-bg-key="iconCalendar"></button>
-
                         <button id="settings-button" data-asset-bg-key="settingButton"></button>
-
                     </div>
                 </div>
                 <div class="stats-container">
@@ -92,7 +85,6 @@
                                 data-asset-bg-key="levelUpButton">
                                 <span class="level-up-text">Keep Farming</span>
                             </button>
-
                             <button id="hatch-evolve-button" data-asset-bg-key="levelUpButton">
                                 <span id="hatch-evolve-text" class="level-up-text">LEVEL UP!</span>
                                 <span id="hatch-evolve-cost" class="level-up-cost-text"></span>
@@ -185,29 +177,59 @@
     </div>
 
     <div id="slot-screen" class="hidden">
+        <div id="slot-status-bar">
+            <div id="slot-dust-counter">
+                <img data-asset-key="iconCrystalDust" alt="Dust">
+                <span id="slot-dust-amount">0</span>
+            </div>
+            <div id="slot-level-container">
+                <span id="slot-level-text">Lv. 1</span>
+
+                <div class="level-bar-outer">
+                    <div id="slot-level-bar-inner"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="slot-jackpot-text">
+            GRAND JACKPOT
+        </div>
         <div class="slot-game-container">
             <button id="slot-back-button"></button>
-
             <div class="slot-reel-window">
-
                 <div class="slot-reel-column">
                     <div class="slot-reel-strip">
                     </div>
                 </div>
-
                 <div class="slot-reel-column">
                     <div class="slot-reel-strip">
                     </div>
                 </div>
-
                 <div class="slot-reel-column">
                     <div class="slot-reel-strip">
                     </div>
                 </div>
-
+                <div class="slot-reel-column">
+                    <div class="slot-reel-strip">
+                    </div>
+                </div>
+                <div class="slot-reel-column">
+                    <div class="slot-reel-strip">
+                    </div>
+                </div>
             </div>
             <div id="slot-win-display">0</div>
             <div class="slot-controls">
+                <div class="slot-info-bar">
+                    <div class="info-box" id="slot-info-bet">
+                        <span class="info-label">BET</span>
+                        <span class="info-value" id="slot-bet-value">0</span>
+                    </div>
+                    <div class="info-box" id="slot-info-win">
+                        <span class="info-label">LAST WIN</span>
+                        <span class="info-value" id="slot-last-win">0</span>
+                    </div>
+                </div>
                 <button id="slot-spin-button">
                     <span>SPIN</span>
                 </button>
@@ -215,11 +237,9 @@
 
         </div>
     </div>
-
     <div id="slot-popup" class="slot-popup hidden">
         <img data-asset-key="popupSpinToWin" alt="Spin to Win" class="slot-popup-img">
     </div>
-
     <div id="upgrade-modal" class="modal hidden">
         <div class="modal-content" data-asset-bg-key="modalFrameUpgrade">
             <span id="close-upgrade-button" class="close-button" data-asset-bg-key="closeButton"></span>
@@ -257,7 +277,6 @@
             </div>
         </div>
     </div>
-
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
             <img id="login-frame-img" data-asset-key="welcomeFrame" alt="Login Reward Frame">
@@ -282,7 +301,6 @@
             </div>
         </div>
     </div>
-
     <div id="cheat-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Cheat Detected</h2>
@@ -290,7 +308,6 @@
             <p>Please contact game support if you believe this is a mistake.</p>
         </div>
     </div>
-
     <div id="settings-modal" class="modal hidden">
         <div class="settings-modal-content" data-asset-bg-key="welcomeFrame">
             <div class="modal-inner">
@@ -302,7 +319,6 @@
             <span id="close-settings-button" class="close-button" data-asset-bg-key="closeButton"></span>
         </div>
     </div>
-
     <div id="offline-progress-modal" class="modal hidden">
         <div class="modal-content">
             <img id="welcome-frame-img" data-asset-key="welcomeFrame" alt="Welcome Back Frame">
@@ -311,7 +327,6 @@
             </div>
         </div>
     </div>
-
     <div id="slot-overlay" class="hidden">
         <div class="slot-machine-container">
             <div class="slot-machine">
@@ -332,7 +347,6 @@
             </div>
         </div>
     </div>
-
     <div id="shop-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
@@ -353,7 +367,6 @@
                         <span class="pass-price">$1.99</span>
                     </button>
                 </div>
-
                 <h3>BUNDLES</h3>
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
@@ -784,8 +797,8 @@
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script src="script.js?v=2.13.84" type="module"></script>
-    <script src="assets.js?v=1.0.6" type="module"></script>
+    <script src="script.js?v=2.13.85" type="module"></script>
+    <script src="assets.js?v=1.0.7" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
     <script src="shop.js?v=1.0.13" type="module"></script>
@@ -793,7 +806,7 @@
     <script src="grotto.js?v=1.0.9" type="module"></script>
     <script src="blackjack.js?v=1.1.20" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
-    <script src="slot.js?v=1.0.1" type="module"></script>
+    <script src="slot.js?v=1.5.0" type="module"></script>
 </body>
 
 </html>

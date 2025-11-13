@@ -185,7 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
             lastTapTimestamp: 0,
             blackjack_level: 1,
             blackjack_exp: 0,
-            farmRuns: 0
+            farmRuns: 0,
+            slot_level: 1,
+            slot_exp: 0,
+            slot_last_win: 0
         };
     }
 
@@ -1429,6 +1432,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (typeof gameState.blackjack_exp === 'undefined') {
                 gameState.blackjack_exp = 0;
+            }
+
+            if (typeof gameState.slot_level === 'undefined') {
+                gameState.slot_level = 1;
+            }
+            if (typeof gameState.slot_exp === 'undefined') {
+                gameState.slot_exp = 0;
+            }
+
+            if (typeof gameState.slot_last_win === 'undefined') {
+                gameState.slot_last_win = 0;
             }
 
             if (typeof gameState.mimicStage === 'undefined') {

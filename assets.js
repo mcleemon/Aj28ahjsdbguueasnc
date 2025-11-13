@@ -11,6 +11,8 @@ export const GAME_ASSETS = {
     frenzyFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true',
     levelUpButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
     blackjackBackground: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/BlackjackBackground.jpg?raw=true',
+    slotBackground: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/slotbackground.jpg?raw=true',
+    slotreelBackground: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/slotreelbackground.jpg?raw=true',
 
     // --- Modal Frames ---
     modalFrameShop: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/modalframe.png?raw=true',

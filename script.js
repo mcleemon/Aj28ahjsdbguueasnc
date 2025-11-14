@@ -1509,17 +1509,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 break;
 
-            // --- NEW: SET DUST TO ZERO ---
+            // --- SET DUST TO ZERO ---
             case 'z':
                 console.log('[DEV] Setting Crystal Dust to 0...');
                 gameState.dust = 0;
                 updateUI();
                 break;
 
-            // --- NEW: SET HATCH PROGRESS TO MAX ---
+            // --- SET HATCH PROGRESS TO MAX ---
             case 'h':
                 console.log('[DEV] Setting Hatch Progress to Max...');
                 gameState.egg.progress = getTapGoal();
+                updateUI();
+                break;
+
+            // --- ADD REEL TICKET BY 1 ---
+            case 'v':
+                console.log('[DEV] +1 Reel Ticket');
+                gameState.reelTickets = (gameState.reelTickets || 0) + 1;
+                window.isGameDirty = true;
+                const reelGameTicketAmountEl = document.getElementById('reel-game-ticket-amount');
+                if (reelGameTicketAmountEl) {
+                    reelGameTicketAmountEl.innerText = formatNumber(gameState.reelTickets);
+                }
                 updateUI();
                 break;
 
@@ -1537,8 +1549,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleDailyLogin();
                 saveGame();
                 break;
-
-            // --- MIMIC CHEATS ---
 
             // M: Mimic Force Feed
             case 'm':

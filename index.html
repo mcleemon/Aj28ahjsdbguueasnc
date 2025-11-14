@@ -14,9 +14,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.86">
+    <link rel="stylesheet" href="style.css?v=2.13.87">
     <link rel="stylesheet" href="blackjack.css?v=1.0.23">
-    <link rel="stylesheet" href="reel-game.css?v=1.0.0"> 
+    <link rel="stylesheet" href="reel-game.css?v=1.0.1">
 </head>
 
 <body data-asset-bg-key="background">
@@ -102,9 +102,9 @@
                         alt="Blackjack">
                     <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
                         alt="Roulette">
-                    
+
                     <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
-                    
+
                     <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
                 </div>
             </div>
@@ -115,7 +115,7 @@
                 <button id="grotto-button" data-asset-bg-key="buttonNav" disabled>GROTTO</button>
             </div>
         </div>
-        
+
         <div id="blackjack-screen" class="hidden">
             <div id="blackjack-animation-container"></div>
             <div id="blackjack-status-bar">
@@ -172,77 +172,95 @@
                 </div>
             </div>
         </div>
+
+        <div id="reel-game-screen" class="hidden">
+            <div id="reel-game-status-bar">
+
+                <div class="reel-game-counters-left">
+
+                    <div id="reel-game-dust-counter">
+                        <img data-asset-key="iconCrystalDust" alt="Dust">
+                        <span id="reel-game-dust-amount">0</span>
+                    </div>
+
+                    <div id="reel-game-ticket-counter">
+                        <img data-asset-key="reelTicket" alt="Ticket">
+                        <span id="reel-game-ticket-amount">0</span>
+                    </div>
+
+                </div>
+
+                <div id="reel-game-level-container">
+                    <span id="reel-game-level-text">Lv. 1</span>
+                    <div class="level-bar-outer">
+                        <div id="reel-game-level-bar-inner"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="reel-game-jackpot-text">
+                GRAND REEL JACKPOT
+            </div>
+            <div class="reel-game-container">
+                <button id="reel-game-back-button"></button>
+
+                <div class="reel-game-frame-wrapper">
+
+                    <div class="reel-game-window">
+                        <div class="reel-game-column">
+                            <div class="reel-game-strip">
+                            </div>
+                        </div>
+                        <div class="reel-game-column">
+                            <div class="reel-game-strip">
+                            </div>
+                        </div>
+                        <div class="reel-game-column">
+                            <div class="reel-game-strip">
+                            </div>
+                        </div>
+                        <div class="reel-game-column">
+                            <div class="reel-game-strip">
+                            </div>
+                        </div>
+                        <div class="reel-game-column">
+                            <div class="reel-game-strip">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="reel-game-win-display">0</div>
+                <div class="reel-game-controls">
+                    <div class="reel-game-info-bar">
+                        <div class="info-box" id="reel-game-info-bet">
+                            <span class="info-label">BET</span>
+                            <span class="info-value" id="reel-game-bet-value">0</span>
+                        </div>
+                        <div class="info-box" id="reel-game-info-win">
+                            <span class="info-label">LAST WIN</span>
+                            <span class="info-value" id="reel-game-last-win">0</span>
+                        </div>
+                    </div>
+                    <div class="spin-button-row">
+                        <div class="spin-col spin-col-left">
+                            <button id="btn-use-ticket" class="reel-ticket-button" disabled>USE TICKET</button>
+                            <button id="reel-game-bet-decrease" class="bet-adjust-button" disabled>&lt;</button>
+                        </div>
+                        <div class="spin-col spin-col-center">
+                            <button id="reel-game-spin-button">
+                                <span>SPIN</span>
+                            </button>
+                        </div>
+                        <div class="spin-col spin-col-right">
+                            <button id="reel-game-bet-increase" class="bet-adjust-button">&gt;</button>
+                            <button id="btn-bet-max" class="max-bet-button">MAX BET</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div id="reel-game-screen" class="hidden">
-        <div id="reel-game-status-bar">
-            <div id="reel-game-dust-counter">
-                <img data-asset-key="iconCrystalDust" alt="Dust">
-                <span id="reel-game-dust-amount">0</span>
-            </div>
-            <div id="reel-game-level-container">
-                <span id="reel-game-level-text">Lv. 1</span>
-
-                <div class="level-bar-outer">
-                    <div id="reel-game-level-bar-inner"></div>
-                </div>
-            </div>
-        </div>
-        <div id="reel-game-jackpot-text">
-            GRAND JACKPOT
-        </div>
-        <div class="reel-game-container">
-            <button id="reel-game-back-button"></button>
-
-            <div class="reel-game-frame-wrapper">
-
-                <div class="reel-game-window">
-                    <div class="reel-game-column">
-                        <div class="reel-game-strip">
-                        </div>
-                    </div>
-                    <div class="reel-game-column">
-                        <div class="reel-game-strip">
-                        </div>
-                    </div>
-                    <div class="reel-game-column">
-                        <div class="reel-game-strip">
-                        </div>
-                    </div>
-                    <div class="reel-game-column">
-                        <div class="reel-game-strip">
-                        </div>
-                    </div>
-                    <div class="reel-game-column">
-                        <div class="reel-game-strip">
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div id="reel-game-win-display">0</div>
-            <div class="reel-game-controls">
-                <div class="reel-game-info-bar">
-                    <div class="info-box" id="reel-game-info-bet">
-                        <span class="info-label">BET</span>
-                        <span class="info-value" id="reel-game-bet-value">0</span>
-                    </div>
-                    <div class="info-box" id="reel-game-info-win">
-                        <span class="info-label">LAST WIN</span>
-                        <span class="info-value" id="reel-game-last-win">0</span>
-                    </div>
-                </div>
-                <div class="spin-button-row">
-                    <button id="reel-game-bet-decrease" class="bet-adjust-button" disabled>&lt;</button>
-                    <button id="reel-game-spin-button">
-                        <span>SPIN</span>
-                    </button>
-                    <button id="reel-game-bet-increase" class="bet-adjust-button">&gt;</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <div id="slot-popup" class="slot-popup hidden">
         <img data-asset-key="popupSpinToWin" alt="Spin to Win" class="slot-popup-img">
     </div>
@@ -332,7 +350,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="slot-overlay" class="hidden">
         <div class="slot-machine-container">
             <div class="slot-machine">
@@ -353,7 +371,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="shop-modal" class="modal hidden">
         <div class="shop-panel">
             <div class="shop-header">
@@ -776,7 +794,7 @@
                     </button>
                     <button id="force-feed-mimic-button" class="card-buy-button" data-asset-bg-key="buttonForceFeed"
                         disabled>
-                        <span>Force Feed</span>
+                        <span>FORCE FEED</span>
                     </button>
                 </div>
                 <button id="mimic-pass-button" class="card-buy-button" data-asset-bg-key="mimicPass" disabled>
@@ -786,7 +804,7 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.86" type="module"></script>
+    <script src="script.js?v=2.13.87" type="module"></script>
     <script src="assets.js?v=1.0.8" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
@@ -795,7 +813,7 @@
     <script src="grotto.js?v=1.0.9" type="module"></script>
     <script src="blackjack.js?v=1.1.20" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
-    <script src="reel-game.js?v=1.0.0" type="module"></script>
+    <script src="reel-game.js?v=1.0.1" type="module"></script>
 </body>
 
 </html>

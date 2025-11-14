@@ -1,20 +1,20 @@
-// reel-game.js - v1.0.0 (Replaces slot.js)
+// reel-game.js - v1.0.1
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- GET SHARED STATE & FUNCTIONS ---
+    // --- STATE & FUNCTIONS ---
     const gameState = window.gameState;
     const saveGame = window.saveGameGlobal;
     const formatNumber = window.formatNumberGlobal;
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : { HapticFeedback: { impactOccurred: () => { }, notificationOccurred: () => { } } };
 
-    // --- GET RENAMED DOM ELEMENTS ---
+    // --- DOM ELEMENTS ---
     const bodyEl = document.body;
     const reelGameScreen = document.getElementById('reel-game-screen');
     const reelGameBackButton = document.getElementById('reel-game-back-button');
     const reelGameSpinButton = document.getElementById('reel-game-spin-button');
     const reelGameColumns = document.querySelectorAll('.reel-game-column');
-    const openReelGameButton = document.getElementById('scroll-slot-button'); // This ID stays the same (from index.html)
+    const openReelGameButton = document.getElementById('scroll-slot-button');
     const reelGameWinDisplay = document.getElementById('reel-game-win-display');
     const gameContainer = document.querySelector('.game-container');
     const reelGameDustAmountEl = document.getElementById('reel-game-dust-amount');
@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const reelGameLastWinEl = document.getElementById('reel-game-last-win');
     const btnBetDecrease = document.getElementById('reel-game-bet-decrease');
     const btnBetIncrease = document.getElementById('reel-game-bet-increase');
+    const btnBetMax = document.getElementById('btn-bet-max');
+    const reelGameTicketAmountEl = document.getElementById('reel-game-ticket-amount');
+    const btnUseTicket = document.getElementById('btn-use-ticket');
 
     // --- REEL GAME CONSTANTS (5x3) ---
     const SYMBOL_HEIGHT = 80;
@@ -40,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         MELON: { id: 'melon', name: "🍉", payout: [0, 5, 40, 150], isBar: false },
         PLUM: { id: 'plum', name: "🍑", payout: [0, 5, 40, 150], isBar: false },
         BAR_3: { id: 'bar3', name: "J", payout: [0, 5, 25, 100], isBar: false },
-        BAR_2: { id: 'bar2', name: "K", payout: [0, 5, 40, 150], isBar: false }, // Payout corrected to match K
+        BAR_2: { id: 'bar2', name: "K", payout: [0, 5, 40, 150], isBar: false },
         BAR_1: { id: 'bar1', name: "Q", payout: [0, 5, 25, 100], isBar: false }
     };
 
@@ -110,6 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let autoSpinHoldTimer = null;
     let betHoldTimer = null;
     let betRepeatTimer = null;
+    let isTicketMode = false;
+    let lastDustBet = MIN_BET;
 
     // --- CORE FUNCTIONS ---
     function checkReelGameLevelUp() {
@@ -129,6 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (reelGameDustAmountEl) {
             reelGameDustAmountEl.innerText = formatNumber(gameState.dust);
         }
+        if (reelGameTicketAmountEl) {
+            reelGameTicketAmountEl.innerText = formatNumber(gameState.reelTickets || 0);
+        }
         if (reelGameLevelTextEl && reelGameLevelBarInnerEl) {
             const level = gameState.slot_level || 1;
             const exp = gameState.slot_exp || 0;
@@ -145,6 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isAutoSpinning) {
             spinSpan.innerHTML = "STOP";
+        } else if (isTicketMode) {
+            spinSpan.innerHTML = `SPIN<br><span class="spin-subtext">1 Reel Ticket</span>`;
         } else {
             spinSpan.innerHTML = `SPIN ${formatNumber(currentTotalBet)}<br><span class="spin-subtext">Hold for Auto</span>`;
         }
@@ -163,8 +173,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkBetButtonStates() {
         if (!btnBetDecrease || !btnBetIncrease) return;
-        btnBetDecrease.disabled = (currentTotalBet <= MIN_BET) || isSpinning || isAutoSpinning;
-        btnBetIncrease.disabled = (currentTotalBet >= MAX_BET) || isSpinning || isAutoSpinning;
+        const isBettingDisabled = isSpinning || isAutoSpinning || isTicketMode;
+        btnBetDecrease.disabled = (currentTotalBet <= MIN_BET) || isBettingDisabled;
+        btnBetIncrease.disabled = (currentTotalBet >= MAX_BET) || isBettingDisabled;
+        if (btnBetMax) {
+            btnBetMax.disabled = (currentTotalBet === MAX_BET) || isBettingDisabled;
+        }
+        if (btnUseTicket) {
+            const hasNoTickets = !isSpinning && !isAutoSpinning && (gameState.reelTickets || 0) === 0;
+            btnUseTicket.disabled = (isSpinning || isAutoSpinning) || hasNoTickets;
+        }
+        if (reelGameSpinButton && !isAutoSpinning) {
+            if (isTicketMode && (gameState.reelTickets || 0) === 0) {
+                reelGameSpinButton.disabled = true;
+            }
+            else if (!isSpinning) {
+                reelGameSpinButton.disabled = false;
+            }
+        }
     }
 
     function updateBetDisplays() {
@@ -206,6 +232,29 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             clearBetTimers();
         }
+    }
+
+    function setBetMax() {
+        if (isSpinning || isAutoSpinning || currentTotalBet === MAX_BET) return;
+
+        currentTotalBet = MAX_BET;
+        updateBetDisplays();
+        tg.HapticFeedback.impactOccurred('medium');
+    }
+
+    function toggleTicketMode() {
+        if (isSpinning || isAutoSpinning) return;
+        isTicketMode = !isTicketMode;
+        tg.HapticFeedback.impactOccurred('medium');
+        if (isTicketMode) {
+            btnUseTicket.classList.add('active');
+            lastDustBet = currentTotalBet;
+            currentTotalBet = 100000;
+        } else {
+            btnUseTicket.classList.remove('active');
+            currentTotalBet = lastDustBet;
+        }
+        updateBetDisplays();
     }
 
     function handleBetHoldStart(betFunction) {
@@ -260,25 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Reel game elements not found!");
             return;
         }
-
-        // Failsafe: Hide the mini-slot overlay in case it's open
         const miniSlotOverlay = document.getElementById('slot-overlay');
         if (miniSlotOverlay) {
             miniSlotOverlay.classList.add('hidden');
         }
-
         console.log("Opening 5x3 Reel Game...");
         populateReels();
-
-        // Use the correct background key
         bodyEl.style.backgroundImage = `url('${GAME_ASSETS.slotBackground}')`;
-
         gameContainer.classList.add('hidden');
         syncReelGameUI();
         isAutoSpinning = false;
         currentTotalBet = MIN_BET;
         updateBetDisplays();
-
         if (reelGameLastWinEl) {
             reelGameLastWinEl.innerText = (gameState.slot_last_win || 0).toLocaleString('en-US');
         }
@@ -446,25 +488,34 @@ document.addEventListener('DOMContentLoaded', () => {
             skipWinAnimation();
         }
         if (isSpinning) return;
-        if (gameState.dust < currentTotalBet) {
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
+        if (isTicketMode) { 
+            if ((gameState.reelTickets || 0) < 1) { 
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            } 
+        } else { 
+            if (gameState.dust < currentTotalBet) { 
+                tg.HapticFeedback.notificationOccurred('error'); 
+                return;
+            } 
+        } 
         isSpinning = true;
         clearBetTimers();
         if (!isAutoSpinning) {
             reelGameSpinButton.disabled = true;
         }
         checkBetButtonStates();
-
         if (paylineAnimationInterval) {
             clearInterval(paylineAnimationInterval);
             paylineAnimationInterval = null;
         }
         document.querySelectorAll('.symbol-icon-wrapper.win').forEach(el => el.classList.remove('win'));
-        gameState.dust -= currentTotalBet;
+        if (isTicketMode) { 
+            gameState.reelTickets = (gameState.reelTickets || 1) - 1; 
+        } else { 
+            gameState.dust -= currentTotalBet; 
+        } 
         gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_SPIN;
-
         if (window.refreshGameUI) window.refreshGameUI();
         syncReelGameUI();
         const stopResults = [
@@ -512,7 +563,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isAutoSpinning) {
             reelGameSpinButton.disabled = false;
         }
-        checkBetButtonStates();
+        if (isTicketMode && (gameState.reelTickets || 0) === 0) {
+            isTicketMode = false;
+            btnUseTicket.classList.remove('active');
+            currentTotalBet = lastDustBet;
+            updateBetDisplays();
+        } else {
+            checkBetButtonStates();
+        }
     }
 
     function checkWins(stopResults) {
@@ -536,10 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const s3 = finalGrid[line[2]];
             const s4 = finalGrid[line[3]];
             const s5 = finalGrid[line[4]];
-
             let winMultiplier = 0;
             let winningIndices = [];
-
             if (s1.id === s2.id && s2.id === s3.id && s3.id === s4.id && s4.id === s5.id) {
                 winMultiplier = s1.payout[3];
                 winningIndices = [line[0], line[1], line[2], line[3], line[4]];
@@ -553,14 +609,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 winMultiplier = s1.payout[0];
                 winningIndices = [line[0], line[1]];
             }
-
             if (winMultiplier > 0) {
                 const paylineWinInDust = winMultiplier * currentBetPerLine;
                 totalWinnings += paylineWinInDust;
                 winningPaylines.push(winningIndices);
             }
         }
-
         const uniqueWinningPaylines = Array.from(new Set(winningPaylines.map(JSON.stringify)), JSON.parse);
         return { totalWinnings, winningPaylines: uniqueWinningPaylines };
     }
@@ -626,7 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     const allStopEvents = ['mouseup', 'mouseleave', 'touchend'];
-
     if (btnBetDecrease) {
         btnBetDecrease.addEventListener('mousedown', () => handleBetHoldStart(decreaseBet));
         btnBetDecrease.addEventListener('touchstart', (e) => {
@@ -635,7 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
         allStopEvents.forEach(event => btnBetDecrease.addEventListener(event, handleBetHoldEnd));
     }
-
     if (btnBetIncrease) {
         btnBetIncrease.addEventListener('mousedown', () => handleBetHoldStart(increaseBet));
         btnBetIncrease.addEventListener('touchstart', (e) => {
@@ -644,6 +696,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
         allStopEvents.forEach(event => btnBetIncrease.addEventListener(event, handleBetHoldEnd));
     }
+
+    if (btnBetMax) {
+        btnBetMax.addEventListener('click', setBetMax);
+    }
+
+    if (btnBetMax) {
+        btnBetMax.addEventListener('click', setBetMax);
+    }
+
+    if (btnUseTicket) {
+        btnUseTicket.addEventListener('click', toggleTicketMode);
+    }
+
     populateReels();
 
 });

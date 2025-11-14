@@ -1,4 +1,4 @@
-/* reel-game.css - v1.0.0 */
+/* reel-game.css - v1.0.1 */
 /* Styles for the 5-Reel Game */
 
 #reel-game-screen {
@@ -16,7 +16,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    padding: calc(270px + env(safe-area-inset-top)) 15px calc(40px + env(safe-area-inset-bottom)) 15px;
+    padding: calc(200px + env(safe-area-inset-top)) 15px calc(40px + env(safe-area-inset-bottom)) 15px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -186,16 +186,46 @@
 }
 
 .spin-button-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
     width: 100%;
+    max-width: 400px;
+    position: relative;
+    height: 65px;
+}
+
+.spin-col {
+    display: flex;
+    align-items: center;
+}
+
+.spin-col-left {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    gap: 5px;
+}
+
+.spin-col-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.spin-col-right {
+    gap: 5px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
 }
 
 .bet-adjust-button {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background-color: rgba(0, 0, 0, 0.4);
     border: 2px solid #b16c27;
     border-radius: 50%;
@@ -284,7 +314,7 @@
 
 #reel-game-status-bar {
     position: absolute;
-    top: calc(210px + env(safe-area-inset-top));
+    top: calc(160px + env(safe-area-inset-top));
     left: 15px;
     right: 15px;
     height: 40px;
@@ -292,18 +322,51 @@
     justify-content: space-between;
     align-items: center;
     z-index: 5;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+.reel-game-counters-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 #reel-game-dust-counter {
     display: flex;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 20px;
-    padding: 5px 12px 5px 5px;
+    padding: 5px 0 5px 5px;
     font-family: 'Rye', cursive;
     color: #fff;
     font-size: 1.1em;
     text-shadow: 1px 1px 1px #000;
+}
+
+#reel-game-ticket-counter {
+    display: flex;
+    align-items: center;
+    font-family: 'Rye', cursive;
+    color: #fff;
+    font-size: 1.1em;
+    text-shadow: 1px 1px 1px #000;
+}
+
+#reel-game-ticket-counter img {
+    width: 40px;
+    height: 25px;
+    margin-right: 10px;
+}
+
+#reel-game-level-container {
+    display: flex;
+    align-items: center;
+    font-family: 'Lilita One', cursive;
+    color: #fff;
+    font-size: 1.1em;
+    text-shadow: 1px 1px 1px #000;
+    padding: 5px 0;
 }
 
 #reel-game-dust-counter img {
@@ -319,27 +382,31 @@
     transform: translateX(-50%);
     z-index: 5;
     text-align: center;
-    width: 100%;
     font-family: 'Graduate', serif;
     font-size: 1.2em;
     color: #FFD700;
     font-weight: bold;
-    text-shadow:
-        0 0 10px #FFD700,
-        2px 2px 2px rgba(0, 0, 0, 0.8);
-    animation: pulse-ready 2s infinite;
+    animation: pulse-text-glow 3s infinite;
 }
 
-#reel-game-level-container {
-    display: flex;
-    align-items: center;
-    font-family: 'Lilita One', cursive;
-    color: #fff;
-    font-size: 1.1em;
-    text-shadow: 1px 1px 1px #000;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 20px;
-    padding: 5px 12px;
+@keyframes pulse-text-glow {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 0px #FFD700,
+            0 0 5px #FFD700,
+            0 0 10px rgba(255, 215, 0, 0.5),
+            2px 2px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    50% {
+        text-shadow:
+            0 0 10px #FFD700,
+            0 0 15px #FFD700,
+            0 0 20px rgba(255, 215, 0, 0.7),
+            2px 2px 2px rgba(0, 0, 0, 0.8);
+    }
 }
 
 #reel-game-level-text {
@@ -366,20 +433,60 @@
 
 .reel-game-frame-wrapper {
     width: 100%;
-    max-width: 400px; /* Give it a max width */
-    
-    /* A dark, rustic-wood-like color */
-    background: #4a2c0c; 
-    
-    /* Use the gold border color you had */
-    border: 5px solid #b16c27; 
-    
-    border-radius: 15px; /* Softer, larger radius */
-    
-    /* This padding creates the "thickness" of the frame */
-    padding: 15px; 
-    
-    /* Add some depth */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.4);
+    max-width: 400px;
+    background: #4a2c0c;
+    border: 5px solid #b16c27;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
+}
+
+.reel-ticket-button {
+    width: 60px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 2px solid #b16c27;
+    border-radius: 10px;
+    color: #FFD700;
+    font-family: 'Graduate', serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.max-bet-button {
+    width: 60px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 2px solid #b16c27;
+    border-radius: 10px;
+    color: #FFD700;
+    font-family: 'Graduate', serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.max-bet-button:active {
+    background-color: #c00000;
+    transform: scale(0.95);
+}
+
+.max-bet-button:disabled {
+    color: #777;
+    border-color: #555;
+    background-color: rgba(160, 0, 0, 0.3);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.reel-ticket-button.active {
+    background-color: rgba(255, 215, 0, 0.2);
+    border-color: #FFD700;
+    box-shadow: 0 0 10px #FFD700;
 }

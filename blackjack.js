@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. GAME VARIABLES ---
     let gameState = window.gameState || {};
     let deck = [];
-    let playerHands = []; 
-    let playerScores = []; 
+    let playerHands = [];
+    let playerScores = [];
     let handBets = [];
     let currentHandIndex = 0;
     let dealerHand = [];
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dustAmountEl.innerText = formatNumber(gameState.dust);
         const level = gameState.blackjack_level;
         const exp = gameState.blackjack_exp;
-        const expNeeded = level * EXP_PER_LEVEL;
+        const expNeeded = (level + 1) * EXP_PER_LEVEL;
         const expPercent = (exp / expNeeded) * 100;
         levelTextEl.innerText = `Lv. ${level}`;
         levelBarInnerEl.style.width = `${expPercent}%`;
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             btnDouble.disabled = true;
         }
-        
+
         const firstCard = playerHands[0][0];
         const secondCard = playerHands[0][1];
         if (firstCard.rank === secondCard.rank && gameState.dust >= currentBet) {

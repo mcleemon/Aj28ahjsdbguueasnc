@@ -1,4 +1,4 @@
-// reel-game.js - v1.0.1
+// reel-game.js - v1.0.2
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -27,12 +27,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnBetMax = document.getElementById('btn-bet-max');
     const reelGameTicketAmountEl = document.getElementById('reel-game-ticket-amount');
     const btnUseTicket = document.getElementById('btn-use-ticket');
+    const btnSet1k = document.getElementById('btn-set-1k');
+    const btnSet5k = document.getElementById('btn-set-5k');
+    const btnSet10k = document.getElementById('btn-set-10k');
+    const reelRewardTimerValueEl = document.getElementById('reel-reward-timer-value');
+    const reelRewardProgressBarEl = document.getElementById('reel-reward-progress-bar');
+    const reelRewardClaimButtons = document.querySelectorAll('.reel-reward-claim-button');
+    const reelRewardMilestoneEls = [
+        document.getElementById('reel-milestone-0'),
+        document.getElementById('reel-milestone-1'),
+        document.getElementById('reel-milestone-2'),
+        document.getElementById('reel-milestone-3'),
+        document.getElementById('reel-milestone-4'),
+    ];
 
     // --- REEL GAME CONSTANTS (5x3) ---
     const SYMBOL_HEIGHT = 80;
     const EXP_PER_LEVEL = 100;
     const EXP_FOR_SPIN = 1;
     const EXP_FOR_WIN = 10;
+    const REEL_REWARD_MILESTONES = [500000, 4500000, 20000000, 50000000, 75000000];
+    const REEL_REWARD_PRIZES = [
+        { type: 'gem', amount: 15 },
+        { type: 'gem', amount: 50 },
+        { type: 'gem', amount: 85 },
+        { type: 'gem', amount: 100 },
+        { type: 'gem', amount: 250 }
+    ];
+
+    const REEL_REWARD_TEXT = ["15 Gems", "50 Gems", "85 Gems", "100 Gems", "250 Gems"];
+    const REEL_REWARD_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
     // Payout array [2x, 3x, 4x, 5x] multipliers
     const SYMBOLS = {
@@ -40,11 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
         CHERRY: { id: 'cherry', name: "🍒", payout: [5, 40, 400, 2000], isBar: false },
         MONEY: { id: 'money', name: "💰", payout: [5, 30, 100, 750], isBar: false },
         BELL: { id: 'bell', name: "🔔", payout: [5, 30, 100, 750], isBar: false },
-        MELON: { id: 'melon', name: "🍉", payout: [0, 5, 40, 150], isBar: false },
-        PLUM: { id: 'plum', name: "🍑", payout: [0, 5, 40, 150], isBar: false },
-        BAR_3: { id: 'bar3', name: "J", payout: [0, 5, 25, 100], isBar: false },
-        BAR_2: { id: 'bar2', name: "K", payout: [0, 5, 40, 150], isBar: false },
-        BAR_1: { id: 'bar1', name: "Q", payout: [0, 5, 25, 100], isBar: false }
+        MELON: { id: 'melon', name: "🍉", payout: [5, 10, 40, 150], isBar: false },
+        PLUM: { id: 'plum', name: "🍑", payout: [5, 10, 40, 150], isBar: false },
+        BAR_3: { id: 'bar3', name: "J", payout: [2.5, 5, 25, 100], isBar: false },
+        BAR_2: { id: 'bar2', name: "K", payout: [2.5, 5, 25, 100], isBar: false },
+        BAR_1: { id: 'bar1', name: "Q", payout: [2.5, 5, 25, 100], isBar: false }
     };
 
     // --- REEL STRIPS 5 ---
@@ -100,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PAYLINE_COUNT = PAYLINES.length;
     const MIN_BET = 1000;
     const MAX_BET = 50000;
-    const BET_INCREMENT = 1000;
+    let currentBetIncrement = 1000;
 
     let currentTotalBet = MIN_BET;
     let currentBetPerLine = currentTotalBet / PAYLINE_COUNT;
@@ -115,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let betRepeatTimer = null;
     let isTicketMode = false;
     let lastDustBet = MIN_BET;
+    let reelRewardTimerInterval = null;
 
     // --- CORE FUNCTIONS ---
     function checkReelGameLevelUp() {
@@ -128,6 +153,132 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust += levelUpReward;
             tg.HapticFeedback.notificationOccurred('success');
         }
+    }
+
+    function updateReelRewardUI() {
+        if (!reelRewardProgressBarEl || !reelRewardClaimButtons) return;
+        const progress = gameState.reelRewardProgress || 0;
+        const claims = gameState.reelRewardClaims || [false, false, false, false, false];
+        const milestones = REEL_REWARD_MILESTONES;
+        const milestonePercentages = [10, 30, 50, 70, 90];
+        let percent = 0;
+
+        if (progress >= milestones[4]) {
+            percent = 100;
+        } else if (progress >= milestones[3]) {
+            const basePercent = milestonePercentages[3];
+            const segmentWidth = milestonePercentages[4] - milestonePercentages[3];
+            const segmentStart = milestones[3];
+            const segmentEnd = milestones[4];
+            const progressInSegment = (progress - segmentStart) / (segmentEnd - segmentStart);
+            percent = basePercent + (progressInSegment * segmentWidth);
+        } else if (progress >= milestones[2]) {
+            const basePercent = milestonePercentages[2];
+            const segmentWidth = milestonePercentages[3] - milestonePercentages[2];
+            const segmentStart = milestones[2];
+            const segmentEnd = milestones[3];
+            const progressInSegment = (progress - segmentStart) / (segmentEnd - segmentStart);
+            percent = basePercent + (progressInSegment * segmentWidth);
+        } else if (progress >= milestones[1]) {
+            const basePercent = milestonePercentages[1];
+            const segmentWidth = milestonePercentages[2] - milestonePercentages[1];
+            const segmentStart = milestones[1];
+            const segmentEnd = milestones[2];
+            const progressInSegment = (progress - segmentStart) / (segmentEnd - segmentStart);
+            percent = basePercent + (progressInSegment * segmentWidth);
+        } else if (progress >= milestones[0]) {
+            const basePercent = milestonePercentages[0];
+            const segmentWidth = milestonePercentages[1] - milestonePercentages[0];
+            const segmentStart = milestones[0];
+            const segmentEnd = milestones[1];
+            const progressInSegment = (progress - segmentStart) / (segmentEnd - segmentStart);
+            percent = basePercent + (progressInSegment * segmentWidth);
+        } else {
+            percent = (progress / milestones[0]) * milestonePercentages[0];
+        }
+
+        reelRewardProgressBarEl.style.width = `${Math.max(0, percent)}%`;
+        for (let i = 0; i < milestones.length; i++) {
+            const milestoneCost = milestones[i];
+            const milestoneEl = reelRewardMilestoneEls[i];
+            const button = reelRewardClaimButtons[i];
+            if (!milestoneEl || !button) continue;
+
+            const star = milestoneEl.querySelector('.reel-reward-star');
+            const treasure = milestoneEl.querySelector('.reel-reward-treasure'); 
+            if (!treasure) continue;
+
+            if (claims[i]) {
+                // CLAIMED
+                button.disabled = true;
+                button.innerText = "CLAIMED!";
+                button.classList.remove('claimable');
+                button.classList.add('claimed');
+                if (star) star.classList.add('completed');
+
+                treasure.classList.remove('wobbling'); 
+                treasure.classList.add('claimed'); 
+
+            } else if (progress >= milestoneCost) {
+                // READY TO CLAIM
+                button.disabled = false;
+                button.innerText = REEL_REWARD_TEXT[i];
+                button.classList.add('claimable');
+                button.classList.remove('claimed');
+                if (star) star.classList.add('completed');
+
+                treasure.classList.add('wobbling'); 
+                treasure.classList.remove('claimed'); 
+
+            } else {
+                // NOT REACHED
+                button.disabled = true;
+                button.innerText = REEL_REWARD_TEXT[i];
+                button.classList.remove('claimable');
+                button.classList.remove('claimed');
+                if (star) star.classList.remove('completed');
+
+                treasure.classList.remove('wobbling'); 
+                treasure.classList.remove('claimed'); 
+            }
+        }
+    }
+
+    function handleClaimReelReward(e) {
+        const milestoneIndex = parseInt(e.target.dataset.milestone, 10);
+        if (isNaN(milestoneIndex) || gameState.reelRewardClaims[milestoneIndex]) {
+            return;
+        }
+        const progress = gameState.reelRewardProgress || 0;
+        const milestoneCost = REEL_REWARD_MILESTONES[milestoneIndex];
+        if (progress >= milestoneCost) {
+            gameState.reelRewardClaims[milestoneIndex] = true;
+            const prize = REEL_REWARD_PRIZES[milestoneIndex];
+            if (prize.type === 'gem') {
+                gameState.gemShards = (gameState.gemShards || 0) + prize.amount;
+            }
+            tg.HapticFeedback.notificationOccurred('success');
+            if (saveGame) saveGame();
+            updateReelRewardUI();
+            if (window.refreshGameUI) window.refreshGameUI();
+        }
+    }
+
+    function updateRewardTimer() {
+        if (!reelRewardTimerValueEl) return;
+        const now = Date.now();
+        const resetTime = gameState.reelRewardResetTime || 0;
+        let timeLeft = resetTime - now;
+        if (timeLeft <= 0) {
+            reelRewardTimerValueEl.innerText = "0D 0H 0M";
+            return;
+        }
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        timeLeft -= days * (1000 * 60 * 60 * 24);
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        timeLeft -= hours * (1000 * 60 * 60);
+        const minutes = Math.floor(timeLeft / (1000 * 60));
+        reelRewardTimerValueEl.innerText = `${days}D ${hours}H ${minutes}M`;
     }
 
     function syncReelGameUI() {
@@ -177,7 +328,19 @@ document.addEventListener('DOMContentLoaded', () => {
         btnBetDecrease.disabled = (currentTotalBet <= MIN_BET) || isBettingDisabled;
         btnBetIncrease.disabled = (currentTotalBet >= MAX_BET) || isBettingDisabled;
         if (btnBetMax) {
-            btnBetMax.disabled = (currentTotalBet === MAX_BET) || isBettingDisabled;
+            btnBetMax.disabled = isBettingDisabled;
+            if (!isBettingDisabled) {
+                if (currentTotalBet === MAX_BET) {
+                    btnBetMax.innerText = "MIN BET";
+                } else {
+                    btnBetMax.innerText = "MAX BET";
+                }
+            }
+        }
+        if (btnSet1k && btnSet5k && btnSet10k) {
+            btnSet1k.disabled = isBettingDisabled;
+            btnSet5k.disabled = isBettingDisabled;
+            btnSet10k.disabled = isBettingDisabled;
         }
         if (btnUseTicket) {
             const hasNoTickets = !isSpinning && !isAutoSpinning && (gameState.reelTickets || 0) === 0;
@@ -208,7 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (currentTotalBet > MIN_BET) {
-            currentTotalBet -= BET_INCREMENT;
+            currentTotalBet -= currentBetIncrement;
+            if (currentTotalBet < MIN_BET) {
+                currentTotalBet = MIN_BET;
+            }
             updateBetDisplays();
             if (!isRepeating) {
                 tg.HapticFeedback.impactOccurred('light');
@@ -224,7 +390,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (currentTotalBet < MAX_BET) {
-            currentTotalBet += BET_INCREMENT;
+            currentTotalBet += currentBetIncrement;
+            if (currentTotalBet > MAX_BET) {
+                currentTotalBet = MAX_BET;
+            }
             updateBetDisplays();
             if (!isRepeating) {
                 tg.HapticFeedback.impactOccurred('light');
@@ -234,12 +403,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setBetMax() {
-        if (isSpinning || isAutoSpinning || currentTotalBet === MAX_BET) return;
-
-        currentTotalBet = MAX_BET;
+    function setBetIncrement(newIncrement, clickedButton) {
+        if (isSpinning || isAutoSpinning || isTicketMode) return;
+        currentBetIncrement = newIncrement;
+        if (currentTotalBet % newIncrement !== 0) {
+            currentTotalBet = newIncrement;
+        }
+        currentTotalBet = Math.max(MIN_BET, Math.min(MAX_BET, currentTotalBet));
+        if (btnSet1k) btnSet1k.classList.remove('active');
+        if (btnSet5k) btnSet5k.classList.remove('active');
+        if (btnSet10k) btnSet10k.classList.remove('active');
+        if (clickedButton) clickedButton.classList.add('active');
         updateBetDisplays();
         tg.HapticFeedback.impactOccurred('medium');
+    }
+
+    function handleBetMaxMinClick() {
+        if (isSpinning || isAutoSpinning || isTicketMode) return;
+        if (currentTotalBet === MAX_BET) {
+            currentTotalBet = MIN_BET;
+            tg.HapticFeedback.impactOccurred('medium');
+        } else {
+            currentTotalBet = MAX_BET;
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+        updateBetDisplays();
     }
 
     function toggleTicketMode() {
@@ -326,6 +514,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         reelGameScreen.classList.remove('hidden');
         reelGameScreen.classList.remove('closing');
+        if (Date.now() > (gameState.reelRewardResetTime || 0)) {
+            gameState.reelRewardProgress = 0;
+            gameState.reelRewardClaims = [false, false, false, false, false];
+            gameState.reelRewardResetTime = Date.now() + REEL_REWARD_DURATION_MS;
+            if (saveGame) saveGame();
+        }
+        updateReelRewardUI();
+        if (reelRewardTimerInterval) clearInterval(reelRewardTimerInterval);
+        updateRewardTimer();
+        reelRewardTimerInterval = setInterval(updateRewardTimer, 60000);
+        reelRewardClaimButtons.forEach(button => {
+            button.addEventListener('click', handleClaimReelReward);
+        });
     }
 
     function closeReelGame() {
@@ -340,6 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.refreshGameUI) {
             window.refreshGameUI();
         }
+        if (reelRewardTimerInterval) clearInterval(reelRewardTimerInterval);
     }
 
     function wait(ms) {
@@ -488,17 +690,17 @@ document.addEventListener('DOMContentLoaded', () => {
             skipWinAnimation();
         }
         if (isSpinning) return;
-        if (isTicketMode) { 
-            if ((gameState.reelTickets || 0) < 1) { 
+        if (isTicketMode) {
+            if ((gameState.reelTickets || 0) < 1) {
                 tg.HapticFeedback.notificationOccurred('error');
                 return;
-            } 
-        } else { 
-            if (gameState.dust < currentTotalBet) { 
-                tg.HapticFeedback.notificationOccurred('error'); 
+            }
+        } else {
+            if (gameState.dust < currentTotalBet) {
+                tg.HapticFeedback.notificationOccurred('error');
                 return;
-            } 
-        } 
+            }
+        }
         isSpinning = true;
         clearBetTimers();
         if (!isAutoSpinning) {
@@ -510,11 +712,13 @@ document.addEventListener('DOMContentLoaded', () => {
             paylineAnimationInterval = null;
         }
         document.querySelectorAll('.symbol-icon-wrapper.win').forEach(el => el.classList.remove('win'));
-        if (isTicketMode) { 
-            gameState.reelTickets = (gameState.reelTickets || 1) - 1; 
-        } else { 
-            gameState.dust -= currentTotalBet; 
-        } 
+        if (isTicketMode) {
+            gameState.reelTickets = (gameState.reelTickets || 1) - 1;
+            gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
+        } else {
+            gameState.dust -= currentTotalBet;
+            gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
+        }
         gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_SPIN;
         if (window.refreshGameUI) window.refreshGameUI();
         syncReelGameUI();
@@ -571,6 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             checkBetButtonStates();
         }
+        updateReelRewardUI();
     }
 
     function checkWins(stopResults) {
@@ -587,7 +792,6 @@ document.addEventListener('DOMContentLoaded', () => {
             finalGrid[i + 5] = s2;
             finalGrid[i + 10] = s3;
         }
-
         for (const line of PAYLINES) {
             const s1 = finalGrid[line[0]];
             const s2 = finalGrid[line[1]];
@@ -655,9 +859,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openReelGameButton) {
         openReelGameButton.addEventListener('click', openReelGame);
     }
+
     if (reelGameBackButton) {
         reelGameBackButton.addEventListener('click', closeReelGame);
     }
+
     if (reelGameSpinButton) {
         reelGameSpinButton.addEventListener('click', handleSpinClick);
         reelGameSpinButton.addEventListener('mousedown', handleSpinHoldStart);
@@ -669,9 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
             reelGameSpinButton.style.backgroundImage = `url(${GAME_ASSETS.levelUpButton})`;
         }
     }
+
     if (reelGameBackButton && GAME_ASSETS.closeButton) {
         reelGameBackButton.style.backgroundImage = `url(${GAME_ASSETS.closeButton})`;
     }
+
     if (reelGameScreen) {
         reelGameScreen.addEventListener('click', () => {
             if (skipWinAnimation) {
@@ -679,7 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
     const allStopEvents = ['mouseup', 'mouseleave', 'touchend'];
+
     if (btnBetDecrease) {
         btnBetDecrease.addEventListener('mousedown', () => handleBetHoldStart(decreaseBet));
         btnBetDecrease.addEventListener('touchstart', (e) => {
@@ -698,15 +908,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnBetMax) {
-        btnBetMax.addEventListener('click', setBetMax);
-    }
-
-    if (btnBetMax) {
-        btnBetMax.addEventListener('click', setBetMax);
+        btnBetMax.addEventListener('click', handleBetMaxMinClick);
     }
 
     if (btnUseTicket) {
         btnUseTicket.addEventListener('click', toggleTicketMode);
+    }
+
+    if (btnSet1k) {
+        btnSet1k.addEventListener('click', () => setBetIncrement(1000, btnSet1k));
+    }
+    if (btnSet5k) {
+        btnSet5k.addEventListener('click', () => setBetIncrement(5000, btnSet5k));
+    }
+    if (btnSet10k) {
+        btnSet10k.addEventListener('click', () => setBetIncrement(10000, btnSet10k));
     }
 
     populateReels();

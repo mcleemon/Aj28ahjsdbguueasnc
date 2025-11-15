@@ -1,5 +1,5 @@
 // assets.js
-// v1.0.0
+// v1.0.9
 // This is our central map for all game images.
 // If we move to Telegra.ph, this is the ONLY file we need to edit.
 
@@ -77,6 +77,7 @@ export const GAME_ASSETS = {
 
     // --- Objects ---
     treasureBox: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/treasurebox.png?raw=true',
+    iconStar: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/iconStar.png?raw=true',
 
     // --- Mini-Slot ---
     slotFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/minislotframe.png?raw=true',

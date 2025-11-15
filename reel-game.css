@@ -1,4 +1,4 @@
-/* reel-game.css - v1.0.1 */
+/* reel-game.css - v1.0.2 */
 /* Styles for the 5-Reel Game */
 
 #reel-game-screen {
@@ -331,14 +331,14 @@
 .reel-game-counters-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 25px;
 }
 
 #reel-game-dust-counter {
     display: flex;
     align-items: center;
     padding: 5px 0 5px 5px;
-    font-family: 'Rye', cursive;
+    font-family: 'Lilita One', cursive;
     color: #fff;
     font-size: 1.1em;
     text-shadow: 1px 1px 1px #000;
@@ -347,16 +347,16 @@
 #reel-game-ticket-counter {
     display: flex;
     align-items: center;
-    font-family: 'Rye', cursive;
+    font-family: 'Lilita One', cursive;
     color: #fff;
     font-size: 1.1em;
     text-shadow: 1px 1px 1px #000;
 }
 
 #reel-game-ticket-counter img {
-    width: 40px;
-    height: 25px;
-    margin-right: 10px;
+    width: 35px;
+    height: 20px;
+    margin-right: 5px;
 }
 
 #reel-game-level-container {
@@ -414,7 +414,7 @@
 }
 
 .level-bar-outer {
-    width: 100px;
+    width: 60px;
     height: 18px;
     background-color: #333;
     border: 2px solid #000;
@@ -489,4 +489,279 @@
     background-color: rgba(255, 215, 0, 0.2);
     border-color: #FFD700;
     box-shadow: 0 0 10px #FFD700;
+}
+
+.reel-ticket-button:disabled {
+    color: #777;
+    border-color: #555;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.bet-increment-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.bet-increment-button {
+    flex-grow: 1;
+    max-width: 120px;
+    height: 35px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 2px solid #b16c27;
+    border-radius: 10px;
+    color: #FFD700;
+    font-family: 'Graduate', serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bet-increment-button.active {
+    background-color: rgba(255, 215, 0, 0.2);
+    border-color: #FFD700;
+    box-shadow: 0 0 10px #FFD700;
+}
+
+.bet-increment-button:disabled {
+    color: #777;
+    border-color: #555;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.reel-reward-bar-wrapper {
+    width: 100%;
+    max-width: 400px;
+    background-image: url('https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/slotreelbackground.jpg?raw=true');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 20px;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+    color: #000;
+    border: 2px solid #FFD700;
+}
+
+.reel-reward-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 5px;
+}
+
+.reel-reward-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.reel-reward-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: #dfc117;
+    font-family: 'Rye', serif;
+}
+
+.reel-reward-subtitle {
+    font-size: 11px;
+    color: #ebebeb;
+    font-family: 'Graduate', serif;
+}
+
+.reel-reward-timer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 10px;
+    font-weight: 700;
+    color: #dfc117;
+    flex-shrink: 0;
+    margin-left: 10px;
+    font-family: 'Rye', serif;
+}
+
+#reel-reward-timer-value {
+    font-size: 10px;
+    color: #ebebeb;
+    font-family: 'Graduate', serif;
+}
+
+.reel-reward-track-container {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    margin-top: 15px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    display: flex;
+    padding-top: 70px;
+}
+
+.reel-reward-track {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background-color: transparent;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+}
+
+#reel-reward-progress-bar {
+    position: absolute;
+    left: 10px;
+    top: 72px;
+    height: 5px;
+    width: 0%;
+    background-color: #dfc117;
+    border-radius: 5px;
+    z-index: 1;
+    transition: width 0.5s ease-out;
+    border: 0.8px solid #000000;
+    box-sizing: border-box;
+}
+
+.reel-reward-star {
+    width: 26px;
+    height: 26px;
+}
+
+.reel-reward-milestone {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+}
+
+#reel-milestone-0 {
+    left: 10%;
+}
+
+#reel-milestone-1 {
+    left: 30%;
+}
+
+#reel-milestone-2 {
+    left: 50%;
+}
+
+#reel-milestone-3 {
+    left: 70%;
+}
+
+#reel-milestone-4 {
+    left: 90%;
+}
+
+.reel-reward-treasure {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    bottom: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.reel-reward-claim-button {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 20px;
+    font-size: 7.5px;
+    font-weight: 700;
+    font-family: 'Graduate', serif;
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed;
+    z-index: 3;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.reel-reward-claim-button.claimable {
+    background-color: #2ecc71;
+    cursor: pointer;
+    color: #ffd55c;
+
+}
+
+.reel-reward-claim-button:disabled:not(.claimable) {
+    color: #ffd55c;
+    background-color: #464646;
+}
+
+.reel-reward-claim-button.claimed {
+    background-color: #34495e;
+    color: #ffd55c;
+    cursor: not-allowed;
+}
+
+.reel-reward-star {
+    width: 26px;
+    height: 26px;
+    z-index: 2;
+    position: relative;
+}
+
+.reel-reward-cost {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 700;
+    color: #87CEEB;
+    text-shadow: 0 0 3px black, 0 0 5px #00BFFF;
+}
+
+.reel-reward-cost img {
+    width: 8px;
+    height: 8px;
+    vertical-align: middle;
+}
+
+.reel-reward-star.completed {
+    filter: drop-shadow(0 0 5px #FFD700) brightness(1.2);
+}
+
+@keyframes wobble-treasure {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    25% {
+        transform: translateX(-50%) rotate(-5deg);
+    }
+
+    75% {
+        transform: translateX(-50%) rotate(5deg);
+    }
+}
+
+.reel-reward-treasure.wobbling {
+    animation: wobble-treasure 0.7s infinite;
+}
+
+.reel-reward-treasure.claimed {
+    filter: grayscale(100%);
+    opacity: 0.7;
 }

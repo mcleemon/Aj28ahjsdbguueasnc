@@ -188,7 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
             farmRuns: 0,
             slot_level: 1,
             slot_exp: 0,
-            slot_last_win: 0
+            slot_last_win: 0,
+            reelRewardProgress: 0,
+            reelRewardClaims: [false, false, false, false, false],
+            reelRewardResetTime: 0
         };
     }
 
@@ -1425,6 +1428,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.mimicFeedProgress = 0;
             gameState.mimicFeedsToday = 0;
             gameState.mimicLastFeedDate = null;
+            const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
+            gameState.reelRewardProgress = 0;
+            gameState.reelRewardClaims = [false, false, false, false, false];
+            gameState.reelRewardResetTime = sevenDaysFromNow;
             saveGame();
         } else {
             if (typeof gameState.blackjack_level === 'undefined') {
@@ -1450,6 +1457,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.mimicFeedProgress = 0;
                 gameState.mimicFeedsToday = 0;
                 gameState.mimicLastFeedDate = null;
+                if (typeof gameState.reelRewardProgress === 'undefined') {
+                    const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
+                    gameState.reelRewardProgress = 0;
+                    gameState.reelRewardClaims = [false, false, false, false, false];
+                    gameState.reelRewardResetTime = sevenDaysFromNow;
+                }
             }
         }
         setEggImage(gameState.egg.name);

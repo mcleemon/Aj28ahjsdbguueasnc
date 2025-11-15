@@ -14,9 +14,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.87">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.23">
-    <link rel="stylesheet" href="reel-game.css?v=1.0.1">
+    <link rel="stylesheet" href="style.css?v=2.13.88">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.24">
+    <link rel="stylesheet" href="reel-game.css?v=1.0.2">
 </head>
 
 <body data-asset-bg-key="background">
@@ -231,6 +231,68 @@
                 </div>
                 <div id="reel-game-win-display">0</div>
                 <div class="reel-game-controls">
+                    <div class="reel-reward-bar-wrapper">
+                        <div class="reel-reward-header">
+                            <div class="reel-reward-titles">
+                                <span class="reel-reward-title">REEL AND EARN GEMS</span>
+                                <span class="reel-reward-subtitle">Progress Increase Each Play!</span>
+                            </div>
+                            <div class="reel-reward-timer">
+                                <span>RESET IN</span>
+                                <span id="reel-reward-timer-value">6D 23H 59M</span>
+                            </div>
+                        </div>
+                        <div class="reel-reward-track-container">
+                            <div id="reel-reward-progress-bar" class="reel-reward-progress-bar"></div>
+                            <div class="reel-reward-track">
+                                <div class="reel-reward-milestone" id="reel-milestone-0">
+                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <button class="reel-reward-claim-button" data-milestone="0" disabled>15
+                                        Gems</button>
+                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <span class="reel-reward-cost">
+                                        500K <img data-asset-key="iconCrystalDust" alt="Dust">
+                                    </span>
+                                </div>
+                                <div class="reel-reward-milestone" id="reel-milestone-1">
+                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <button class="reel-reward-claim-button" data-milestone="1" disabled>50
+                                        Gems</button>
+                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <span class="reel-reward-cost">
+                                        4.5M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                    </span>
+                                </div>
+                                <div class="reel-reward-milestone" id="reel-milestone-2">
+                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <button class="reel-reward-claim-button" data-milestone="2" disabled>85
+                                        Gems</button>
+                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <span class="reel-reward-cost">
+                                        20M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                    </span>
+                                </div>
+                                <div class="reel-reward-milestone" id="reel-milestone-3">
+                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <button class="reel-reward-claim-button" data-milestone="3" disabled>100
+                                        Gems</button>
+                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <span class="reel-reward-cost">
+                                        50M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                    </span>
+                                </div>
+                                <div class="reel-reward-milestone" id="reel-milestone-4">
+                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <button class="reel-reward-claim-button" data-milestone="4" disabled>250
+                                        Gems</button>
+                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <span class="reel-reward-cost">
+                                        75M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="reel-game-info-bar">
                         <div class="info-box" id="reel-game-info-bet">
                             <span class="info-label">BET</span>
@@ -240,6 +302,11 @@
                             <span class="info-label">LAST WIN</span>
                             <span class="info-value" id="reel-game-last-win">0</span>
                         </div>
+                    </div>
+                    <div class="bet-increment-row">
+                        <button id="btn-set-1k" class="bet-increment-button active">1,000</button>
+                        <button id="btn-set-5k" class="bet-increment-button">5,000</button>
+                        <button id="btn-set-10k" class="bet-increment-button">10,000</button>
                     </div>
                     <div class="spin-button-row">
                         <div class="spin-col spin-col-left">
@@ -500,48 +567,48 @@
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket" alt="Bundle">
                         </div>
-                        <div class="card-title">100K</div>
-                        <div class="card-bonus">30% BONUS</div>
+                        <div class="card-title">5</div>
+                        <div class="card-bonus">+2 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$0.99</span></button>
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket" alt="Bundle">
                         </div>
-                        <div class="card-title">600K</div>
-                        <div class="card-bonus">55% BONUS</div>
+                        <div class="card-title">30</div>
+                        <div class="card-bonus">+10 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$4.99</span></button>
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
-                        <div class="card-title">1.4M</div>
-                        <div class="card-bonus">70% BONUS</div>
+                        <div class="card-title">75</div>
+                        <div class="card-bonus">+15 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$9.99</span></button>
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
-                        <div class="card-title">3.7M</div>
-                        <div class="card-bonus">100% BONUS</div>
+                        <div class="card-title">180</div>
+                        <div class="card-bonus">+20 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$19.99</span></button>
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket1" alt="Bundle">
                         </div>
-                        <div class="card-title">11M</div>
-                        <div class="card-bonus">150% BONUS</div>
+                        <div class="card-title">520</div>
+                        <div class="card-bonus">+35 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$49.99</span></button>
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
                             <img data-asset-key="reelTicket2" alt="Bundle">
                         </div>
-                        <div class="card-title">24M</div>
-                        <div class="card-bonus">200% BONUS</div>
+                        <div class="card-title">1250</div>
+                        <div class="card-bonus">+70 BONUS</div>
                         <button class="card-buy-button" data-asset-bg-key="buttonShop"><span>$99.99</span></button>
                     </div>
                 </div>
@@ -608,18 +675,20 @@
             </div>
             <div class="shop-content">
                 <div class="perk-list">
-                    <h2 class="perk-subtitle">Limited Time Gold Prestige Bonus:</h2>
+                    <h2 class="perk-subtitle">LIMITED TIME GOLD PRESTIGE FEATURES</h2>
                     <ul>
                         <li>Limited Special <span class="animated-gold-text">Gold Plated Name</span></li>
                         <li>Limited Special Egg and Golem (Future)</li>
                         <li>Unlimited GOLD Lifetime Pass</li>
                         <li>More Future Update Rewards</li>
                     </ul>
-                    <h2 class="perk-subtitle">Permanent Gold Feature:</h2>
+                    <h2 class="perk-subtitle">PERMANENT GOLD PRESTIGE FEATURES</h2>
                     <ul>
+                        <li>Auto-Clicker</li>
+                        <li>Auto-Collect Geode</li>
                         <li>Unlock Send Crystal Dust Feature</li>
                         <li>Send Limit: 10,000,000 / day</li>
-                        <li>Permanent Power Tap +25</li>
+                        <li>Permanent Power Tap +15</li>
                         <li>Permanent Drone Time +6 Hours</li>
                         <li>Increase Drone Mining Dust +20</li>
                         <li>5x Treasure Box Spawn Rate</li>
@@ -628,12 +697,12 @@
                         <li>Increase Fishing Reward Rarity</li>
                         <li>Reel Crystal Dust Limit: 5,000,000</li>
                     </ul>
-                    <h2 class="perk-subtitle">One Time Gift Bonus:</h2>
+                    <h2 class="perk-subtitle">PURCHASE GIFT GOLD BONUS</h2>
                     <ul>
-                        <li>Bonus 3.5M Crystal Dust</li>
-                        <li>Bonus 100 Gems Shards</li>
-                        <li>Bonus 15 Reel Tickets</li>
-                        <li>Bonus 10 Premium Fish Bait</li>
+                        <li>Bonus 5.5M Crystal Dust</li>
+                        <li>Bonus 150 Gems Shards</li>
+                        <li>Bonus 25 Reel Tickets</li>
+                        <li>Bonus 25 Premium Fish Bait</li>
                     </ul>
                 </div>
             </div>
@@ -652,26 +721,26 @@
             </div>
             <div class="shop-content">
                 <div class="perk-list">
-                    <h2 class="perk-subtitle">Limited Time Silver Prestige Bonus:</h2>
+                    <h2 class="perk-subtitle">LIMITED TIME PRESTIGE SILVER FEATURES</h2>
                     <ul>
                         <li>Limited Special <span class="animated-silver-text">Silver Plated Name</span></li>
                         <li>Unlimited SILVER Lifetime Pass</li>
                     </ul>
-                    <h2 class="perk-subtitle">Permanent Silver Feature:</h2>
+                    <h2 class="perk-subtitle">PERMANENT SILVER FEATURES</h2>
                     <ul>
                         <li>Unlock Send Crystal Dust Feature</li>
                         <li>Send Limit: 2,000,000 / day</li>
-                        <li>Permanent Power Tap +10</li>
-                        <li>Permanent Drone Time +3 Hours</li>
-                        <li>Increase Drone Mining Dust +10</li>
-                        <li>2x Treasure Box Spawn Rate</li>
-                        <li>2x Geode Spawn Rate</li>
-                        <li>Reel Crystal Dust Limit: 500,000</li>
+                        <li>Permanent Power Tap +5</li>
+                        <li>Permanent Drone Time +2 Hours</li>
+                        <li>Increase Drone Mining Dust +5</li>
+                        <li>1.5x Treasure Box Spawn Rate</li>
+                        <li>1.5x Geode Spawn Rate</li>
+                        <li>Reel Crystal Dust Limit: 250,000</li>
                     </ul>
-                    <h2 class="perk-subtitle">One Time Gift Bonus:</h2>
+                    <h2 class="perk-subtitle">PURCHASE GIFT SILVER BONUS</h2>
                     <ul>
                         <li>Bonus 1.0M Crystal Dust</li>
-                        <li>Bonus 20 Gems Shards</li>
+                        <li>Bonus 25 Gems Shards</li>
                     </ul>
                 </div>
             </div>
@@ -804,16 +873,16 @@
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.87" type="module"></script>
-    <script src="assets.js?v=1.0.8" type="module"></script>
+    <script src="script.js?v=2.13.88" type="module"></script>
+    <script src="assets.js?v=1.0.9" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="shop.js?v=1.0.13" type="module"></script>
+    <script src="shop.js?v=1.0.14" type="module"></script>
     <script src="tasks.js?v=1.0.9" type="module"></script>
     <script src="grotto.js?v=1.0.9" type="module"></script>
-    <script src="blackjack.js?v=1.1.20" type="module"></script>
+    <script src="blackjack.js?v=1.1.21" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
-    <script src="reel-game.js?v=1.0.1" type="module"></script>
+    <script src="reel-game.js?v=1.0.2" type="module"></script>
 </body>
 
 </html>

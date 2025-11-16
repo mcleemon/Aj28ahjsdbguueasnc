@@ -66,42 +66,49 @@ document.addEventListener('DOMContentLoaded', () => {
         BELL: { id: 'bell', name: "🔔", payout: [5, 30, 100, 750], isBar: false },
         MELON: { id: 'melon', name: "🍉", payout: [5, 10, 40, 150], isBar: false },
         PLUM: { id: 'plum', name: "🍑", payout: [5, 10, 40, 150], isBar: false },
-        BAR_3: { id: 'bar3', name: "J", payout: [2.5, 5, 25, 100], isBar: false },
-        BAR_2: { id: 'bar2', name: "K", payout: [2.5, 5, 25, 100], isBar: false },
-        BAR_1: { id: 'bar1', name: "Q", payout: [2.5, 5, 25, 100], isBar: false }
+        BAR_3: { id: 'bar3', name: "J", payout: [0, 5, 25, 100], isBar: false },
+        BAR_2: { id: 'bar2', name: "K", payout: [0, 5, 25, 100], isBar: false },
+        BAR_1: { id: 'bar1', name: "Q", payout: [0, 5, 25, 100], isBar: false },
+        WILD: { id: 'wild', name: 'WLD', payout: [0, 0, 0, 0], isBar: false },
+        SCATTER: { id: 'scatter', name: 'SCT', payout: [0, 0, 0, 0], isBar: false }
     };
 
-    // --- REEL STRIPS 5 ---
+    // --- REEL STRIPS 5 (NOW 18 SYMBOLS EACH) ---
     const REEL_STRIPS = [
-        // Reel 1
+        // Reel 1 (NO WILDS, 1 SCATTER)
         [
             SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
             SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
-            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.SCATTER, SYMBOLS.BAR_1, SYMBOLS.BAR_3
         ],
-        // Reel 2
+        // Reel 2 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
             SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
-            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
         ],
-        // Reel 3
+        // Reel 3 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
             SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
-            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
         ],
-        // Reel 4
+        // Reel 4 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
             SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
-            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
         ],
-        // Reel 5
+        // Reel 5 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
             SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
-            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
         ]
     ];
 
@@ -140,6 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isTicketMode = false;
     let lastDustBet = MIN_BET;
     let reelRewardTimerInterval = null;
+    let isFreeSpins = false;
+    let freeSpinsRemaining = 0;
 
     // --- CORE FUNCTIONS ---
     function checkReelGameLevelUp() {
@@ -205,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!milestoneEl || !button) continue;
 
             const star = milestoneEl.querySelector('.reel-reward-star');
-            const treasure = milestoneEl.querySelector('.reel-reward-treasure'); 
+            const treasure = milestoneEl.querySelector('.reel-reward-treasure');
             if (!treasure) continue;
 
             if (claims[i]) {
@@ -216,8 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.classList.add('claimed');
                 if (star) star.classList.add('completed');
 
-                treasure.classList.remove('wobbling'); 
-                treasure.classList.add('claimed'); 
+                treasure.classList.remove('wobbling');
+                treasure.classList.add('claimed');
 
             } else if (progress >= milestoneCost) {
                 // READY TO CLAIM
@@ -227,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.classList.remove('claimed');
                 if (star) star.classList.add('completed');
 
-                treasure.classList.add('wobbling'); 
-                treasure.classList.remove('claimed'); 
+                treasure.classList.add('wobbling');
+                treasure.classList.remove('claimed');
 
             } else {
                 // NOT REACHED
@@ -238,8 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.classList.remove('claimed');
                 if (star) star.classList.remove('completed');
 
-                treasure.classList.remove('wobbling'); 
-                treasure.classList.remove('claimed'); 
+                treasure.classList.remove('wobbling');
+                treasure.classList.remove('claimed');
             }
         }
     }
@@ -304,6 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isAutoSpinning) {
             spinSpan.innerHTML = "STOP";
+        } else if (isFreeSpins) {
+            // --- THIS IS THE NEW PART ---
+            spinSpan.innerHTML = `FREE SPIN<br><span class="spin-subtext">${freeSpinsRemaining} remaining</span>`;
+            // ---
         } else if (isTicketMode) {
             spinSpan.innerHTML = `SPIN<br><span class="spin-subtext">1 Reel Ticket</span>`;
         } else {
@@ -324,9 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkBetButtonStates() {
         if (!btnBetDecrease || !btnBetIncrease) return;
-        const isBettingDisabled = isSpinning || isAutoSpinning || isTicketMode;
+
+        // Bet buttons are disabled if spinning, in ticket mode, OR in free spins
+        const isBettingDisabled = isSpinning || isAutoSpinning || isTicketMode || isFreeSpins;
+
         btnBetDecrease.disabled = (currentTotalBet <= MIN_BET) || isBettingDisabled;
         btnBetIncrease.disabled = (currentTotalBet >= MAX_BET) || isBettingDisabled;
+
         if (btnBetMax) {
             btnBetMax.disabled = isBettingDisabled;
             if (!isBettingDisabled) {
@@ -337,19 +354,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
         if (btnSet1k && btnSet5k && btnSet10k) {
             btnSet1k.disabled = isBettingDisabled;
             btnSet5k.disabled = isBettingDisabled;
             btnSet10k.disabled = isBettingDisabled;
         }
+
         if (btnUseTicket) {
+            // "Use Ticket" button is also disabled during free spins
             const hasNoTickets = !isSpinning && !isAutoSpinning && (gameState.reelTickets || 0) === 0;
-            btnUseTicket.disabled = (isSpinning || isAutoSpinning) || hasNoTickets;
+            btnUseTicket.disabled = (isSpinning || isAutoSpinning || isFreeSpins) || hasNoTickets;
         }
+
         if (reelGameSpinButton && !isAutoSpinning) {
-            if (isTicketMode && (gameState.reelTickets || 0) === 0) {
+            if (isTicketMode && (gameState.reelTickets || 0) === 0 && !isFreeSpins) {
                 reelGameSpinButton.disabled = true;
             }
+            // Re-enable spin button if not spinning (and not out of tickets)
             else if (!isSpinning) {
                 reelGameSpinButton.disabled = false;
             }
@@ -690,44 +712,58 @@ document.addEventListener('DOMContentLoaded', () => {
             skipWinAnimation();
         }
         if (isSpinning) return;
-        if (isTicketMode) {
+
+        // --- 1. MODIFIED FUND CHECK ---
+        if (isFreeSpins) {
+            // It's a free spin, no cost check needed
+        } else if (isTicketMode) {
             if ((gameState.reelTickets || 0) < 1) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return;
+                return; // Not enough tickets
             }
-        } else {
+        } else { // Normal Dust Mode
             if (gameState.dust < currentTotalBet) {
                 tg.HapticFeedback.notificationOccurred('error');
-                return;
+                return; // Not enough dust
             }
         }
+        // ---
+
         isSpinning = true;
         clearBetTimers();
         if (!isAutoSpinning) {
             reelGameSpinButton.disabled = true;
         }
         checkBetButtonStates();
+
         if (paylineAnimationInterval) {
             clearInterval(paylineAnimationInterval);
-            paylineAnimationInterval = null;
         }
         document.querySelectorAll('.symbol-icon-wrapper.win').forEach(el => el.classList.remove('win'));
-        if (isTicketMode) {
+
+        // --- 2. MODIFIED COST SUBTRACTION ---
+        if (isFreeSpins) {
+            freeSpinsRemaining--; // Use one free spin
+        } else if (isTicketMode) {
             gameState.reelTickets = (gameState.reelTickets || 1) - 1;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
         } else {
             gameState.dust -= currentTotalBet;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
+        // ---
+
         gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_SPIN;
         if (window.refreshGameUI) window.refreshGameUI();
         syncReelGameUI();
+
+        // --- (This part is the same) ---
         const stopResults = [
-            Math.floor(Math.random() * REEL_LENGTH),
-            Math.floor(Math.random() * REEL_LENGTH),
-            Math.floor(Math.random() * REEL_LENGTH),
-            Math.floor(Math.random() * REEL_LENGTH),
-            Math.floor(Math.random() * REEL_LENGTH)
+            Math.floor(Math.random() * REEL_STRIPS[0].length),
+            Math.floor(Math.random() * REEL_STRIPS[0].length),
+            Math.floor(Math.random() * REEL_STRIPS[0].length),
+            Math.floor(Math.random() * REEL_STRIPS[0].length),
+            Math.floor(Math.random() * REEL_STRIPS[0].length)
         ];
         finalReelStops = [...stopResults];
         const reelDurations = [500, 501, 502, 503, 504];
@@ -743,9 +779,13 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(reelDurations[3]); stopReel(3, stopResults[3]); tg.HapticFeedback.impactOccurred('medium'); await wait(pauseDurations[3]);
         await wait(reelDurations[4]); stopReel(4, stopResults[4]); tg.HapticFeedback.impactOccurred('heavy');
         await wait(100);
-        const { totalWinnings, winningPaylines } = checkWins(stopResults);
+        // --- (End of same part) ---
+
+        // --- 3. MODIFIED WIN CHECK ---
+        const { totalWinnings, winningPaylines, triggerFreeSpins } = checkWins(stopResults);
+
         if (totalWinnings > 0) {
-            gameState.dust += totalWinnings;
+            gameState.dust += totalWinnings; // Add winnings
             gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_WIN;
             tg.HapticFeedback.notificationOccurred('success');
             if (saveGame) saveGame();
@@ -760,67 +800,142 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             tg.HapticFeedback.notificationOccurred('warning');
         }
+
+        // --- 4. NEW: TRIGGER FREE SPINS (if found) ---
+        if (triggerFreeSpins) {
+            triggerFreeSpins();
+        }
+        // ---
+
         await new Promise(res => setTimeout(res, 350));
         checkReelGameLevelUp();
         syncReelGameUI();
         isSpinning = false;
-        if (!isAutoSpinning) {
-            reelGameSpinButton.disabled = false;
+
+        // --- 5. MODIFIED END-OF-SPIN LOGIC ---
+        if (isFreeSpins && freeSpinsRemaining === 0) {
+            // Last free spin was just used, end the mode
+            isFreeSpins = false;
+            // We could show a "Free Spins Ended! Total Win: X" popup here
+            console.log("FREE SPINS ENDED!");
         }
-        if (isTicketMode && (gameState.reelTickets || 0) === 0) {
+
+        if (isTicketMode && (gameState.reelTickets || 0) === 0 && !isFreeSpins) {
             isTicketMode = false;
             btnUseTicket.classList.remove('active');
             currentTotalBet = lastDustBet;
-            updateBetDisplays();
-        } else {
-            checkBetButtonStates();
         }
+
+        // This will re-enable the spin button and fix all text
+        updateBetDisplays();
         updateReelRewardUI();
+        // ---
     }
 
     function checkWins(stopResults) {
         let totalWinnings = 0;
         const winningPaylines = [];
         const finalGrid = [];
+        const reelLength = REEL_STRIPS[0].length; // This is now 18
+        let scatterCount = 0; // <-- NEW: To count scatters
+
+        // 1. Build the 5x3 grid of symbols that landed
         for (let i = 0; i < 5; i++) {
             const baseStrip = REEL_STRIPS[i];
             const rand = stopResults[i];
-            const s1 = baseStrip[rand];
-            const s2 = baseStrip[(rand + 1) % REEL_LENGTH];
-            const s3 = baseStrip[(rand + 2) % REEL_LENGTH];
+            const s1 = baseStrip[rand % reelLength];
+            const s2 = baseStrip[(rand + 1) % reelLength];
+            const s3 = baseStrip[(rand + 2) % reelLength];
             finalGrid[i + 0] = s1;
             finalGrid[i + 5] = s2;
             finalGrid[i + 10] = s3;
+
+            // --- NEW: Count scatters as we build the grid ---
+            if (s1.id === 'scatter') scatterCount++;
+            if (s2.id === 'scatter') scatterCount++;
+            if (s3.id === 'scatter') scatterCount++;
+            // ---
         }
+
+        // 2. Check each payline for wins (This logic is the same)
         for (const line of PAYLINES) {
-            const s1 = finalGrid[line[0]];
-            const s2 = finalGrid[line[1]];
-            const s3 = finalGrid[line[2]];
-            const s4 = finalGrid[line[3]];
-            const s5 = finalGrid[line[4]];
-            let winMultiplier = 0;
+            const symbolsOnLine = [
+                finalGrid[line[0]],
+                finalGrid[line[1]],
+                finalGrid[line[2]],
+                finalGrid[line[3]],
+                finalGrid[line[4]]
+            ];
+
+            let winSymbol = symbolsOnLine[0];
+            let matchLength = 0;
             let winningIndices = [];
-            if (s1.id === s2.id && s2.id === s3.id && s3.id === s4.id && s4.id === s5.id) {
-                winMultiplier = s1.payout[3];
-                winningIndices = [line[0], line[1], line[2], line[3], line[4]];
-            } else if (s1.id === s2.id && s2.id === s3.id && s3.id === s4.id) {
-                winMultiplier = s1.payout[2];
-                winningIndices = [line[0], line[1], line[2], line[3]];
-            } else if (s1.id === s2.id && s2.id === s3.id) {
-                winMultiplier = s1.payout[1];
-                winningIndices = [line[0], line[1], line[2]];
-            } else if (s1.id === s2.id && s1.payout[0] > 0) {
-                winMultiplier = s1.payout[0];
-                winningIndices = [line[0], line[1]];
+
+            for (const symbol of symbolsOnLine) {
+                if (symbol.id !== 'wild' && symbol.id !== 'scatter') {
+                    winSymbol = symbol;
+                    break;
+                }
             }
+
+            if (symbolsOnLine.every(s => s.id === 'wild')) {
+                winSymbol = SYMBOLS.SEVEN;
+            }
+
+            for (let i = 0; i < symbolsOnLine.length; i++) {
+                const symbol = symbolsOnLine[i];
+                if (symbol.id === winSymbol.id || symbol.id === 'wild') {
+                    matchLength++;
+                    winningIndices.push(line[i]);
+                } else {
+                    break;
+                }
+            }
+
+            let winMultiplier = 0;
+            if (matchLength === 5) {
+                winMultiplier = winSymbol.payout[3];
+            } else if (matchLength === 4) {
+                winMultiplier = winSymbol.payout[2];
+            } else if (matchLength === 3) {
+                winMultiplier = winSymbol.payout[1];
+            } else if (matchLength === 2) {
+                winMultiplier = winSymbol.payout[0];
+            }
+
             if (winMultiplier > 0) {
                 const paylineWinInDust = winMultiplier * currentBetPerLine;
                 totalWinnings += paylineWinInDust;
                 winningPaylines.push(winningIndices);
             }
         }
+
         const uniqueWinningPaylines = Array.from(new Set(winningPaylines.map(JSON.stringify)), JSON.parse);
-        return { totalWinnings, winningPaylines: uniqueWinningPaylines };
+
+        // 3. --- NEW: Check for Scatter Wins ---
+        // This happens *after* payline wins and *only if not already in free spins*
+        if (!isFreeSpins && scatterCount >= 3) {
+            // We don't return winnings, we return a signal to trigger the bonus
+            return { totalWinnings, winningPaylines: uniqueWinningPaylines, triggerFreeSpins: true };
+        }
+
+        return { totalWinnings, winningPaylines: uniqueWinningPaylines, triggerFreeSpins: false };
+    }
+
+    function triggerFreeSpins() {
+        isFreeSpins = true;
+        freeSpinsRemaining = 15; // You win 15 free spins
+
+        // Disable all betting controls
+        checkBetButtonStates();
+
+        // Update the spin button text
+        updateSpinButtonText();
+
+        tg.HapticFeedback.notificationOccurred('success');
+
+        // We could show a "15 FREE SPINS!" popup here later
+        console.log("FREE SPINS TRIGGERED!");
     }
 
     function handleSpinClick() {

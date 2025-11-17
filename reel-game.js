@@ -1,4 +1,4 @@
-// reel-game.js - v1.0.2
+// reel-game.js - v1.0.6
 
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const reelGameColumns = document.querySelectorAll('.reel-game-column');
     const openReelGameButton = document.getElementById('scroll-slot-button');
     const reelGameWinDisplay = document.getElementById('reel-game-win-display');
+    const reelGameWinTitleEl = document.getElementById('reel-game-win-title');
+    const reelGameWinNumberEl = document.getElementById('reel-game-win-number');
     const gameContainer = document.querySelector('.game-container');
     const reelGameDustAmountEl = document.getElementById('reel-game-dust-amount');
     const reelGameLevelTextEl = document.getElementById('reel-game-level-text');
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reelGameOverlay = document.getElementById('reel-game-overlay');
     const reelGameOverlayText = document.getElementById('reel-game-overlay-text');
     const reelGameOverlayTitle = document.getElementById('reel-game-overlay-title');
+    const reelGameFreeSpinsCounterEl = document.getElementById('reel-game-free-spins-counter');
 
     // --- REEL GAME CONSTANTS (5x3) ---
     const SYMBOL_HEIGHT = 80;
@@ -65,11 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Payout array [2x, 3x, 4x, 5x] multipliers
     const SYMBOLS = {
         SEVEN: { id: 'seven', name: "7", payout: [10, 100, 1000, 5000], isBar: false },
-        CHERRY: { id: 'cherry', name: "🍒", payout: [5, 40, 400, 2000], isBar: false },
-        MONEY: { id: 'money', name: "💰", payout: [5, 30, 100, 750], isBar: false },
-        BELL: { id: 'bell', name: "🔔", payout: [5, 30, 100, 750], isBar: false },
-        MELON: { id: 'melon', name: "🍉", payout: [5, 10, 40, 150], isBar: false },
-        PLUM: { id: 'plum', name: "🍑", payout: [5, 10, 40, 150], isBar: false },
+        CHERRY: { id: 'cherry', name: "🍒", payout: [0, 40, 400, 2000], isBar: false },
+        MONEY: { id: 'money', name: "💰", payout: [0, 30, 100, 750], isBar: false },
+        BELL: { id: 'bell', name: "🔔", payout: [0, 30, 100, 750], isBar: false },
+        MELON: { id: 'melon', name: "🍉", payout: [0, 10, 40, 150], isBar: false },
+        PLUM: { id: 'plum', name: "🍑", payout: [0, 10, 40, 150], isBar: false },
         BAR_3: { id: 'bar3', name: "J", payout: [0, 5, 25, 100], isBar: false },
         BAR_2: { id: 'bar2', name: "K", payout: [0, 5, 25, 100], isBar: false },
         BAR_1: { id: 'bar1', name: "Q", payout: [0, 5, 25, 100], isBar: false },
@@ -77,42 +80,200 @@ document.addEventListener('DOMContentLoaded', () => {
         SCATTER: { id: 'scatter', name: 'SCATTER', payout: [0, 0, 0, 0], isBar: false }
     };
 
-    // --- REEL STRIPS 5 (NOW 18 SYMBOLS EACH) ---
+    // --- REEL STRIPS 5 (NOW 72 SYMBOLS EACH) ---
     const REEL_STRIPS = [
         // Reel 1 (NO WILDS, 1 SCATTER)
         [
             SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
             SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
             SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
-            SYMBOLS.SCATTER, SYMBOLS.BAR_1, SYMBOLS.BAR_3
+            SYMBOLS.SCATTER, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_2, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.BAR_3
         ],
         // Reel 2 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
             SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
             SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
-            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
+            SYMBOLS.WILD, SYMBOLS.BAR_1, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.SCATTER, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3
         ],
         // Reel 3 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
             SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
             SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
-            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
+            SYMBOLS.WILD, SYMBOLS.BAR_3, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.SCATTER, SYMBOLS.BAR_3
         ],
         // Reel 4 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
             SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
             SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
-            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
+            SYMBOLS.WILD, SYMBOLS.BAR_3, SYMBOLS.WILD,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.SCATTER, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3
         ],
         // Reel 5 (2 WILDS, 1 SCATTER)
         [
             SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
             SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
             SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
-            SYMBOLS.WILD, SYMBOLS.SCATTER, SYMBOLS.WILD
+            SYMBOLS.WILD, SYMBOLS.BAR_1, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.SCATTER, SYMBOLS.BAR_3
+        ]
+    ];
+
+    const BONUS_REEL_STRIPS = [
+        // Reel 1 (NO WILDS, NO SCATTER)
+        [
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_2, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.BAR_3
+        ],
+        // Reel 2 (2 WILDS, NO SCATTER)
+        [
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.WILD, SYMBOLS.BAR_1, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3
+        ],
+        // Reel 3 (2 WILDS, NO SCATTER)
+        [
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.WILD, SYMBOLS.BAR_3, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.MONEY, SYMBOLS.PLUM, SYMBOLS.CHERRY, SYMBOLS.BELL,
+            SYMBOLS.BAR_2, SYMBOLS.MELON, SYMBOLS.BAR_3, SYMBOLS.BAR_1, SYMBOLS.MONEY,
+            SYMBOLS.PLUM, SYMBOLS.SEVEN, SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3
+        ],
+        // Reel 4 (2 WILDS, NO SCATTER)
+        [
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.WILD, SYMBOLS.BAR_3, SYMBOLS.WILD,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.SEVEN, SYMBOLS.BAR_1, SYMBOLS.CHERRY, SYMBOLS.BAR_2, SYMBOLS.BELL,
+            SYMBOLS.PLUM, SYMBOLS.BAR_3, SYMBOLS.MONEY, SYMBOLS.MELON, SYMBOLS.BAR_1,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.PLUM, SYMBOLS.BAR_2,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3
+        ],
+        // Reel 5 (2 WILDS, NO SCATTER)
+        [
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.WILD, SYMBOLS.BAR_1, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_2, SYMBOLS.WILD,
+            SYMBOLS.BAR_1, SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.PLUM, SYMBOLS.MONEY,
+            SYMBOLS.CHERRY, SYMBOLS.BAR_3, SYMBOLS.MELON, SYMBOLS.SEVEN, SYMBOLS.BAR_1,
+            SYMBOLS.BELL, SYMBOLS.BAR_2, SYMBOLS.CHERRY, SYMBOLS.PLUM, SYMBOLS.BAR_3,
+            SYMBOLS.BAR_1, SYMBOLS.BAR_1, SYMBOLS.BAR_3
         ]
     ];
 
@@ -547,6 +708,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (saveGame) saveGame();
         }
         updateReelRewardUI();
+        if (reelGameFreeSpinsCounterEl) {
+            reelGameFreeSpinsCounterEl.classList.add('hidden');
+        }
         if (reelRewardTimerInterval) clearInterval(reelRewardTimerInterval);
         updateRewardTimer();
         reelRewardTimerInterval = setInterval(updateRewardTimer, 60000);
@@ -554,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', handleClaimReelReward);
         });
     }
+    window.openReelGame = openReelGame;
 
     function closeReelGame() {
         if (isAutoSpinning) {
@@ -587,11 +752,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function animateBonusTotalWin(titleElement, numberElement, targetAmount) {
         if (!titleElement || !numberElement) return new Promise(res => res());
-
-        // This returns a Promise that resolves when the animation is done
         return new Promise(resolve => {
             let startTime = null;
-            const duration = 2000; // 2-second count-up
+            const duration = 2000;
             const startAmount = 0;
             let currentTier = 0;
 
@@ -612,13 +775,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function finishAnimation() {
                 numberElement.innerText = targetAmount.toLocaleString('en-US');
-
-                // Final check for number size
                 if (targetAmount >= 10000000) {
                     numberElement.classList.add('large-number');
                 }
-
-                // Final check for win tier
                 let finalTier = TIERS[0];
                 for (let i = TIERS.length - 1; i >= 0; i--) {
                     if (targetAmount >= TIERS[i].limit) {
@@ -628,9 +787,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 titleElement.innerText = finalTier.text;
                 titleElement.className = finalTier.class;
-
                 skipBonusWinAnimation = null;
-                resolve(); // Resolve the promise
+                resolve();
             }
 
             function step(timestamp) {
@@ -638,15 +796,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elapsed = timestamp - startTime;
                 let progress = Math.min(elapsed / duration, 1);
                 let currentAmount = Math.round(startAmount + (targetAmount - startAmount) * easeOut(progress));
-
-                // Check for large number
                 if (currentAmount >= 10000000) {
                     numberElement.classList.add('large-number');
                 } else {
                     numberElement.classList.remove('large-number');
                 }
-
-                // Check for win tier change
                 let newTier = currentTier;
                 for (let i = TIERS.length - 1; i >= 0; i--) {
                     if (currentAmount >= TIERS[i].limit) {
@@ -654,45 +808,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     }
                 }
-
                 if (newTier !== currentTier) {
                     currentTier = newTier;
                     titleElement.innerText = TIERS[currentTier].text;
                     titleElement.className = TIERS[currentTier].class;
                 }
-
                 numberElement.innerText = currentAmount.toLocaleString('en-US');
-
                 if (progress < 1) {
                     requestAnimationFrame(step);
                 } else {
                     finishAnimation();
                 }
             }
-
-            // Set the global skip function
             skipBonusWinAnimation = () => {
                 finishAnimation();
             };
-
             requestAnimationFrame(step);
         });
     }
 
     function populateReels() {
         if (!reelGameColumns) return;
+        const activeStrips = isFreeSpins ? BONUS_REEL_STRIPS : REEL_STRIPS;
         reelGameColumns.forEach((column, i) => {
             const strip = column.querySelector('.reel-game-strip');
             if (!strip) return;
-            const baseStrip = REEL_STRIPS[i];
+            const baseStrip = activeStrips[i];
+            const currentReelLength = baseStrip.length;
             const fullStrip = [
                 ...baseStrip, ...baseStrip, ...baseStrip, ...baseStrip
             ];
             strip.innerHTML = '';
             strip.style.transition = 'none';
-            const startIndex = REEL_LENGTH * 3;
+            const startIndex = currentReelLength * 3;
             const startY = -(startIndex * SYMBOL_HEIGHT);
             strip.style.transform = `translateY(${startY}px)`;
+
             fullStrip.forEach(symbol => {
                 const div = document.createElement('div');
                 div.className = 'reel-game-symbol';
@@ -737,7 +888,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function animateWinCounter(element, targetAmount, duration = 1500) {
-        if (!element) return;
+        // --- MODIFIED: Get the title and number elements ---
+        const titleElement = document.getElementById('reel-game-win-title');
+        const numberElement = document.getElementById('reel-game-win-number');
+
+        if (!element || !titleElement || !numberElement) return;
         if (currentWinAnimationId) {
             cancelAnimationFrame(currentWinAnimationId);
             currentWinAnimationId = null;
@@ -745,24 +900,49 @@ document.addEventListener('DOMContentLoaded', () => {
         skipWinAnimation = null;
         let startTime = null;
         const startAmount = 0;
-        element.innerHTML = formatReelGameWinNumber(0);
+        let currentTier = 0;
+
+        // Tiers (same as your bonus function)
+        const TIERS = [
+            { limit: 0, text: "YOU WIN!", class: "win-tier-1" },
+            { limit: 500000, text: "BIG WIN!", class: "win-tier-2" },
+            { limit: 5000000, text: "MEGA WIN!", class: "win-tier-3" },
+            { limit: 25000000, text: "MASSIVE WIN!", class: "win-tier-4" }
+        ];
+
+        // Reset elements
+        numberElement.innerHTML = formatReelGameWinNumber(0); // <-- 1. CHANGED TO innerHTML
+        numberElement.classList.remove('large-number');
+        titleElement.innerText = TIERS[0].text;
+        titleElement.className = TIERS[0].class;
         element.classList.add('visible');
-        element.classList.remove('large-number');
+
         const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
         function finishAnimation() {
-            element.innerHTML = formatReelGameWinNumber(targetAmount);
-            element.classList.add('visible');
+            numberElement.innerHTML = formatReelGameWinNumber(targetAmount); // <-- 2. CHANGED TO innerHTML
+
+            // Final check for number size
             if (targetAmount >= 10000000) {
-                element.classList.add('large-number');
-            } else {
-                element.classList.remove('large-number');
+                numberElement.classList.add('large-number');
             }
+
+            // Final check for win tier
+            let finalTier = TIERS[0];
+            for (let i = TIERS.length - 1; i >= 0; i--) {
+                if (targetAmount >= TIERS[i].limit) {
+                    finalTier = TIERS[i];
+                    break;
+                }
+            }
+            titleElement.innerText = finalTier.text;
+            titleElement.className = finalTier.class;
+
             currentWinAnimationId = null;
             skipWinAnimation = null;
             setTimeout(() => {
                 element.classList.remove('visible');
-            }, 1200);
+            }, 1200); // Hide after 1.2s
         }
 
         function step(timestamp) {
@@ -770,12 +950,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const elapsed = timestamp - startTime;
             let progress = Math.min(elapsed / duration, 1);
             let currentAmount = startAmount + (targetAmount - startAmount) * easeOut(progress);
+
+            // Check for large number
             if (currentAmount >= 10000000) {
-                element.classList.add('large-number');
+                numberElement.classList.add('large-number');
             } else {
-                element.classList.remove('large-number');
+                numberElement.classList.remove('large-number');
             }
-            element.innerHTML = formatReelGameWinNumber(currentAmount);
+
+            // Check for win tier change
+            let newTier = currentTier;
+            for (let i = TIERS.length - 1; i >= 0; i--) {
+                if (currentAmount >= TIERS[i].limit) {
+                    newTier = i;
+                    break;
+                }
+            }
+
+            if (newTier !== currentTier) {
+                currentTier = newTier;
+                titleElement.innerText = TIERS[currentTier].text;
+                titleElement.className = TIERS[currentTier].class;
+            }
+
+            numberElement.innerHTML = formatReelGameWinNumber(currentAmount); // <-- 3. CHANGED TO innerHTML
+
             if (progress < 1) {
                 currentWinAnimationId = requestAnimationFrame(step);
             } else {
@@ -829,11 +1028,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function isScatterVisible(reelIndex, stopIndex) {
-        const strip = REEL_STRIPS[reelIndex];
-        const reelLength = strip.length; // This is 72
-        const s1 = strip[stopIndex % reelLength]; // Top row
-        const s2 = strip[(stopIndex + 1) % reelLength]; // Middle row
-        const s3 = strip[(stopIndex + 2) % reelLength]; // Bottom row
+        const activeStrips = isFreeSpins ? BONUS_REEL_STRIPS : REEL_STRIPS;
+        const strip = activeStrips[reelIndex];
+        const reelLength = strip.length;
+        const s1 = strip[stopIndex % reelLength];
+        const s2 = strip[(stopIndex + 1) % reelLength];
+        const s3 = strip[(stopIndex + 2) % reelLength];
         if (s1.id === 'scatter' || s2.id === 'scatter' || s3.id === 'scatter') {
             return true;
         }
@@ -857,7 +1057,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
-
         isSpinning = true;
         clearBetTimers();
         if (!isAutoSpinning) {
@@ -877,29 +1076,28 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= currentTotalBet;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
-
         gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_SPIN;
         if (window.refreshGameUI) window.refreshGameUI();
         syncReelGameUI();
+        const activeStrips = isFreeSpins ? BONUS_REEL_STRIPS : REEL_STRIPS;
+        const currentReelLength = activeStrips[0].length;
         const stopResults = [
-            Math.floor(Math.random() * REEL_STRIPS[0].length),
-            Math.floor(Math.random() * REEL_STRIPS[0].length),
-            Math.floor(Math.random() * REEL_STRIPS[0].length),
-            Math.floor(Math.random() * REEL_STRIPS[0].length),
-            Math.floor(Math.random() * REEL_STRIPS[0].length)
+            Math.floor(Math.random() * currentReelLength),
+            Math.floor(Math.random() * currentReelLength),
+            Math.floor(Math.random() * currentReelLength),
+            Math.floor(Math.random() * currentReelLength),
+            Math.floor(Math.random() * currentReelLength)
         ];
         finalReelStops = [...stopResults];
         const reelDurations = [500, 501, 502, 503, 504];
         const pauseDurations = [200, 200, 200, 200];
         const TENSION_DELAY_MS = 1000;
         let scatterCount = 0;
-
         for (let i = 0; i < 5; i++) {
             const stripEl = reelGameColumns[i].querySelector('.reel-game-strip');
             stripEl.style.transition = 'none';
             stripEl.classList.add('reel-game-spinning');
         }
-
         await wait(reelDurations[0]);
         stopReel(0, stopResults[0]);
         tg.HapticFeedback.impactOccurred('light');
@@ -936,15 +1134,15 @@ document.addEventListener('DOMContentLoaded', () => {
         stopReel(4, stopResults[4]);
         tg.HapticFeedback.impactOccurred('heavy');
         await wait(100);
-        const { totalWinnings, winningPaylines, triggerFreeSpins: shouldTrigger } = checkWins(stopResults);
-
+        const { totalWinnings, winningPaylines, freeSpinsToAward } = checkWins(stopResults);
         if (totalWinnings > 0) {
             if (isFreeSpins) {
                 freeSpinsTotalWin += totalWinnings;
+            } else if (freeSpinsToAward > 0) {
+                freeSpinsTotalWin = totalWinnings;
             } else {
                 gameState.dust += totalWinnings;
             }
-
             gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_WIN;
             tg.HapticFeedback.notificationOccurred('success');
             if (saveGame) saveGame();
@@ -953,27 +1151,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 reelGameLastWinEl.innerText = totalWinnings.toLocaleString('en-US');
             }
             gameState.slot_last_win = totalWinnings;
-            startPaylineAnimation(winningPaylines, stopResults);
-            const animDuration = getWinAnimationDuration(totalWinnings);
-            animateWinCounter(reelGameWinDisplay, totalWinnings, animDuration);
+            if (freeSpinsToAward === 0) {
+                startPaylineAnimation(winningPaylines, stopResults);
+                const animDuration = getWinAnimationDuration(totalWinnings);
+                animateWinCounter(reelGameWinDisplay, totalWinnings, animDuration);
+            } else {
+                startPaylineAnimation(winningPaylines, stopResults);
+            }
         } else {
             tg.HapticFeedback.notificationOccurred('warning');
         }
         await new Promise(res => setTimeout(res, 350));
         checkReelGameLevelUp();
         syncReelGameUI();
-        if (shouldTrigger) {
-            triggerFreeSpins();
+        if (freeSpinsToAward > 0) {
+            // This is the trigger!
+            // We MUST set the starting total for the bonus.
+            // totalWinnings was calculated above (line 769).
+            // If the spin won, this is a number. If it lost, this is 0.
+            // This line perfectly resets the counter.
+            freeSpinsTotalWin = totalWinnings;
+
+            triggerFreeSpins(freeSpinsToAward);
             return;
         }
         isSpinning = false;
-
         if (isTicketMode && (gameState.reelTickets || 0) === 0 && !isFreeSpins) {
             isTicketMode = false;
             btnUseTicket.classList.remove('active');
             currentTotalBet = lastDustBet;
         }
-
         updateBetDisplays();
         updateReelRewardUI();
         setTimeout(() => {
@@ -985,10 +1192,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalWinnings = 0;
         const winningPaylines = [];
         const finalGrid = [];
-        const reelLength = REEL_STRIPS[0].length;
+        const activeStrips = isFreeSpins ? BONUS_REEL_STRIPS : REEL_STRIPS;
+        const reelLength = activeStrips[0].length;
         let scatterCount = 0;
         for (let i = 0; i < 5; i++) {
-            const baseStrip = REEL_STRIPS[i];
+            const baseStrip = activeStrips[i];
             const rand = stopResults[i];
             const s1 = baseStrip[rand % reelLength];
             const s2 = baseStrip[(rand + 1) % reelLength];
@@ -1008,22 +1216,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalGrid[line[3]],
                 finalGrid[line[4]]
             ];
-
             let winSymbol = symbolsOnLine[0];
             let matchLength = 0;
             let winningIndices = [];
-
             for (const symbol of symbolsOnLine) {
                 if (symbol.id !== 'wild' && symbol.id !== 'scatter') {
                     winSymbol = symbol;
                     break;
                 }
             }
-
             if (symbolsOnLine.every(s => s.id === 'wild')) {
                 winSymbol = SYMBOLS.SEVEN;
             }
-
             for (let i = 0; i < symbolsOnLine.length; i++) {
                 const symbol = symbolsOnLine[i];
                 if (symbol.id === winSymbol.id || symbol.id === 'wild') {
@@ -1033,7 +1237,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 }
             }
-
             let winMultiplier = 0;
             if (matchLength === 5) {
                 winMultiplier = winSymbol.payout[3];
@@ -1044,81 +1247,67 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (matchLength === 2) {
                 winMultiplier = winSymbol.payout[0];
             }
-
             if (winMultiplier > 0) {
                 const paylineWinInDust = winMultiplier * currentBetPerLine;
                 totalWinnings += paylineWinInDust;
                 winningPaylines.push(winningIndices);
             }
         }
-
         const uniqueWinningPaylines = Array.from(new Set(winningPaylines.map(JSON.stringify)), JSON.parse);
-        if (!isFreeSpins && scatterCount >= 3) {
-            return { totalWinnings, winningPaylines: uniqueWinningPaylines, triggerFreeSpins: true };
+        let freeSpinsToAward = 0;
+        if (!isFreeSpins) {
+            if (scatterCount === 3) {
+                freeSpinsToAward = 15;
+            } else if (scatterCount === 4) {
+                freeSpinsToAward = 30;
+            } else if (scatterCount >= 5) {
+                freeSpinsToAward = 50;
+            }
         }
-
-        return { totalWinnings, winningPaylines: uniqueWinningPaylines, triggerFreeSpins: false };
+        return { totalWinnings, winningPaylines: uniqueWinningPaylines, freeSpinsToAward };
     }
 
-    async function triggerFreeSpins() {
-        console.log("FREE SPINS TRIGGERED!");
+    async function triggerFreeSpins(spinsAwarded) {
+        console.log(`FREE SPINS TRIGGERED! ${spinsAwarded} spins awarded.`);
         tg.HapticFeedback.notificationOccurred('success');
-
-        // 1. Show Intro Screen
-        showReelOverlay("YOU WIN 15 FREE SPINS!");
-        await wait(2500); // Wait 2.5 seconds
+        showReelOverlay(`YOU WIN ${spinsAwarded} FREE SPINS!`);
+        if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.classList.remove('hidden');
+        await wait(2500);
         hideReelOverlay();
-        await wait(500); // Wait for the 0.5s fade-out to finish
-
-        // 2. Set up the state
+        await wait(500);
         isFreeSpins = true;
-        isAutoSpinning = true; // Force auto-spin
-        freeSpinsRemaining = 15;
-        freeSpinsTotalWin = 0;
-
-        // 3. Run the 15 spins
-        for (let i = 15; i > 0; i--) {
+        isAutoSpinning = true;
+        freeSpinsRemaining = spinsAwarded;
+        populateReels();
+        for (let i = spinsAwarded; i > 0; i--) {
             freeSpinsRemaining = i;
-            updateSpinButtonText(); // Update counter "15 remaining"
-
-            await spinReels(); // Run one spin
-
-            await wait(1000); // Pause 1 second between spins
+            if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.innerText = `Free Spins: ${i}`;
+            updateSpinButtonText();
+            await spinReels();
+            await wait(1000);
         }
-
-        // 4. Show Total Win Screen
-        isSpinning = true; // (Prevents spin button from re-enabling)
+        isSpinning = true;
         freeSpinsRemaining = 0;
         updateSpinButtonText();
-
-        // --- MODIFIED: Show empty overlay, animation will fill it ---
         showReelOverlay("");
-        reelGameOverlayTitle.innerText = ""; // Clear title
-        reelGameOverlayText.innerText = "0"; // Set base number
-
-        // 5. Animate the final counter
-        // --- MODIFIED: Call new function with both text elements ---
+        reelGameOverlayTitle.innerText = "";
+        reelGameOverlayText.innerText = "0";
         await animateBonusTotalWin(reelGameOverlayTitle, reelGameOverlayText, freeSpinsTotalWin);
-        skipBonusWinAnimation = null; // Clear the skip function
-
-        // 6. Wait 2 seconds (as you requested)
+        skipBonusWinAnimation = null;
         await wait(2000);
-
-        // 7. Payout and Cleanup
         hideReelOverlay();
-        await wait(500); // Wait for the 0.5s fade-out to finish
-
+        await wait(500);
         gameState.dust += freeSpinsTotalWin;
-
         isFreeSpins = false;
         isAutoSpinning = false;
         isSpinning = false;
-
-        // 8. Update all UI
+        populateReels();
         updateBetDisplays();
         syncReelGameUI();
         if (window.refreshGameUI) window.refreshGameUI();
+        if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.classList.add('hidden');
     }
+    window.dev_triggerFreeSpins = triggerFreeSpins;
 
     function handleSpinClick() {
         if (isFreeSpins) return;

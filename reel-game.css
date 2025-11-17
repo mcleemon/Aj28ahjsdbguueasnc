@@ -1,4 +1,4 @@
-/* reel-game.css - v1.0.2 */
+/* reel-game.css - v1.0.6 */
 /* Styles for the 5-Reel Game */
 
 #reel-game-screen {
@@ -283,8 +283,29 @@
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#reel-game-win-title {
+    font-family: 'Graduate', serif;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    /* Default 'You Win' style */
+    font-size: 30px;
+    color: #ffffff;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease-out;
+}
+
+#reel-game-win-number {
     font-family: 'Graduate', serif;
     font-size: 52px;
     font-weight: bold;
@@ -293,11 +314,42 @@
         0 0 20px rgba(0, 0, 0, 1),
         0 0 15px #FFD700,
         3px 3px 3px rgba(0, 0, 0, 0.8);
-    z-index: 50;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease, font-size 0.3s ease-out;
+    transition: font-size 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* This is the same rule you had, but now targets the number */
+#reel-game-win-display.large-number #reel-game-win-number {
+    font-size: 40px;
+}
+
+/* These are copies of your overlay styles, but for the in-game win title */
+#reel-game-win-title.win-tier-1 {
+    font-size: 30px;
+    color: #FFD700;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+}
+
+#reel-game-win-title.win-tier-2 {
+    font-size: 40px;
+    color: #FFD700;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+}
+
+#reel-game-win-title.win-tier-3 {
+    font-size: 50px;
+    color: #FFD700;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    animation: pulse-soft 1.5s infinite;
+}
+
+#reel-game-win-title.win-tier-4 {
+    font-size: 60px;
+    color: #FFD700;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
+    animation: pulse-strong 1s infinite;
 }
 
 #reel-game-win-display.large-number {
@@ -835,7 +887,7 @@
 
 #reel-game-overlay-text {
     font-family: 'Graduate', serif;
-    font-size: 42px;
+    font-size: 36px;
     font-weight: bold;
     color: #FFD700;
     text-align: center;
@@ -848,7 +900,7 @@
 }
 
 #reel-game-overlay-text.large-number {
-    font-size: 32px;
+    font-size: 42px;
 }
 
 #reel-game-overlay-title {
@@ -869,20 +921,20 @@
 }
 
 #reel-game-overlay-title.win-tier-2 {
-    font-size: 48px;
+    font-size: 42px;
     color: #87CEEB;
     text-shadow: 0 0 10px #00BFFF;
 }
 
 #reel-game-overlay-title.win-tier-3 {
-    font-size: 60px;
+    font-size: 48px;
     color: #a335ee;
     text-shadow: 0 0 15px #a335ee;
     animation: pulse-soft 1.5s infinite;
 }
 
 #reel-game-overlay-title.win-tier-4 {
-    font-size: 72px;
+    font-size: 54px;
     color: #FFD700;
     text-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700;
     animation: pulse-strong 1s infinite;
@@ -913,4 +965,23 @@
         transform: scale(1.1);
         opacity: 1;
     }
+}
+
+#reel-game-free-spins-counter {
+    position: absolute;
+    top: calc(130px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    font-family: 'Graduate', serif;
+    font-size: 24px;
+    color: #FFD700;
+    text-shadow: 0 0 10px #FFD700, 2px 2px 2px rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+}
+
+#reel-game-free-spins-counter.hidden {
+    opacity: 0;
+    pointer-events: none;
 }

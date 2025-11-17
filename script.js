@@ -1548,6 +1548,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
                 break;
 
+            case 'b': // 'b' for Bonus
+                console.log('[DEV] Forcing Free Spins Bonus...');
+                if (typeof window.openReelGame === 'function' && typeof window.dev_triggerFreeSpins === 'function') {
+
+                    // Check if reel game screen is hidden
+                    const reelScreen = document.getElementById('reel-game-screen');
+                    if (reelScreen && reelScreen.classList.contains('hidden')) {
+                        console.log('[DEV] Reel game is closed, opening it first...');
+                        window.openReelGame();
+
+                        // Give the game a moment to open before triggering
+                        setTimeout(() => {
+                            window.dev_triggerFreeSpins(15); // Award 15 free spins
+                        }, 500); // 500ms delay
+                    } else {
+                        // Reel game is already open, just trigger
+                        window.dev_triggerFreeSpins(15); // Award 15 free spins
+                    }
+                } else {
+                    console.log('[DEV] Reel game functions not found. Open the reel game at least once.');
+                }
+
             // 🧰 Spawn treasure box manually
             case 't':
                 console.log('[DEV] Spawning treasure box manually...');

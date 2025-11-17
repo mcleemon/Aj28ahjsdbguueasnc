@@ -1,4 +1,5 @@
 // reel-game.js - v1.0.2
+
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -40,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('reel-milestone-3'),
         document.getElementById('reel-milestone-4'),
     ];
+    const reelGameOverlay = document.getElementById('reel-game-overlay');
+    const reelGameOverlayText = document.getElementById('reel-game-overlay-text');
+    const reelGameOverlayTitle = document.getElementById('reel-game-overlay-title');
 
     // --- REEL GAME CONSTANTS (5x3) ---
     const SYMBOL_HEIGHT = 80;
@@ -149,6 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let reelRewardTimerInterval = null;
     let isFreeSpins = false;
     let freeSpinsRemaining = 0;
+    let freeSpinsTotalWin = 0;
+    let skipBonusWinAnimation = null;
 
     // --- CORE FUNCTIONS ---
     function checkReelGameLevelUp() {
@@ -310,11 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSpinButtonText() {
         const spinSpan = reelGameSpinButton.querySelector('span');
         if (!spinSpan) return;
-
-        if (isAutoSpinning) {
+        if (isFreeSpins) {
+            if (isSpinning) {
+                spinSpan.innerHTML = `STOP<br><span class="spin-subtext">${freeSpinsRemaining} remaining</span>`;
+            } else {
+                spinSpan.innerHTML = `FREE SPIN<br><span class="spin-subtext">${freeSpinsRemaining} remaining</span>`;
+            }
+        } else if (isAutoSpinning) {
             spinSpan.innerHTML = "STOP";
-        } else if (isFreeSpins) {
-            spinSpan.innerHTML = `FREE SPIN<br><span class="spin-subtext">${freeSpinsRemaining} remaining</span>`;
         } else if (isTicketMode) {
             spinSpan.innerHTML = `SPIN<br><span class="spin-subtext">1 Reel Ticket</span>`;
         } else {
@@ -491,6 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isAutoSpinning) {
             return;
         }
+        if (isFreeSpins) {
+            return;
+        }
         if (isSpinning) {
             setTimeout(autoSpinLoop, 500);
             return;
@@ -562,6 +574,111 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise(res => setTimeout(res, ms));
     }
 
+    function showReelOverlay(text) {
+        if (!reelGameOverlay || !reelGameOverlayText) return;
+        reelGameOverlayText.innerText = text;
+        reelGameOverlay.classList.add('visible');
+    }
+
+    function hideReelOverlay() {
+        if (!reelGameOverlay) return;
+        reelGameOverlay.classList.remove('visible');
+    }
+
+    function animateBonusTotalWin(titleElement, numberElement, targetAmount) {
+        if (!titleElement || !numberElement) return new Promise(res => res());
+
+        // This returns a Promise that resolves when the animation is done
+        return new Promise(resolve => {
+            let startTime = null;
+            const duration = 2000; // 2-second count-up
+            const startAmount = 0;
+            let currentTier = 0;
+
+            // Tiers
+            const TIERS = [
+                { limit: 0, text: "YOU WIN!", class: "win-tier-1" },
+                { limit: 500000, text: "BIG WIN!", class: "win-tier-2" },
+                { limit: 5000000, text: "MEGA WIN!", class: "win-tier-3" },
+                { limit: 25000000, text: "MASSIVE WIN!", class: "win-tier-4" }
+            ];
+
+            numberElement.innerText = `0`;
+            numberElement.classList.remove('large-number');
+            titleElement.innerText = TIERS[0].text;
+            titleElement.className = TIERS[0].class;
+
+            const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+            function finishAnimation() {
+                numberElement.innerText = targetAmount.toLocaleString('en-US');
+
+                // Final check for number size
+                if (targetAmount >= 10000000) {
+                    numberElement.classList.add('large-number');
+                }
+
+                // Final check for win tier
+                let finalTier = TIERS[0];
+                for (let i = TIERS.length - 1; i >= 0; i--) {
+                    if (targetAmount >= TIERS[i].limit) {
+                        finalTier = TIERS[i];
+                        break;
+                    }
+                }
+                titleElement.innerText = finalTier.text;
+                titleElement.className = finalTier.class;
+
+                skipBonusWinAnimation = null;
+                resolve(); // Resolve the promise
+            }
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                let progress = Math.min(elapsed / duration, 1);
+                let currentAmount = Math.round(startAmount + (targetAmount - startAmount) * easeOut(progress));
+
+                // Check for large number
+                if (currentAmount >= 10000000) {
+                    numberElement.classList.add('large-number');
+                } else {
+                    numberElement.classList.remove('large-number');
+                }
+
+                // Check for win tier change
+                let newTier = currentTier;
+                for (let i = TIERS.length - 1; i >= 0; i--) {
+                    if (currentAmount >= TIERS[i].limit) {
+                        newTier = i;
+                        break;
+                    }
+                }
+
+                if (newTier !== currentTier) {
+                    currentTier = newTier;
+                    titleElement.innerText = TIERS[currentTier].text;
+                    titleElement.className = TIERS[currentTier].class;
+                }
+
+                numberElement.innerText = currentAmount.toLocaleString('en-US');
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    finishAnimation();
+                }
+            }
+
+            // Set the global skip function
+            skipBonusWinAnimation = () => {
+                finishAnimation();
+            };
+
+            requestAnimationFrame(step);
+        });
+    }
+
     function populateReels() {
         if (!reelGameColumns) return;
         reelGameColumns.forEach((column, i) => {
@@ -630,10 +747,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const startAmount = 0;
         element.innerHTML = formatReelGameWinNumber(0);
         element.classList.add('visible');
+        element.classList.remove('large-number');
         const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
         function finishAnimation() {
             element.innerHTML = formatReelGameWinNumber(targetAmount);
             element.classList.add('visible');
+            if (targetAmount >= 10000000) {
+                element.classList.add('large-number');
+            } else {
+                element.classList.remove('large-number');
+            }
             currentWinAnimationId = null;
             skipWinAnimation = null;
             setTimeout(() => {
@@ -646,6 +770,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const elapsed = timestamp - startTime;
             let progress = Math.min(elapsed / duration, 1);
             let currentAmount = startAmount + (targetAmount - startAmount) * easeOut(progress);
+            if (currentAmount >= 10000000) {
+                element.classList.add('large-number');
+            } else {
+                element.classList.remove('large-number');
+            }
             element.innerHTML = formatReelGameWinNumber(currentAmount);
             if (progress < 1) {
                 currentWinAnimationId = requestAnimationFrame(step);
@@ -715,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (skipWinAnimation) {
             skipWinAnimation();
         }
-        if (isSpinning) return;
+        if (isSpinning && !isFreeSpins) return;
         if (isFreeSpins) {
         } else if (isTicketMode) {
             if ((gameState.reelTickets || 0) < 1) {
@@ -741,7 +870,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.symbol-icon-wrapper.win').forEach(el => el.classList.remove('win'));
         reelGameColumns.forEach(col => col.classList.remove('reel-column-hunting'));
         if (isFreeSpins) {
-            freeSpinsRemaining--;
         } else if (isTicketMode) {
             gameState.reelTickets = (gameState.reelTickets || 1) - 1;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
@@ -763,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalReelStops = [...stopResults];
         const reelDurations = [500, 501, 502, 503, 504];
         const pauseDurations = [200, 200, 200, 200];
-        const TENSION_DELAY_MS = 2000;
+        const TENSION_DELAY_MS = 1000;
         let scatterCount = 0;
 
         for (let i = 0; i < 5; i++) {
@@ -777,14 +905,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.HapticFeedback.impactOccurred('light');
         if (isScatterVisible(0, stopResults[0])) scatterCount++;
         await wait(pauseDurations[0]);
-
         await wait(reelDurations[1]);
         stopReel(1, stopResults[1]);
         tg.HapticFeedback.impactOccurred('light');
         if (isScatterVisible(1, stopResults[1])) scatterCount++;
         await wait(pauseDurations[1]);
-
-        if (scatterCount >= 2) {
+        if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[2].classList.add('reel-column-hunting');
             await wait(TENSION_DELAY_MS);
         }
@@ -793,8 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.HapticFeedback.impactOccurred('medium');
         if (isScatterVisible(2, stopResults[2])) scatterCount++;
         await wait(pauseDurations[2]);
-
-        if (scatterCount >= 2) {
+        if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[3].classList.add('reel-column-hunting');
             await wait(TENSION_DELAY_MS);
         }
@@ -803,8 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.HapticFeedback.impactOccurred('medium');
         if (isScatterVisible(3, stopResults[3])) scatterCount++;
         await wait(pauseDurations[3]);
-
-        if (scatterCount >= 2) {
+        if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[4].classList.add('reel-column-hunting');
             await wait(TENSION_DELAY_MS);
         }
@@ -815,7 +939,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const { totalWinnings, winningPaylines, triggerFreeSpins: shouldTrigger } = checkWins(stopResults);
 
         if (totalWinnings > 0) {
-            gameState.dust += totalWinnings;
+            if (isFreeSpins) {
+                freeSpinsTotalWin += totalWinnings;
+            } else {
+                gameState.dust += totalWinnings;
+            }
+
             gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_WIN;
             tg.HapticFeedback.notificationOccurred('success');
             if (saveGame) saveGame();
@@ -830,25 +959,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             tg.HapticFeedback.notificationOccurred('warning');
         }
-
-        if (shouldTrigger) {
-            triggerFreeSpins();
-        }
-
         await new Promise(res => setTimeout(res, 350));
         checkReelGameLevelUp();
         syncReelGameUI();
-        isSpinning = false;
-        if (isFreeSpins && freeSpinsRemaining === 0) {
-            isFreeSpins = false;
-            console.log("FREE SPINS ENDED!");
+        if (shouldTrigger) {
+            triggerFreeSpins();
+            return;
         }
+        isSpinning = false;
 
         if (isTicketMode && (gameState.reelTickets || 0) === 0 && !isFreeSpins) {
             isTicketMode = false;
             btnUseTicket.classList.remove('active');
             currentTotalBet = lastDustBet;
         }
+
         updateBetDisplays();
         updateReelRewardUI();
         setTimeout(() => {
@@ -935,16 +1060,69 @@ document.addEventListener('DOMContentLoaded', () => {
         return { totalWinnings, winningPaylines: uniqueWinningPaylines, triggerFreeSpins: false };
     }
 
-    function triggerFreeSpins() {
-        isFreeSpins = true;
-        freeSpinsRemaining = 15;
-        checkBetButtonStates();
-        updateSpinButtonText();
-        tg.HapticFeedback.notificationOccurred('success');
+    async function triggerFreeSpins() {
         console.log("FREE SPINS TRIGGERED!");
+        tg.HapticFeedback.notificationOccurred('success');
+
+        // 1. Show Intro Screen
+        showReelOverlay("YOU WIN 15 FREE SPINS!");
+        await wait(2500); // Wait 2.5 seconds
+        hideReelOverlay();
+        await wait(500); // Wait for the 0.5s fade-out to finish
+
+        // 2. Set up the state
+        isFreeSpins = true;
+        isAutoSpinning = true; // Force auto-spin
+        freeSpinsRemaining = 15;
+        freeSpinsTotalWin = 0;
+
+        // 3. Run the 15 spins
+        for (let i = 15; i > 0; i--) {
+            freeSpinsRemaining = i;
+            updateSpinButtonText(); // Update counter "15 remaining"
+
+            await spinReels(); // Run one spin
+
+            await wait(1000); // Pause 1 second between spins
+        }
+
+        // 4. Show Total Win Screen
+        isSpinning = true; // (Prevents spin button from re-enabling)
+        freeSpinsRemaining = 0;
+        updateSpinButtonText();
+
+        // --- MODIFIED: Show empty overlay, animation will fill it ---
+        showReelOverlay("");
+        reelGameOverlayTitle.innerText = ""; // Clear title
+        reelGameOverlayText.innerText = "0"; // Set base number
+
+        // 5. Animate the final counter
+        // --- MODIFIED: Call new function with both text elements ---
+        await animateBonusTotalWin(reelGameOverlayTitle, reelGameOverlayText, freeSpinsTotalWin);
+        skipBonusWinAnimation = null; // Clear the skip function
+
+        // 6. Wait 2 seconds (as you requested)
+        await wait(2000);
+
+        // 7. Payout and Cleanup
+        hideReelOverlay();
+        await wait(500); // Wait for the 0.5s fade-out to finish
+
+        gameState.dust += freeSpinsTotalWin;
+
+        isFreeSpins = false;
+        isAutoSpinning = false;
+        isSpinning = false;
+
+        // 8. Update all UI
+        updateBetDisplays();
+        syncReelGameUI();
+        if (window.refreshGameUI) window.refreshGameUI();
     }
 
     function handleSpinClick() {
+        if (isFreeSpins) return;
+
         if (isAutoSpinning) {
             stopAutoSpin();
             return;

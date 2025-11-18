@@ -68,9 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Payout array [2x, 3x, 4x, 5x] multipliers
     const SYMBOLS = {
         SEVEN: { id: 'seven', name: "7", payout: [10, 100, 1000, 5000], isBar: false },
-        CHERRY: { id: 'cherry', name: "🍒", payout: [0, 40, 400, 2000], isBar: false },
-        MONEY: { id: 'money', name: "💰", payout: [0, 30, 100, 750], isBar: false },
-        BELL: { id: 'bell', name: "🔔", payout: [0, 30, 100, 750], isBar: false },
+        CHERRY: { id: 'cherry', name: "🍒", payout: [2.5, 40, 400, 2000], isBar: false },
+        MONEY: { id: 'money', name: "💰", payout: [2.5, 30, 100, 750], isBar: false },
+        BELL: { id: 'bell', name: "🔔", payout: [2.5, 30, 100, 750], isBar: false },
         MELON: { id: 'melon', name: "🍉", payout: [0, 10, 40, 150], isBar: false },
         PLUM: { id: 'plum', name: "🍑", payout: [0, 10, 40, 150], isBar: false },
         BAR_3: { id: 'bar3', name: "J", payout: [0, 5, 25, 100], isBar: false },
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             percent = (progress / milestones[0]) * milestonePercentages[0];
         }
 
-        reelRewardProgressBarEl.style.width = `${Math.max(0, percent)}%`;
+        reelRewardProgressBarEl.style.transform = `scaleX(${Math.max(0, percent) / 100})`;
         for (let i = 0; i < milestones.length; i++) {
             const milestoneCost = milestones[i];
             const milestoneEl = reelRewardMilestoneEls[i];
@@ -718,7 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', handleClaimReelReward);
         });
     }
-    window.openReelGame = openReelGame;
 
     function closeReelGame() {
         if (isAutoSpinning) {
@@ -888,7 +887,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function animateWinCounter(element, targetAmount, duration = 1500) {
-        // --- MODIFIED: Get the title and number elements ---
         const titleElement = document.getElementById('reel-game-win-title');
         const numberElement = document.getElementById('reel-game-win-number');
 
@@ -901,8 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let startTime = null;
         const startAmount = 0;
         let currentTier = 0;
-
-        // Tiers (same as your bonus function)
         const TIERS = [
             { limit: 0, text: "YOU WIN!", class: "win-tier-1" },
             { limit: 500000, text: "BIG WIN!", class: "win-tier-2" },
@@ -910,8 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { limit: 25000000, text: "MASSIVE WIN!", class: "win-tier-4" }
         ];
 
-        // Reset elements
-        numberElement.innerHTML = formatReelGameWinNumber(0); // <-- 1. CHANGED TO innerHTML
+        numberElement.innerHTML = formatReelGameWinNumber(0);
         numberElement.classList.remove('large-number');
         titleElement.innerText = TIERS[0].text;
         titleElement.className = TIERS[0].class;
@@ -920,14 +915,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
         function finishAnimation() {
-            numberElement.innerHTML = formatReelGameWinNumber(targetAmount); // <-- 2. CHANGED TO innerHTML
-
-            // Final check for number size
+            numberElement.innerHTML = formatReelGameWinNumber(targetAmount);
             if (targetAmount >= 10000000) {
                 numberElement.classList.add('large-number');
             }
-
-            // Final check for win tier
             let finalTier = TIERS[0];
             for (let i = TIERS.length - 1; i >= 0; i--) {
                 if (targetAmount >= TIERS[i].limit) {
@@ -950,15 +941,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const elapsed = timestamp - startTime;
             let progress = Math.min(elapsed / duration, 1);
             let currentAmount = startAmount + (targetAmount - startAmount) * easeOut(progress);
-
-            // Check for large number
             if (currentAmount >= 10000000) {
                 numberElement.classList.add('large-number');
             } else {
                 numberElement.classList.remove('large-number');
             }
-
-            // Check for win tier change
             let newTier = currentTier;
             for (let i = TIERS.length - 1; i >= 0; i--) {
                 if (currentAmount >= TIERS[i].limit) {
@@ -973,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleElement.className = TIERS[currentTier].class;
             }
 
-            numberElement.innerHTML = formatReelGameWinNumber(currentAmount); // <-- 3. CHANGED TO innerHTML
+            numberElement.innerHTML = formatReelGameWinNumber(currentAmount);
 
             if (progress < 1) {
                 currentWinAnimationId = requestAnimationFrame(step);
@@ -1089,8 +1076,8 @@ document.addEventListener('DOMContentLoaded', () => {
             Math.floor(Math.random() * currentReelLength)
         ];
         finalReelStops = [...stopResults];
-        const reelDurations = [500, 501, 502, 503, 504];
-        const pauseDurations = [200, 200, 200, 200];
+        const reelDurations = [200, 200, 200, 200, 200];
+        const pauseDurations = [50, 50, 50, 50];
         const TENSION_DELAY_MS = 1000;
         let scatterCount = 0;
         for (let i = 0; i < 5; i++) {
@@ -1165,13 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkReelGameLevelUp();
         syncReelGameUI();
         if (freeSpinsToAward > 0) {
-            // This is the trigger!
-            // We MUST set the starting total for the bonus.
-            // totalWinnings was calculated above (line 769).
-            // If the spin won, this is a number. If it lost, this is 0.
-            // This line perfectly resets the counter.
             freeSpinsTotalWin = totalWinnings;
-
             triggerFreeSpins(freeSpinsToAward);
             return;
         }
@@ -1307,7 +1288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.refreshGameUI) window.refreshGameUI();
         if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.classList.add('hidden');
     }
-    window.dev_triggerFreeSpins = triggerFreeSpins;
 
     function handleSpinClick() {
         if (isFreeSpins) return;

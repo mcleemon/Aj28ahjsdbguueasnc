@@ -1,6 +1,7 @@
 // reel-game.js - v1.0.6
 
 import { GAME_ASSETS } from './assets.js';
+import { audioManager } from './audioManager.js';
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE & FUNCTIONS ---
@@ -680,6 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openReelGame() {
         if (isSpinning) return;
+        audioManager.init(); // Ensure audio is ready
+        audioManager.playMusic('bgmReel', true); // Start music with fade
         if (!reelGameScreen || !reelGameSpinButton) {
             console.error("Reel game elements not found!");
             return;
@@ -724,6 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stopAutoSpin();
         }
         if (isSpinning) return;
+        audioManager.stopMusic(true); // Fade out music
         bodyEl.style.backgroundImage = `url('${GAME_ASSETS.background}')`;
         gameContainer.classList.remove('hidden');
         reelGameScreen.classList.add('hidden');
@@ -856,6 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopReel(reelIndex, stopIndex) {
+        audioManager.playSound('stop');
         const stripEl = reelGameColumns[reelIndex].querySelector('.reel-game-strip');
         stripEl.classList.remove('reel-game-spinning');
         stripEl.style.transition = 'none';
@@ -1045,6 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         isSpinning = true;
+        audioManager.playSound('spin');
         clearBetTimers();
         if (!isAutoSpinning) {
             reelGameSpinButton.disabled = true;
@@ -1097,6 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(pauseDurations[1]);
         if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[2].classList.add('reel-column-hunting');
+            audioManager.playSound('scatter');
             await wait(TENSION_DELAY_MS);
         }
         await wait(reelDurations[2]);
@@ -1106,6 +1113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(pauseDurations[2]);
         if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[3].classList.add('reel-column-hunting');
+            audioManager.playSound('scatter');
             await wait(TENSION_DELAY_MS);
         }
         await wait(reelDurations[3]);
@@ -1115,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(pauseDurations[3]);
         if (scatterCount >= 2 && !isFreeSpins) {
             reelGameColumns[4].classList.add('reel-column-hunting');
+            audioManager.playSound('scatter');
             await wait(TENSION_DELAY_MS);
         }
         await wait(reelDurations[4]);
@@ -1123,6 +1132,13 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(100);
         const { totalWinnings, winningPaylines, freeSpinsToAward } = checkWins(stopResults);
         if (totalWinnings > 0) {
+            const multiplier = totalWinnings / currentTotalBet;
+
+            if (multiplier >= 5) {
+                audioManager.playSound('winBig'); // Big win sound
+            } else {
+                audioManager.playSound('winSmall'); // Normal win sound
+            }
             if (isFreeSpins) {
                 freeSpinsTotalWin += totalWinnings;
             } else if (freeSpinsToAward > 0) {
@@ -1250,6 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function triggerFreeSpins(spinsAwarded) {
         console.log(`FREE SPINS TRIGGERED! ${spinsAwarded} spins awarded.`);
+        audioManager.playSound('bonus');
         tg.HapticFeedback.notificationOccurred('success');
         showReelOverlay(`YOU WIN ${spinsAwarded} FREE SPINS!`);
         if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.classList.remove('hidden');
@@ -1290,6 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleSpinClick() {
+        audioManager.playSound('click');
         if (isFreeSpins) return;
 
         if (isAutoSpinning) {
@@ -1392,7 +1410,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSet10k) {
         btnSet10k.addEventListener('click', () => setBetIncrement(10000, btnSet10k));
     }
-
+    window.dev_triggerFreeSpins = triggerFreeSpins;
+    window.openReelGame = openReelGame; // Ensure this is exposed too
     populateReels();
 
 });

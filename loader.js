@@ -1,5 +1,5 @@
 // loader.js
-// v1.0.0
+// v1.0.6
 
 // 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';

@@ -1,5 +1,5 @@
 // blackjack.js
-// v1.1.6 - Adds Insurance mechanic
+// v1.1.21
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.gameState) {
                 gameState = window.gameState;
             } else {
-                const savedState = localStorage.getItem('golemEggGameState');
+                const savedState = localStorage.getItem('reelRpgData');
                 if (savedState) {
                     gameState = JSON.parse(savedState);
                 } else {
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.warn("Global save function not found. Falling back to local-only save.");
                 gameState.lastSavedTimestamp = Date.now();
-                localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
+                localStorage.setItem('reelRpgData', JSON.stringify(gameState));
             }
         } catch (e) {
             console.error("Failed to save game state from Blackjack:", e);

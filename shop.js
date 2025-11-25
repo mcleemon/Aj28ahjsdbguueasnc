@@ -1,5 +1,5 @@
 // shop.js
-// v1.0.7 - Upgraded to use assets.js map
+// v1.0.14
 
 import { GAME_ASSETS } from './assets.js';
 

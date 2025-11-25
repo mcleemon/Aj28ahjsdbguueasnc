@@ -1,5 +1,5 @@
 // scaler.js
-// v1.0.0
+// v1.0.3
 
 function resizeGame() {
     const gameWrapper = document.getElementById('game-wrapper');

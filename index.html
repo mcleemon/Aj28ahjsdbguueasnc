@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Reel RPG</title>
+    <title>Golem Egg</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700&display=swap"
@@ -14,7 +14,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.91">
+    <link rel="stylesheet" href="style.css?v=2.13.90">
     <link rel="stylesheet" href="blackjack.css?v=1.0.24">
     <link rel="stylesheet" href="reel-game.css?v=1.0.6">
 </head>
@@ -32,7 +32,6 @@
                         </div>
                     </div>
                     <div class="header-right-buttons">
-                        <button id="header-bag-button" data-asset-bg-key="buttonBag"></button>
                         <button id="header-calendar-button" data-asset-bg-key="iconCalendar"></button>
                         <button id="settings-button" data-asset-bg-key="settingButton"></button>
                     </div>
@@ -52,85 +51,46 @@
                         </span>
                         <span id="gem-shards-counter">0</span>
                     </div>
+                    <div class="stat">
+                        <span class="label">
+                            <img data-asset-key="iconBattery" alt="Battery" class="icon-battery">
+                            Drone Battery
+                        </span>
+                        <span id="battery-status">100%</span>
+                    </div>
                 </div>
             </div>
-            <div id="temporary-message" class="temporary-message hidden"></div>
-            <div id="victory-message" class="victory-message hidden"></div>
-            <div class="game-arena">
-                <div class="rpg-monster-area">
-                    <div id="monster-info-container"
-                        style="display:flex; align-items:center; gap:10px; justify-content:center;">
-                        <div id="monster-name" class="rpg-label">Slime Lv.1</div>
-                        <div id="monster-intent" class="intent-badge aggressive">⚔️</div>
+            <div class="egg-container">
+                <div id="frenzy-wrapper">
+                    <div id="frenzy-timer-container" class="frenzy-timer-container hidden"
+                        data-asset-bg-key="frenzyFrame">
+                        Frenzy! <span id="frenzy-timer">15s</span>
                     </div>
-                    <div id="hero-lobby-name" class="rpg-label">Hero Lv. 1</div>
-
-                    <div class="rpg-bar-outer">
-                        <div id="monster-hp-bar" class="rpg-bar-inner hp-fill"></div>
-
-                        <div id="monster-hp-text" class="rpg-value">50 / 50 HP</div>
-                    </div>
-                    <div class="monster-wrapper">
-                        <div id="particle-container"></div>
-                        <div id="monster-image" class="monster-sprite"></div>
-                        <div id="hero-image" class="hero-sprite"></div>
-                        <div id="click-effect-container"></div>
-                    </div>
+                    <div id="temporary-message" class="temporary-message hidden" data-asset-bg-key="frenzyFrame"></div>
                 </div>
-                <div class="combat-interface">
-
-                    <div id="combat-controls">
-
-                        <div id="combat-actions" class="hidden">
-                            <button id="btn-action-attack" class="combat-btn btn-attack">
-                                <span class="btn-label">ATK</span>
-                            </button>
-                            <button id="btn-action-defend" class="combat-btn btn-defend">
-                                <span class="btn-label">DEF</span>
-                            </button>
-                            <button id="btn-action-heal" class="combat-btn btn-heal">
-                                <span class="btn-label">HEAL</span>
-                            </button>
-                        </div>
-
-                        <button id="dungeon-button">
-                            ENTER DUNGEON
-                        </button>
-
-                        <button id="run-button" class="hidden"
-                            style="position: absolute; left: 10px; top: 0; width: 40px; height: 40px; border-radius: 50%; font-size: 10px; background: #444; border: 1px solid #666; color: #fff;">
-                            Run
-                        </button>
+                <div class="egg-image-wrapper">
+                    <div id="particle-container"></div>
+                    <div id="golem-egg" class="golem-egg egg-image"></div>
+                    <div id="levelup-popup" class="levelup-popup hidden">
+                        <img data-asset-key="iconLevelUp" alt="Level Up!">
                     </div>
-
-                    <div id="hero-ui-wrapper">
-                        <div id="hero-level" class="rpg-label">Hero Lv. 1</div>
-                        <div id="hero-stats-text" class="rpg-stats-display" style="margin-top: 5px;">ATK: 10 | CRIT: 10%
-                        </div>
-                        <div class="rpg-bar-outer">
-                            <div id="hero-hp-bar" class="rpg-bar-inner hp-fill"></div>
-                        </div>
-                        <div id="hero-hp-text" class="rpg-value">100 / 100 HP</div>
-
-                        <div class="rpg-bar-outer" style="margin-top:5px; border-color: #FFD700;">
-                            <div id="hero-energy-bar" class="rpg-bar-inner energy-fill"></div>
-                        </div>
-                        <div id="hero-energy-text" class="rpg-value">50 / 50 Energy</div>
-                        <div class="rpg-bar-outer"
-                            style="margin-top:6px; border-color: #ff00ff; box-shadow: 0 0 4px #ff00ff;">
-                            <div id="hero-limit-bar" class="rpg-bar-inner limit-fill" style="width: 0%;"></div>
-                        </div>
-                        <div id="hero-limit-text" class="rpg-value"
-                            style="color:#ff00ff; text-shadow: 0 0 5px #ff00ff; font-size: 11px;">LIMIT GAUGE</div>
-                        <div class="rpg-bar-outer small-bar">
-                            <div id="hero-xp-bar" class="rpg-bar-inner xp-fill"></div>
-                        </div>
-
-                        <div id="hero-xp-text" class="rpg-value" style="font-size: 11px; margin-top: 2px;">XP: 0 / 100
-                        </div>
-                        <div id="lobby-status-text" class="rpg-stats-display"
-                            style="margin-top: 5px; color: #fff; font-size: 13px;">
-                            HP: 100/100 | ENG: 50/50
+                    <div id="click-effect-container"></div>
+                </div>
+                <div class="egg-stats-container">
+                    <div id="egg-ui-wrapper">
+                        <div id="hatch-progress-label" class="egg-ui-label">Hatch Progress</div>
+                        <div id="hatch-progress-value" class="egg-ui-value">0 / 100</div>
+                        <div id="egg-level-label" class="egg-ui-label">Egg Level</div>
+                        <div id="egg-level-value" class="egg-ui-value egg-level-value">Lv. 1 / 10</div>
+                        <div id="hatch-choice-container" class="hatch-choice-container hidden">
+                            <button id="hatch-farm-button" class="hatch-choice-button"
+                                data-asset-bg-key="levelUpButton">
+                                <span class="level-up-text">Keep Farming</span>
+                            </button>
+                            <button id="hatch-evolve-button" data-asset-bg-key="levelUpButton">
+                                <span id="hatch-evolve-text" class="level-up-text">LEVEL UP!</span>
+                                <span id="hatch-evolve-cost" class="level-up-cost-text"></span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -149,10 +109,10 @@
                 </div>
             </div>
             <div class="button-bar">
-                <button id="hero-menu-button" data-asset-bg-key="buttonNav">HERO</button>
-                <button id="craft-button" data-asset-bg-key="buttonNav">SMITH</button>
+                <button id="upgrade-button" data-asset-bg-key="buttonNav">UPGRADE</button>
                 <button id="new-shop-button" data-asset-bg-key="buttonNav" disabled>SHOP</button>
                 <button id="tasks-button" data-asset-bg-key="buttonNav" disabled>TASKS</button>
+                <button id="grotto-button" data-asset-bg-key="buttonNav" disabled>GROTTO</button>
             </div>
         </div>
 
@@ -375,77 +335,42 @@
         <span id="reel-game-overlay-title"></span>
         <span id="reel-game-overlay-text"></span>
     </div>
-    <div id="smithy-modal" class="modal hidden">
-        <div class="smithy-panel">
-            <div class="smithy-header">
-                <button id="close-smithy-button" data-asset-bg-key="closeButton"></button>
-                <h2>BLACKSMITH</h2>
-            </div>
-
-            <div id="smithy-hub" class="smithy-content">
-                <button id="open-forge-btn" class="smithy-big-btn">
-                    <span class="btn-icon">⚔️</span>
-                    <div class="btn-text">
-                        <span class="btn-title">FORGE WEAPON</span>
-                        <span class="btn-desc">Craft Weapons</span>
-                    </div>
-                </button>
-
-                <button id="open-armor-btn" class="smithy-big-btn">
-                    <span class="btn-icon">🛡️</span>
-                    <div class="btn-text">
-                        <span class="btn-title">FORGE ARMOR</span>
-                        <span class="btn-desc">Craft Armors</span>
-                    </div>
-                </button>
-
-                <button id="open-sharpen-btn" class="smithy-big-btn">
-                    <span class="btn-icon">⚒️</span>
-                    <div class="btn-text">
-                        <span class="btn-title">SHARPEN</span>
-                        <span class="btn-desc">Upgrade Gears</span>
-                    </div>
-                </button>
-            </div>
-
-            <div id="smithy-forge" class="smithy-content hidden">
-                <div id="forge-list" class="forge-list-container"></div>
-            </div>
-
-            <div id="smithy-forge-armor" class="smithy-content hidden">
-                <div id="armor-list" class="forge-list-container"></div>
-            </div>
-
-            <div id="smithy-sharpen" class="smithy-content hidden">
-                <div class="sharpen-container">
-                    <div class="sharpen-preview">
-                        <div class="sharpen-icon-frame">
-                            <div id="sharpen-item-icon" class="weapon-icon"></div>
-                        </div>
-                        <h3 id="sharpen-item-name">Copper Sword +0</h3>
-                        <div class="sharpen-stats-row">
-                            <span id="sharpen-stat-current">50 DMG</span>
-                            <span class="arrow">➜</span>
-                            <span id="sharpen-stat-next" style="color:#00ff00">55 DMG</span>
-                        </div>
-                    </div>
-
-                    <div class="sharpen-info-box">
-                        <div class="chance-row"><span id="sharpen-chance"></span></div>
-                        <div class="cost-row">
-                            <div class="cost-item">
-                                <img data-asset-key="iconCrystalDust" class="icon-small">
-                                <span id="sharpen-cost-dust">100</span>
-                            </div>
-                            <div class="cost-item">
-                                <div id="sharpen-mat-icon" class="bag-item-icon mat-copper icon-small-circle"></div>
-                                <span id="sharpen-cost-mat">1</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button id="do-sharpen-btn" class="smithy-action-btn">SHARPEN</button>
-                    <div id="sharpen-msg" class="sharpen-msg"></div>
+    <div id="slot-popup" class="slot-popup hidden">
+        <img data-asset-key="popupSpinToWin" alt="Spin to Win" class="slot-popup-img">
+    </div>
+    <div id="upgrade-modal" class="modal hidden">
+        <div class="modal-content" data-asset-bg-key="modalFrameUpgrade">
+            <span id="close-upgrade-button" class="close-button" data-asset-bg-key="closeButton"></span>
+            <div class="modal-inner">
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
+                    <h3>Crystal Chisel</h3>
+                    <p>Level: <span id="chisel-level">1</span></p>
+                    <p>Increase Tap Power</p>
+                    <p>Rate: <span id="chisel-effect">+1</span> Power</p>
+                    <p class="next-level-preview">Next: <span id="chisel-next-effect"></span></p>
+                    <button id="buy-chisel-button" data-asset-bg-key="buttonGeneric">
+                        Upgrade (Cost: <span id="chisel-cost">100</span>)
+                    </button>
+                </div>
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
+                    <h3>Mining Drone</h3>
+                    <p>Level: <span id="drone-level">0</span></p>
+                    <p>Generates Dust Automatically</p>
+                    <p>Rate: <span id="drone-effect">+0</span> Dust/Sec</p>
+                    <p class="next-level-preview">Next: <span id="drone-next-effect"></span></p>
+                    <button id="buy-drone-button" data-asset-bg-key="buttonGeneric">
+                        Upgrade (Cost: <span id="drone-cost">250</span>)
+                    </button>
+                </div>
+                <div class="upgrade-item" data-asset-bg-key="upgradeItemFrame">
+                    <h3>Drone Battery</h3>
+                    <p>Level: <span id="battery-level">1</span></p>
+                    <p>Increases Drone Offline Time</p>
+                    <p>Capacity: <span id="battery-capacity">1 Hour</span></p>
+                    <p class="next-level-preview">Next: <span id="battery-next-capacity"></span></p>
+                    <button id="buy-battery-button" data-asset-bg-key="buttonGeneric">
+                        Upgrade (Cost: <span id="battery-cost">1K</span>)
+                    </button>
                 </div>
             </div>
         </div>
@@ -871,56 +796,50 @@
             <div class="task-footer"></div>
         </div>
     </div>
-    <div id="hero-modal" class="modal hidden">
-        <div class="hero-panel">
-            <div class="hero-header">
-                <button id="close-hero-button" data-asset-bg-key="closeButton"></button>
-                <h2>HEROES</h2>
+    <div id="grotto-modal" class="modal hidden">
+        <div class="grotto-panel">
+            <div class="grotto-header">
+                <button id="close-grotto-button" data-asset-bg-key="closeButton"></button>
+                <h2>GROTTO</h2>
             </div>
-
-            <div class="hero-content-split">
-                <div class="equipment-column">
-                    <div id="slot-weapon" class="equip-slot" data-slot="mainHand">
-                        <div class="slot-icon weapon-icon"></div>
-                        <span class="slot-label">MAIN</span>
-                    </div>
-
-                    <div id="slot-armor" class="equip-slot" data-slot="body">
-                        <div class="slot-icon armor-icon"></div>
-                        <span class="slot-label">BODY</span>
-                    </div>
-
-                    <div class="equip-slot locked">
-                        <span class="slot-label">LOCKED</span>
-                    </div>
-
-                    <div class="equip-slot locked">
-                        <span class="slot-label">LOCKED</span>
-                    </div>
+            <div class="grotto-content">
+                <img id="grotto-display-image" data-asset-key="eggDefault" alt="Golem Display">
+                <span id="grotto-counter">Hatch Card 0/10</span>
+            </div>
+            <div class="grotto-footer">
+                <div class="grotto-scroll-menu">
+                    <button class="grotto-menu-item active" data-egg-key="eggDefault">
+                        <img data-asset-key="eggDefault" alt="Default Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggCopper">
+                        <img data-asset-key="eggCopper" alt="Copper Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggIron">
+                        <img data-asset-key="eggIron" alt="Iron Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggSilver">
+                        <img data-asset-key="eggSilver" alt="Silver Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggGolden">
+                        <img data-asset-key="eggGolden" alt="Golden Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggObsidian">
+                        <img data-asset-key="eggObsidian" alt="Obsidian Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggSapphire">
+                        <img data-asset-key="eggSapphire" alt="Sapphire Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggEmerald">
+                        <img data-asset-key="eggEmerald" alt="Emerald Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggRuby">
+                        <img data-asset-key="eggRuby" alt="Ruby Egg">
+                    </button>
+                    <button class="grotto-menu-item" data-egg-key="eggDiamond">
+                        <img data-asset-key="eggDiamond" alt="Diamond Egg">
+                    </button>
                 </div>
-
-                <div class="hero-preview-column">
-                    <div class="hero-avatar-frame">
-                        <div id="hero-display-image" class="hero-full-sprite"></div>
-                    </div>
-                    <div class="hero-stats-summary">
-                        <div class="stat-row">ATK: <span id="menu-hero-atk" style="color:#e74c3c">0</span></div>
-                        <div class="stat-row">DEF: <span id="menu-hero-def" style="color:#3498db">0</span></div>
-                    </div>
-                </div>
             </div>
-        </div>
-    </div>
-    <div id="bag-modal" class="modal hidden">
-        <div class="bag-panel">
-            <div class="bag-header">
-                <button id="close-bag-button" data-asset-bg-key="closeButton"></button>
-                <h2>INVENTORY</h2>
-            </div>
-            <div class="bag-content">
-                <div id="bag-grid"></div>
-            </div>
-            <div class="bag-footer"></div>
         </div>
     </div>
     <div id="mimic-modal" class="modal hidden">
@@ -960,86 +879,14 @@
             </div>
         </div>
     </div>
-    <div id="death-modal" class="modal hidden">
-        <div class="modal-content" style="background: #3e0000; border: 2px solid red;">
-            <h2 style="color: red; font-size: 36px;">DEFEATED</h2>
-            <p style="color: white;">The monster knocked you out!</p>
-
-            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                <button id="revive-button" data-asset-bg-key="buttonGeneric" style="width: 200px;">
-                    RETREAT <br>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div id="boss-victory-modal" class="modal hidden" style="z-index: 200;">
-        <div class="boss-victory-panel">
-            <div class="victory-header">
-                <div class="victory-title">VICTORY!</div>
-                <div class="victory-subtitle">BOSS DEFEATED</div>
-            </div>
-
-            <div class="victory-loot-container">
-                <div class="loot-card">
-                    <div class="loot-icon-wrapper">
-                        <img data-asset-key="iconCrystalDust" class="loot-img">
-                    </div>
-                    <div class="loot-amount" id="victory-dust-amount">0</div>
-                    <div class="loot-label">Crystal Dust</div>
-                </div>
-
-                <div class="loot-card">
-                    <div class="loot-icon-wrapper" style="border-color: #3498db;">
-                        <span style="font-size: 24px;">⭐</span>
-                    </div>
-                    <div class="loot-amount" id="victory-xp-amount" style="color: #3498db;">0</div>
-                    <div class="loot-label">Hero XP</div>
-                </div>
-
-                <div class="loot-card">
-                    <div class="loot-icon-wrapper" style="border-color: #e74c3c;">
-                        <img data-asset-key="iconGem" class="loot-img">
-                    </div>
-                    <div class="loot-amount" id="victory-gem-amount" style="color: #e74c3c;">0</div>
-                    <div class="loot-label">Gem Shard</div>
-                </div>
-            </div>
-
-            <div class="victory-buttons">
-                <button id="victory-continue-btn" class="victory-btn btn-continue">
-                    <span>CONTINUE CLIMBING</span>
-                </button>
-                <button id="victory-leave-btn" class="victory-btn btn-leave">
-                    <span>REST AT CAMP</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div id="equip-select-modal" class="modal hidden" style="z-index: 110;">
-        <div class="hero-panel">
-            <div class="hero-header">
-                <button id="close-equip-select-button"></button>
-                <h2 id="equip-select-title">EQUIP</h2>
-            </div>
-
-            <div class="equip-select-content">
-                <div id="equip-list" class="forge-list-container">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.91" type="module"></script>
-    <script src="assets.js?v=1.0.10" type="module"></script>
+    <script src="script.js?v=2.13.90" type="module"></script>
+    <script src="assets.js?v=1.0.9" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="hero.js?v=1.1.2" type="module"></script>
-    <script src="dungeon.js?v=1.1.2" type="module"></script>
-    <script src="smithy.js?v=1.0.0" type="module"></script>
     <script src="shop.js?v=1.0.14" type="module"></script>
     <script src="tasks.js?v=1.0.9" type="module"></script>
-    <script src="heroMenu.js?v=2.0.0" type="module"></script>
+    <script src="grotto.js?v=1.0.9" type="module"></script>
     <script src="blackjack.js?v=1.1.21" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>

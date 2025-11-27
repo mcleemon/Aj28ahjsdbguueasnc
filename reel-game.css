@@ -25,7 +25,7 @@
 
 #reel-game-back-button {
     position: absolute;
-    top: calc(25px + env(safe-area-inset-top));
+    top: calc(85px + env(safe-area-inset-top));
     right: 15px;
     width: 30px;
     height: 29px;
@@ -434,7 +434,7 @@
 
 #reel-game-jackpot-text {
     position: absolute;
-    top: calc(25px + env(safe-area-inset-top));
+    top: calc(65px + env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
@@ -971,7 +971,7 @@
 
 #reel-game-free-spins-counter {
     position: absolute;
-    top: calc(100px + env(safe-area-inset-top));
+    top: calc(130px + env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;

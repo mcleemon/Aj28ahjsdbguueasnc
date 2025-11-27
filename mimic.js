@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.dust -= cost;
         gameState.mimicFeedsToday++;
         gameState.mimicFeedProgress++;
-        mimicImage.classList.add('monster-wobble');
-        setTimeout(() => mimicImage.classList.remove('monster-wobble'), 500);
+        mimicImage.classList.add('egg-wobble');
+        setTimeout(() => mimicImage.classList.remove('egg-wobble'), 500);
         resultText.innerText = `The Mimic chews... (${gameState.mimicFeedProgress} / ${FEEDS_PER_REWARD})`;
         if (gameState.mimicFeedProgress >= FEEDS_PER_REWARD) {
             updateMimicUI();

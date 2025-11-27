@@ -1410,8 +1410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSet10k) {
         btnSet10k.addEventListener('click', () => setBetIncrement(10000, btnSet10k));
     }
-    window.dev_triggerFreeSpins = triggerFreeSpins;
-    window.openReelGame = openReelGame; // Ensure this is exposed too
+
     populateReels();
 
 });

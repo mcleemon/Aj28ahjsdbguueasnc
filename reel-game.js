@@ -851,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const div = document.createElement('div');
                 div.className = 'reel-game-symbol';
                 const span = document.createElement('span');
-                span.className = 'symbol-icon-wrapper';
+                span.className = `symbol-icon-wrapper symbol-${symbol.id}`;
                 span.innerText = symbol.name;
                 div.appendChild(span);
                 strip.appendChild(div);
@@ -1410,7 +1410,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSet10k) {
         btnSet10k.addEventListener('click', () => setBetIncrement(10000, btnSet10k));
     }
-
+    window.dev_triggerFreeSpins = triggerFreeSpins;
+    window.openReelGame = openReelGame; // Ensure this is exposed too
     populateReels();
 
 });

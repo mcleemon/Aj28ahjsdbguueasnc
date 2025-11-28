@@ -395,4 +395,5 @@
 
 .clearing-table {
     animation: fade-out-slow 0.5s ease-out forwards;
+    pointer-events: none;
 }

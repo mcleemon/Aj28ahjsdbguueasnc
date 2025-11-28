@@ -1,5 +1,6 @@
-// hero.js - v1.1.1
-// Manages player stats, HP, and Energy
+// hero.js - v1.2.0 (Cleaned)
+// Manages player stats, HP, and Experience.
+// Removed duplicate logic and standardized Item Levels.
 
 export const HERO_STATE = {
     level: 1,
@@ -11,36 +12,28 @@ export const HERO_STATE = {
     currentHP: 150,
     maxHP: 150,
     energy: 50,
+    maxEnergy: 50,
     limitGauge: 0,
     maxLimit: 100,
-    maxEnergy: 50,
     currentBlock: 0,
     lastRegenTime: Date.now(),
+    maxFloor: 1,
+    
+    // Inventory & Equipment
     inventory: {},
-    equipmentLevels: {
-        mainHand: 0,
-        body: 0
+    
+    // This replaces the old "equipmentLevels". 
+    // It maps ItemID -> Level (e.g., 'copper_sword': 5)
+    itemLevels: {}, 
+    
+    // Default Equipment
+    equipment: {
+        mainHand: 'rusty_sword',
+        body: 'tattered_shirt'
     },
+    
     ownedItems: ['rusty_sword', 'tattered_shirt']
 };
-
-export function rollMonsterStance() {
-    const rand = Math.random();
-
-    // 70% Aggressive (Standard)
-    // 20% Spiked (Defense Up)
-    // 10% Enraged (Double Damage)
-
-    if (rand < 0.70) {
-        DUNGEON_STATE.currentStance = 'aggressive';
-    } else if (rand < 0.90) {
-        DUNGEON_STATE.currentStance = 'spiked';
-    } else {
-        DUNGEON_STATE.currentStance = 'enraged';
-    }
-
-    return DUNGEON_STATE.currentStance;
-}
 
 export function grantHeroExp(amount) {
     HERO_STATE.currentExp += amount;
@@ -50,31 +43,32 @@ export function grantHeroExp(amount) {
         HERO_STATE.currentExp -= HERO_STATE.expToNextLevel;
         HERO_STATE.level++;
         HERO_STATE.expToNextLevel = Math.floor(HERO_STATE.expToNextLevel * 1.5);
+        
+        // Stat Increases on Level Up
         HERO_STATE.baseAttack += 2;
         HERO_STATE.maxHP += 20;
         HERO_STATE.currentHP = HERO_STATE.maxHP;
+        
         leveledUp = true;
     }
     return leveledUp;
 }
 
-export function calculateHeroDamage() {
-    let damage = HERO_STATE.baseAttack;
-    let isCrit = false;
-    if (Math.random() < HERO_STATE.critChance) {
-        damage = damage * 2;
-        isCrit = true;
-    }
-
-    return { damage: Math.floor(damage), isCrit: isCrit };
-}
-
 // --- SAVE/LOAD HELPERS ---
+
 export function getHeroData() {
     return { ...HERO_STATE };
 }
 
 export function loadHeroData(savedData) {
     if (!savedData) return;
+    
+    // Merge saved data into state
     Object.assign(HERO_STATE, savedData);
+
+    // Compatibility Check:
+    // If we loaded an old save that lacks 'itemLevels', initialize it.
+    if (!HERO_STATE.itemLevels) {
+        HERO_STATE.itemLevels = {};
+    }
 }

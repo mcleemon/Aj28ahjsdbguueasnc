@@ -5,9 +5,10 @@
 
 export const GAME_ASSETS = {
     // --- Main UI & Backgrounds ---
-    background: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/background.png?raw=true',
+    background: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/hall2.jpg?raw=true',
     settingButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/settingbutton.png?raw=true',
     closeButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/closebutton2.png?raw=true',
+    backButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/backbutton.png?raw=true',
     frenzyFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/frenzyframe.png?raw=true',
     levelUpButton: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupbutton.png?raw=true',
     blackjackBackground: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/BlackjackBackground.jpg?raw=true',
@@ -22,12 +23,16 @@ export const GAME_ASSETS = {
     upgradeItemFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/upgradeinsideframe.png?raw=true',
     calendarFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendar.png?raw=true',
     welcomeFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/welcome.png?raw=true',
+    heroFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/heroframe.png?raw=true',
+    inventoryFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/inventoryframe.png?raw=true',
+    smithFrame: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/smithframe.png?raw=true',
 
     // --- Buttons ---
     buttonGeneric: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons.png?raw=true',
     buttonShop: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2.png?raw=true',
     buttonNav: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
     buttonForceFeed: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2-5.png?raw=true',
+    buttonBag: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bag.png?raw=true',
 
     // --- Icons ---
     iconCrystalDust: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',
@@ -38,6 +43,16 @@ export const GAME_ASSETS = {
     iconGeode: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
     iconLevelUp: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
     iconEvolve: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/evolveicon.png?raw=true',
+
+    // --- HERO ---
+    warrior: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/malehero.png?raw=true',
+
+    // --- SLASH ---
+    thunderSlash: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/thunderslash.png?raw=true',
+    Slash: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/slash.png?raw=true',
+
+    // --- MONSTERS ---
+    blueslime: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/blueslime.png?raw=true',
 
     // --- Scroll Menu Icons ---
     iconCalendar: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/calendaricon2.png?raw=true',

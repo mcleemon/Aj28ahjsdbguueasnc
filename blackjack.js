@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.gameState) {
                 gameState = window.gameState;
             } else {
-                const savedState = localStorage.getItem('golemEggGameState');
+                const savedState = localStorage.getItem('reelRpgData');
                 if (savedState) {
                     gameState = JSON.parse(savedState);
                 } else {
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.warn("Global save function not found. Falling back to local-only save.");
                 gameState.lastSavedTimestamp = Date.now();
-                localStorage.setItem('golemEggGameState', JSON.stringify(gameState));
+                localStorage.setItem('reelRpgData', JSON.stringify(gameState));
             }
         } catch (e) {
             console.error("Failed to save game state from Blackjack:", e);
@@ -699,14 +699,43 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const allCards = document.querySelectorAll('#blackjack-screen .card');
             const allChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
+
+            // 1. Fade out cards (Keep existing behavior)
             allCards.forEach(card => {
                 card.classList.remove('is-fading-in');
                 card.classList.add('clearing-table');
             });
-            allChips.forEach(chip => chip.classList.add('clearing-table'));
+
+            // 2. Determine Chip Destination
+            let targetTop, targetLeft;
+
+            if (totalWinnings > 0) {
+                // PLAYER WINS: Chips fly to the Dust Counter (Bottom Left/Center)
+                const dustRect = document.getElementById('blackjack-dust-counter').getBoundingClientRect();
+                targetTop = dustRect.top;
+                targetLeft = dustRect.left + 20; // Aim slightly inside the counter
+            } else {
+                // DEALER WINS: Chips fly to the Dealer (Top Center)
+                targetTop = -100; // Fly off the top of the screen
+                targetLeft = window.innerWidth / 2 - 30; // Center horizontally
+            }
+
+            // 3. Animate Chips
+            allChips.forEach((chip, index) => {
+                // Add a slight delay per chip for a "stream" effect
+                setTimeout(() => {
+                    chip.style.transition = 'all 0.6s ease-in';
+                    chip.style.top = `${targetTop}px`;
+                    chip.style.left = `${targetLeft}px`;
+                    chip.style.opacity = '0.5'; // Fade slightly while moving
+                    chip.style.transform = 'scale(0.5)'; // Shrink while moving
+                }, index * 50);
+            });
+
+            // 4. Reset Game after animation finishes
             setTimeout(() => {
                 resetGame();
-            }, 500);
+            }, 1000); // Increased delay to let chips finish flying
         }, 2500);
     }
 

@@ -30,10 +30,10 @@ export function refreshMonsterVisuals() {
     // Calculate correct tier based on current floor
     const tierIndex = Math.min(Math.floor((DUNGEON_STATE.floor - 1) / 10), MONSTER_TIERS.length - 1);
     const monsterType = MONSTER_TIERS[tierIndex];
-    
+
     // Force update the state
     DUNGEON_STATE.monsterAsset = monsterType.asset;
-    
+
     // Update Name if needed
     if (DUNGEON_STATE.floor % 10 === 0) {
         DUNGEON_STATE.monsterName = `BOSS: ${monsterType.name}`;
@@ -48,39 +48,50 @@ export function hitMonster(damageAmount) {
     return DUNGEON_STATE.currentHP <= 0;
 }
 
-export function advanceFloor() {
-    const clearedFloor = DUNGEON_STATE.floor;
-    DUNGEON_STATE.floor++;
-    DUNGEON_STATE.currentStance = 'aggressive';
-    DUNGEON_STATE.maxHP = Math.floor(DUNGEON_STATE.maxHP * 1.15);
-    DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
-    DUNGEON_STATE.attack = Math.floor(5 + (DUNGEON_STATE.floor * 1.5));
-    const tierIndex = Math.min(Math.floor((DUNGEON_STATE.floor - 1) / 10), MONSTER_TIERS.length - 1);
-    const monsterType = MONSTER_TIERS[tierIndex];
-    if (DUNGEON_STATE.floor % 10 === 0) {
-        DUNGEON_STATE.monsterName = `BOSS: ${monsterType.name}`;
-        DUNGEON_STATE.attack = Math.floor(DUNGEON_STATE.attack * 1.5);
-    } else {
-        DUNGEON_STATE.monsterName = `${monsterType.name} Lv.${DUNGEON_STATE.floor}`;
-    }
-    DUNGEON_STATE.monsterAsset = monsterType.asset;
+// 1. Calculate Rewards (Passive - Does NOT change floor)
+export function calculateRewards() {
+    const floor = DUNGEON_STATE.floor;
+    const isBoss = (floor % 10 === 0);
+
+    // Loot Logic
     let lootDrop = null;
-    if (Math.random() <= 0.40) {
+    // Boss = 100%, Normal = 70%
+    const dropChance = isBoss ? 1.0 : 0.70;
+
+    if (Math.random() <= dropChance) {
         let material = MATERIAL_TIERS[0];
+        // Find highest tier available for this floor
         for (const mat of MATERIAL_TIERS) {
-            if (clearedFloor >= mat.dropFloor) {
+            if (floor >= mat.dropFloor) {
                 material = mat;
             } else {
                 break;
             }
         }
-        lootDrop = { id: material.id, name: material.name, amount: 1 };
+        // Quantity: Boss = 2, Normal = 1
+        const qty = isBoss ? 2 : 1;
+        lootDrop = { id: material.id, name: material.name, amount: qty };
     }
+
     return {
-        dustReward: clearedFloor * 150,
-        xpReward: clearedFloor * 10,
+        dustReward: floor * 150,
+        xpReward: floor * 10,
         loot: lootDrop
     };
+}
+
+// 2. Increase Floor (Active - Actually moves you)
+export function increaseFloor() {
+    DUNGEON_STATE.floor++;
+    DUNGEON_STATE.currentStance = 'aggressive';
+
+    // Stats Scaling (Original Formula Preserved)
+    DUNGEON_STATE.maxHP = Math.floor(50 * Math.pow(1.15, DUNGEON_STATE.floor - 1));
+    DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+    DUNGEON_STATE.attack = Math.floor(5 + (DUNGEON_STATE.floor * 1.5));
+
+    // Update Visuals
+    refreshMonsterVisuals();
 }
 
 export function rollMonsterStance() {

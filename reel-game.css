@@ -25,7 +25,7 @@
 
 #reel-game-back-button {
     position: absolute;
-    top: calc(85px + env(safe-area-inset-top));
+    top: calc(25px + env(safe-area-inset-top));
     right: 15px;
     width: 30px;
     height: 29px;
@@ -434,7 +434,7 @@
 
 #reel-game-jackpot-text {
     position: absolute;
-    top: calc(65px + env(safe-area-inset-top));
+    top: calc(25px + env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
@@ -827,7 +827,6 @@
 
 .reel-game-symbol .symbol-icon-wrapper {
     font-size: 1.2em;
-    /* 20px */
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
     line-height: 1;
@@ -835,29 +834,26 @@
     padding: 5px;
 }
 
-.reel-game-symbol span:containing("WILD") {
+.reel-game-symbol .symbol-wild {
     color: #ffd700;
-    font-size: 1.5em;
-    /* 24px */
+    font-size: 1.0em;
 }
 
-.reel-game-symbol span:containing("SCATTER") {
+.reel-game-symbol .symbol-scatter {
     color: #ff4d4d;
-    font-size: 0.8em;
-    /* 12.8px */
+    font-size: 0.7em;
 }
 
-.reel-game-symbol span:containing("J"),
-.reel-game-symbol span:containing("Q"),
-.reel-game-symbol span:containing("K") {
+.reel-game-symbol .symbol-bar3,
+.reel-game-symbol .symbol-bar2,
+.reel-game-symbol .symbol-bar1
+    {
     color: #ffffff;
-    font-size: 1.8em;
-    /* 28.8px */
+    font-size: 1.4em;
 }
 
-.reel-game-symbol span:not(:containing("WILD")):not(:containing("SCATTER")):not(:containing("J")):not(:containing("Q")):not(:containing("K")) {
-    font-size: 2em;
-    /* 32px */
+.reel-game-symbol .symbol-icon-wrapper:not(.symbol-wild):not(.symbol-scatter):not(.symbol-bar1):not(.symbol-bar2):not(.symbol-bar3) {
+    font-size: 1.2em;
 }
 
 .reel-game-column.reel-column-hunting {
@@ -971,7 +967,7 @@
 
 #reel-game-free-spins-counter {
     position: absolute;
-    top: calc(130px + env(safe-area-inset-top));
+    top: calc(100px + env(safe-area-inset-top));
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;

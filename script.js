@@ -1,5 +1,7 @@
-// 1. IMPORT THE ASSET MAP AT THE VERY TOP
 import { GAME_ASSETS } from './assets.js';
+import { HERO_STATE, grantHeroExp, getHeroData, loadHeroData } from './hero.js';
+import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonData, loadDungeonData, refreshMonsterVisuals } from './dungeon.js';
+import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
@@ -9,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
             HapticFeedback: {
                 notificationOccurred: () => { },
                 impactOccurred: () => { }
-            }
+            },
+            BackButton: { show: () => { }, hide: () => { }, onClick: () => { } }
         };
     try {
         const gameBackgroundColor = '#1a1a1a';
@@ -24,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     try {
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            if (typeof tg.requestFullscreen === 'function') {
-                tg.requestFullscreen();
-            }
+            //if (typeof tg.requestFullscreen === 'function') {
+            //    tg.requestFullscreen();
+            //}
             if (typeof tg.enableClosingConfirmation === 'function') {
                 tg.enableClosingConfirmation();
             }
@@ -46,9 +49,41 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
         console.error("Failed to load user info:", error);
     }
+    // --- TELEGRAM NAVIGATION & SAFETY SYSTEM ---
+    try {
+        tg.expand();
+        if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
+
+        if (tg.BackButton) {
+            tg.BackButton.onClick(() => {
+                if (modalStack.length > 0) {
+                    const lastModalId = modalStack.pop();
+                    if (lastModalId === 'smithy-modal') {
+                        document.getElementById('close-smithy-button').click();
+                    }
+                    else if (lastModalId === 'hero-modal') {
+                        document.getElementById('close-hero-button').click();
+                    }
+                    else if (lastModalId === 'bag-modal') {
+                        document.getElementById('close-bag-button').click();
+                    }
+                    else if (lastModalId === 'equip-select-modal') {
+                        document.getElementById('close-equip-select-button').click();
+                    }
+                    else {
+                        const m = document.getElementById(lastModalId);
+                        if (m) m.classList.add('hidden');
+                    }
+                    if (modalStack.length === 0) tg.BackButton.hide();
+                }
+            });
+        }
+    } catch (e) {
+        console.warn("Telegram API setup warning:", e);
+    }
 
     window.addEventListener('storage', (event) => {
-        if (event.key === 'golemEggGameState') {
+        if (event.key === 'reelRpgData') {
             try {
                 const newState = JSON.parse(event.newValue);
                 if (newState && typeof newState.dust !== 'undefined') {
@@ -61,168 +96,124 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');
-    const batteryStatus = document.getElementById('battery-status');
-    const golemEgg = document.getElementById('golem-egg');
-    const hatchProgressValue = document.getElementById('hatch-progress-value');
-    const eggLevelValue = document.getElementById('egg-level-value');
-    const hatchChoiceContainer = document.getElementById('hatch-choice-container');
-    const hatchEvolveButton = document.getElementById('hatch-evolve-button');
-    const hatchEvolveText = document.getElementById('hatch-evolve-text');
-    const hatchEvolveCost = document.getElementById('hatch-evolve-cost');
-    const hatchFarmButton = document.getElementById('hatch-farm-button');
+    const monsterImage = document.getElementById('monster-image');
+    const monsterHpBar = document.getElementById('monster-hp-bar');
+    const monsterHpText = document.getElementById('monster-hp-text');
+    const monsterName = document.getElementById('monster-name');
+    const heroHpBar = document.getElementById('hero-hp-bar');
+    const heroHpText = document.getElementById('hero-hp-text');
+    const heroEnergyBar = document.getElementById('hero-energy-bar');
+    const heroEnergyText = document.getElementById('hero-energy-text');
+    const heroLimitBar = document.getElementById('hero-limit-bar');
+    const heroLimitText = document.getElementById('hero-limit-text');
+    const heroXpBar = document.getElementById('hero-xp-bar');
+    const heroXpText = document.getElementById('hero-xp-text');
+    const heroLevelText = document.getElementById('hero-level');
+    const heroStatsText = document.getElementById('hero-stats-text');
+    const deathModal = document.getElementById('death-modal');
+    const reviveButton = document.getElementById('revive-button');
     const clickEffectContainer = document.getElementById('click-effect-container');
-    const frenzyTimerContainer = document.getElementById('frenzy-timer-container');
-    const frenzyTimer = document.getElementById('frenzy-timer');
-    const upgradeButton = document.getElementById('upgrade-button');
-    const upgradeModal = document.getElementById('upgrade-modal');
     const loginRewardModal = document.getElementById('login-reward-modal');
     const headerCalendarButton = document.getElementById('header-calendar-button');
     const calendarModal = document.getElementById('calendar-modal');
     const cheatModal = document.getElementById('cheat-modal');
-    const closeUpgradeButton = document.getElementById('close-upgrade-button');
     const closeCalendarButton = document.getElementById('close-calendar-button');
-    const buyChiselButton = document.getElementById('buy-chisel-button');
-    const chiselLevelText = document.getElementById('chisel-level');
-    const chiselEffectText = document.getElementById('chisel-effect');
-    const buyDroneButton = document.getElementById('buy-drone-button');
-    const droneLevelText = document.getElementById('drone-level');
-    const droneEffectText = document.getElementById('drone-effect');
-    const buyBatteryButton = document.getElementById('buy-battery-button');
-    const batteryLevelText = document.getElementById('battery-level');
-    const batteryCapacityText = document.getElementById('battery-capacity');
-    const temporaryMessage = document.getElementById('temporary-message');
     const offlineProgressModal = document.getElementById('offline-progress-modal');
     const particleContainer = document.getElementById('particle-container');
     const settingsButton = document.getElementById('settings-button');
     const settingsModal = document.getElementById('settings-modal');
-    const slotPopup = document.getElementById("slot-popup");
     const loginStreakText = document.getElementById('login-streak-text');
     const loginRewardText = document.getElementById('login-reward-text');
+    const btnAuto = document.getElementById('btn-auto-toggle');
+    const btnBoss = document.getElementById('btn-boss-toggle');
+    const btnAdvance = document.getElementById('btn-advance');
+    const btnSelectArea = document.getElementById('select-area-button');
+    const gameBody = document.body;
+    const sceneTransition = document.getElementById('scene-transition');
+    const lobbyStatusText = document.getElementById('lobby-status-text');
+    const monsterIntentEl = document.getElementById('monster-intent');
+    const bossVictoryModal = document.getElementById('boss-victory-modal');
+    const victoryContinueBtn = document.getElementById('victory-continue-btn');
+    const victoryLeaveBtn = document.getElementById('victory-leave-btn');
+    const bagModal = document.getElementById('bag-modal');
+    const closeBagButton = document.getElementById('close-bag-button');
+    const bagGrid = document.getElementById('bag-grid');
+    const headerBagButton = document.getElementById('header-bag-button');
+    const combatLog = document.getElementById('combat-log-box');
+    const dungeonModal = document.getElementById('dungeon-selector-modal');
+    const closeDungeonButton = document.getElementById('close-dungeon-button');
+    const dungeonList = document.getElementById('dungeon-list');
+    const autoCombatBtn = document.getElementById('auto-combat-btn');
 
     // --- MINI SLOT ELEMENTS ---
     const slotOverlay = document.getElementById("slot-overlay");
     const slotMachine = document.querySelector(".slot-machine");
-    const slotSpinBtn = document.getElementById("slot-spin-btn");
-    const slotResult = document.getElementById("slot-result");
     const slotReels = document.querySelectorAll(".symbols");
 
     window.isGameDirty = false;
+    let isTransitioning = false;
     let slotActive = false;
-    let frenzyAccumulatedDust = 0;
-    let activeTreasureBox = null;
-    let activeGeodeBox = null;
-    const MIN_TAPS_BETWEEN_SPINS = 250;
-    const MIN_TAPS_BETWEEN_GEODES = 200;
-    const DUST_FEE_GROWTH_RATE = 1.003;
-
-    const EGG_NAMES = [
-        "Default Egg", "Copper Egg", "Iron Egg", "Silver Egg", "Golden Egg",
-        "Obsidian Egg", "Sapphire Egg", "Emerald Egg", "Ruby Egg", "Diamond Egg"
-    ];
-
-    const EGG_TIERS = {
-        "Default Egg": { maxLevel: 10, baseTaps: 100, tapsPerLevel: 25, baseCost: 100 },
-        "Copper Egg": { maxLevel: 20, baseTaps: 500, tapsPerLevel: 50, baseCost: 1000 },
-        "Iron Egg": { maxLevel: 30, baseTaps: 1500, tapsPerLevel: 100, baseCost: 5000 },
-        "Silver Egg": { maxLevel: 40, baseTaps: 4500, tapsPerLevel: 200, baseCost: 25000 },
-        "Golden Egg": { maxLevel: 50, baseTaps: 12500, tapsPerLevel: 300, baseCost: 125000 },
-        "Obsidian Egg": { maxLevel: 60, baseTaps: 27500, tapsPerLevel: 450, baseCost: 625000 },
-        "Sapphire Egg": { maxLevel: 70, baseTaps: 55000, tapsPerLevel: 650, baseCost: 3125000 },
-        "Emerald Egg": { maxLevel: 80, baseTaps: 100000, tapsPerLevel: 900, baseCost: 15625000 },
-        "Ruby Egg": { maxLevel: 90, baseTaps: 175000, tapsPerLevel: 1200, baseCost: 78125000 },
-        "Diamond Egg": { maxLevel: 100, baseTaps: 300000, tapsPerLevel: 1500, baseCost: 390625000 }
-    };
-
-    // --- NEW: EGG IMAGE MAPPING (Reading from assets.js) ---
-    const EGG_IMAGES = {
-        "Default Egg": GAME_ASSETS.eggDefault,
-        "Copper Egg": GAME_ASSETS.eggCopper,
-        "Iron Egg": GAME_ASSETS.eggIron,
-        "Silver Egg": GAME_ASSETS.eggSilver,
-        "Golden Egg": GAME_ASSETS.eggGolden,
-        "Obsidian Egg": GAME_ASSETS.eggObsidian,
-        "Sapphire Egg": GAME_ASSETS.eggSapphire,
-        "Emerald Egg": GAME_ASSETS.eggEmerald,
-        "Ruby Egg": GAME_ASSETS.eggRuby,
-        "Diamond Egg": GAME_ASSETS.eggDiamond
-    };
+    let isAutoCombat = false;
+    let autoCombatTimer = null;
+    let isAutoBoss = false;
+    let combatInterval = null;
+    let mobKillCount = 0;
+    const MOBS_TO_BOSS = 10;
+    let modalStack = [];
 
     // --- GAME STATE ---
     if (!window.gameState) {
         window.gameState = {
+            /// --- DUNGEONS ---
+            inDungeon: false,
+
+            // --- CURRENCIES ---
             dust: 0,
-            dustPerTap: 1,
-            chiselLevel: 1,
-            chiselBaseCost: 5000,
-            egg: {
-                name: "Default Egg",
-                level: 1,
-                progress: 0,
-                goal: 100
-            },
-            dustPerSecond: 0,
-            droneLevel: 0,
-            droneBaseCost: 5000,
+            gemShards: 0,
+            reelTickets: 0,
+
+            // --- SYSTEM VARS ---
             lastLoginDate: null,
             loginStreak: 0,
-            gemShards: 0,
             checksum: null,
             lastSavedTimestamp: Date.now(),
-            batteryLevel: 1,
-            batteryCapacity: 3600,
-            batteryBaseCost: 1500000,
-            geodesFoundToday: 0,
-            rechargeBaseCost: 1000,
-            droneCooldownEndTimestamp: 0,
-            isFrenzyMode: false,
-            frenzyCooldownUntil: 0,
-            tapsSinceLastSpin: 0,
-            tapsSinceLastGeode: 0,
-            lastTapTimestamp: 0,
+
+            // --- MINIGAME: BLACKJACK ---
             blackjack_level: 1,
             blackjack_exp: 0,
-            farmRuns: 0,
+
+            // --- MINIGAME: SLOT / REEL ---
             slot_level: 1,
             slot_exp: 0,
             slot_last_win: 0,
             reelRewardProgress: 0,
             reelRewardClaims: [false, false, false, false, false],
-            reelRewardResetTime: 0
+            reelRewardResetTime: 0,
+
+            // --- MINIGAME: MIMIC ---
+            mimicStage: 1,
+            mimicFeedProgress: 0,
+            mimicFeedsToday: 0,
+            mimicLastFeedDate: null
         };
     }
 
     let gameState = window.gameState;
-    const slotSymbols = [
-        { name: "crystaldust", img: GAME_ASSETS.iconCrystalDust },
-        { name: "geode", img: GAME_ASSETS.iconGeode },
-        { name: "gem", img: GAME_ASSETS.iconGem }
-    ];
+    let isGameLoaded = false;
+    const slotSymbols = {
+        sword: { name: 'sword', label: 'SWORD', color: '#e74c3c' },
+        ulti: { name: 'ulti', label: 'ULTI', color: '#f1c40f' },
+        miss: { name: 'miss', label: 'MISS', color: '#95a5a6' }
+    };
 
-    const weightedSlotProbabilities = [];
-    // 70% chance for Crystal Dust (index 0)
-    for (let i = 0; i < 70; i++) { weightedSlotProbabilities.push(0); }
-    // 25% chance for Geode (index 1)
-    for (let i = 0; i < 25; i++) { weightedSlotProbabilities.push(1); }
-    // 5% chance for Gem (index 2)
-    for (let i = 0; i < 5; i++) { weightedSlotProbabilities.push(2); }
-    function populateReel(reel) {
-        reel.innerHTML = "";
-        for (let i = 0; i < 30; i++) {
-            const div = document.createElement("div");
-            div.className = "symbol";
-            const symbol = slotSymbols[i % slotSymbols.length];
-            const img = document.createElement("img");
-            img.src = symbol.img;
-            img.alt = symbol.name;
-            img.className = "slot-icon";
-            div.appendChild(img);
-            reel.appendChild(div);
-        }
-    }
+    const weightedSlotProbabilities = [
+        ...Array(70).fill('sword'),
+        ...Array(20).fill('miss'),
+        ...Array(10).fill('ulti')
+    ];
 
     slotReels.forEach(populateReel);
     const dailyRewards = [
@@ -264,26 +255,71 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'gem_shard', amount: 5, label: '5 Gem Shards' }, // BIG Milestone Day 28
     ];
 
-    let frenzyInterval = null;
     let particleSpawnInterval = null;
-    const batteryLevels = [3600, 7200, 14400, 21600];
     const CHECKSUM_SALT = "golem_egg_super_secret_key_v2";
 
-    const particleSystem = {
-        baseRate: 500,
-        frenzyRateMultiplier: 1 / 3,
-        currentInterval: null,
-        mode: "normal"
-    };
+    // --- HELPER FUNCTIONS ---
 
-    function startParticleLoop(rate) {
-        if (particleSystem.currentInterval) {
-            clearInterval(particleSystem.currentInterval);
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modalStack.push(modalId);
+            if (tg.BackButton) tg.BackButton.show();
         }
-        particleSystem.currentInterval = setInterval(spawnParticle, rate);
     }
 
-    // --- HELPER FUNCTIONS ---
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('closing');
+            }, 300);
+            const index = modalStack.indexOf(modalId);
+            if (index > -1) {
+                modalStack.splice(index, 1);
+            }
+        }
+        if (modalStack.length === 0 && tg.BackButton) {
+            tg.BackButton.hide();
+        }
+    }
+
+    window.openModalGlobal = openModal;
+    window.closeModalGlobal = closeModal;
+
+    function triggerScreenShake(intensity = 'heavy') {
+        const container = document.querySelector('.game-container');
+        if (!container) return;
+        container.classList.remove('shake-heavy', 'zoom-hit');
+        void container.offsetWidth;
+        container.classList.add('shake-heavy');
+        if (intensity === 'critical') {
+            container.classList.add('zoom-hit');
+        }
+        setTimeout(() => {
+            container.classList.remove('shake-heavy', 'zoom-hit');
+        }, 500);
+    }
+
+    function populateReel(reel) {
+        reel.innerHTML = "";
+        for (let i = 0; i < 30; i++) {
+            const symbolKey = weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)];
+            const symbolData = slotSymbols[symbolKey];
+
+            const el = document.createElement("div");
+            el.classList.add("slot-symbol-text");
+            el.innerText = symbolData.label;
+            el.style.color = symbolData.color;
+            reel.appendChild(el);
+        }
+    }
+
+    slotReels.forEach(populateReel);
+
     function formatNumber(num) {
         num = Math.floor(Number(num) || 0);
         if (num < 1000) return num.toString();
@@ -295,20 +331,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${formatted}${suffixes[tier]}`;
     }
 
-    function formatBatteryTime(totalSeconds) {
-        if (totalSeconds < 0) totalSeconds = 0;
-        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-        return `${hours}:${minutes}`;
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = formatNumber(Math.floor(progress * (end - start) + start));
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 
     function formatWithCommas(num) {
         return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    function formatDecimal(num) {
-        if (typeof num !== 'number') num = 0;
-        return num.toFixed(1);
     }
 
     function formatDate(date) {
@@ -319,16 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateChecksum(state) {
         const dataToHash = {
             dust: Math.floor(state.dust),
-            dpt: state.dustPerTap,
-            dps: state.dustPerSecond,
-            cl: state.chiselLevel,
-            dl: state.droneLevel,
             gs: state.gemShards,
-            el: state.egg.level,
-            ep: state.egg.progress,
-            bl: state.batteryLevel,
             bjl: state.blackjack_level,
-            bjx: state.blackjack_exp
+            bjx: state.blackjack_exp,
+            hl: state.hero ? state.hero.level : 1,
+            df: state.dungeon ? state.dungeon.floor : 1
         };
         const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
         return btoa(stringToHash);
@@ -342,57 +374,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openSlot() {
-        removeTreasureBox();
         if (slotActive) return;
         slotActive = true;
-        slotOverlay.classList.add('banner-only');
         slotOverlay.classList.remove('hidden');
-        slotPopup.classList.remove("hidden");
-        setTimeout(() => {
-            slotPopup.classList.add("show");
-        }, 10);
-        setTimeout(() => {
-            slotPopup.classList.remove("show");
-            setTimeout(() => slotPopup.classList.add("hidden"), 500);
-            slotOverlay.classList.remove('banner-only');
-            slotResult.classList.add("hidden");
-            slotSpinBtn.disabled = false;
-        }, 2000);
+        slotOverlay.classList.remove('banner-only');
+        slotResult.classList.add("hidden");
+        slotResult.classList.remove("show");
+        const container = document.querySelector(".slot-machine-container");
+        container.classList.remove("fade-out");
     }
 
     function closeSlot() {
+        slotOverlay.classList.add("hidden");
+        slotActive = false;
         const container = document.querySelector(".slot-machine-container");
-        container.classList.add("fade-out");
-
-        setTimeout(() => {
-            slotOverlay.classList.add("hidden");
-            container.classList.remove("fade-out");
-            slotActive = false;
-        }, 1000);
-    }
-
-    function removeTreasureBox() {
-        if (!activeTreasureBox) return;
-        try {
-            if (activeTreasureBox._tbClickHandler) {
-                activeTreasureBox.removeEventListener('click', activeTreasureBox._tbClickHandler);
-            }
-        } catch (e) {
-        }
-        activeTreasureBox.remove();
-        activeTreasureBox = null;
-    }
-
-    function removeGeodeBox() {
-        if (!activeGeodeBox) return;
-        try {
-            if (activeGeodeBox._geoClickHandler) {
-                activeGeodeBox.removeEventListener('click', activeGeodeBox._geoClickHandler);
-            }
-        } catch (e) {
-        }
-        activeGeodeBox.remove();
-        activeGeodeBox = null;
+        if (container) container.classList.remove("fade-out");
     }
 
     function isAnyModalOpen() {
@@ -406,126 +402,225 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    function spawnTreasureBox() {
-        if (activeTreasureBox || slotActive || gameState.isFrenzyMode) return;
-        if (isAnyModalOpen()) return;
-        const container = document.querySelector('.game-container');
-        if (!container) return;
-        const box = document.createElement('div');
-        box.className = 'treasure-box';
-        const inner = document.createElement('div');
-        inner.className = 'treasure-box-inner';
-        const img = document.createElement('img');
-        img.src = GAME_ASSETS.treasureBox;
-        img.alt = 'Treasure Box';
-        inner.appendChild(img);
-        box.appendChild(inner);
-        const clickHandler = (e) => {
-            e.stopPropagation();
-            removeTreasureBox();
-            openSlot();
-        };
-        box._tbClickHandler = clickHandler;
-        box.addEventListener('click', clickHandler, { passive: true });
-        container.appendChild(box);
-        activeTreasureBox = box;
-        const header = document.querySelector('.header-container');
-        const bottomBar = document.querySelector('.button-bar');
-        const containerRect = container.getBoundingClientRect();
-        const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
-        const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
-        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50);
-        const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
-        const safeLeftMin = 16;
-        const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
-        const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
-        const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
-        box.style.left = `${randLeft + box.clientWidth / 2}px`;
-        box.style.top = `${randTop + box.clientHeight / 2}px`;
-    }
-
-    function spawnGeode() {
-        if (activeGeodeBox || slotActive || gameState.isFrenzyMode) return;
-        if (isAnyModalOpen()) return;
-        const container = document.querySelector('.game-container');
-        if (!container) return;
-        const box = document.createElement('div');
-        box.className = 'geode-box';
-        const inner = document.createElement('div');
-        inner.className = 'geode-box-inner';
-        const img = document.createElement('img');
-        img.src = GAME_ASSETS.iconGeode;
-        img.alt = 'Geode';
-        inner.appendChild(img);
-        box.appendChild(inner);
-        const clickHandler = (e) => {
-            e.stopPropagation();
-            removeGeodeBox();
-            handleGeodeEvent(e);
-        };
-        box._geoClickHandler = clickHandler;
-        box.addEventListener('click', clickHandler, { passive: true });
-        container.appendChild(box);
-        activeGeodeBox = box;
-        const header = document.querySelector('.header-container');
-        const bottomBar = document.querySelector('.button-bar');
-        const containerRect = container.getBoundingClientRect();
-        const headerRect = header ? header.getBoundingClientRect() : { bottom: containerRect.top + 60 };
-        const bottomRect = bottomBar ? bottomBar.getBoundingClientRect() : { top: containerRect.bottom - 100 };
-        const safeTopMin = Math.max(headerRect.bottom - containerRect.top + 8, 50);
-        const safeTopMax = Math.max(bottomRect.top - containerRect.top - 8 - box.clientHeight, safeTopMin + 20);
-        const safeLeftMin = 16;
-        const safeLeftMax = Math.max(container.clientWidth - 16 - box.clientWidth, safeLeftMin + 20);
-        const randTop = safeTopMin + Math.random() * Math.max(0, safeTopMax - safeTopMin);
-        const randLeft = safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin);
-        box.style.left = `${randLeft + box.clientWidth / 2}px`;
-        box.style.top = `${randTop + box.clientHeight / 2}px`;
-    }
-
-    function formatCooldownTime(totalSeconds) {
-        if (totalSeconds < 0) totalSeconds = 0;
-        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-        const seconds = String(Math.floor(totalSeconds % 60)).padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
-    }
-
     // --- CORE FUNCTIONS ---
+
+    function startCombatLoop() {
+        if (combatInterval) clearInterval(combatInterval);
+        if (combatLog) combatLog.innerText = `HUNTING: ${DUNGEON_STATE.monsterName}`;
+        combatInterval = setInterval(() => {
+            if (!gameState.inDungeon || HERO_STATE.currentHP <= 0) return;
+            if (!isAutoCombat) {
+                if (combatLog) combatLog.innerText = "PAUSED";
+                return;
+            }
+
+            const damage = Math.floor(HERO_STATE.baseAttack * (0.9 + Math.random() * 0.2));
+            const isDead = hitMonster(damage);
+            spawnFloatingText(`-${damage}`, '#fff', 40, 50);
+            monsterImage.classList.add('monster-hit-flash');
+            setTimeout(() => monsterImage.classList.remove('monster-hit-flash'), 100);
+            const slash = document.createElement('div');
+            slash.className = 'slash-effect animate';
+            const wrapper = document.querySelector('.monster-wrapper');
+            if (wrapper) wrapper.appendChild(slash);
+            setTimeout(() => slash.remove(), 300);
+            if (!isDead) {
+                const mobDmg = Math.max(1, DUNGEON_STATE.attack - (HERO_STATE.defense || 0));
+                HERO_STATE.currentHP -= mobDmg;
+
+                spawnFloatingText(`-${mobDmg}`, '#e74c3c', 60, 50);
+                triggerScreenShake('light');
+
+                if (HERO_STATE.currentHP <= 0) {
+                    HERO_STATE.currentHP = 0;
+                    handlePlayerDeath();
+                }
+            } else {
+                handleMonsterDeath();
+            }
+
+            updateUI();
+        }, 1000);
+    }
+
+    function spawnFloatingText(text, color, topPct, leftPct) {
+        const el = document.createElement('div');
+        el.className = 'click-effect';
+        el.innerText = text;
+        el.style.color = color;
+        el.style.fontSize = "24px";
+        el.style.top = `${topPct}%`;
+        el.style.left = `${leftPct}%`;
+        clickEffectContainer.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function handleMonsterDeath() {
+        monsterImage.classList.remove('monster-die');
+        void monsterImage.offsetWidth;
+        monsterImage.classList.add('monster-die');
+        const currentFloor = DUNGEON_STATE.floor;
+        const isBoss = (currentFloor % 10 === 0);
+        const rewards = calculateRewards();
+        gameState.dust += rewards.dustReward;
+        grantHeroExp(rewards.xpReward);
+        spawnFloatingText(`+${formatNumber(rewards.dustReward)} Dust`, '#87CEEB', 30, 50);
+
+        if (isBoss) {
+            const isFirstKill = currentFloor > (HERO_STATE.maxFloor || 1);
+            if (isFirstKill) {
+                HERO_STATE.maxFloor = currentFloor;
+                gameState.gemShards += 1; 
+            }
+
+            const vDust = document.getElementById('victory-dust-amount');
+            const vXp = document.getElementById('victory-xp-amount');
+            const vGemCard = document.getElementById('victory-card-gem');
+            const vGemAmt = document.getElementById('victory-gem-amount');
+            const vMatCard = document.getElementById('victory-card-mat');
+            const vMatAmt = document.getElementById('victory-mat-amount');
+            const vMatLabel = document.getElementById('victory-mat-label');
+            const vMatIcon = document.getElementById('victory-mat-icon-box');
+
+            if (vDust) vDust.innerText = formatNumber(rewards.dustReward);
+            if (vXp) vXp.innerText = formatNumber(rewards.xpReward);
+            if (vGemCard) {
+                if (isFirstKill) {
+                    vGemCard.classList.remove('hidden');
+                    if (vGemAmt) vGemAmt.innerText = "1";
+                } else {
+                    vGemCard.classList.add('hidden');
+                }
+            }
+
+            if (rewards.loot && vMatCard) {
+                vMatCard.classList.remove('hidden');
+                if (vMatAmt) vMatAmt.innerText = rewards.loot.amount;
+                if (vMatLabel) vMatLabel.innerText = rewards.loot.name;
+                if (!HERO_STATE.inventory[rewards.loot.id]) HERO_STATE.inventory[rewards.loot.id] = 0;
+                HERO_STATE.inventory[rewards.loot.id] += rewards.loot.amount;
+                vMatIcon.className = 'loot-icon-wrapper';
+                if (rewards.loot.id.includes('wood')) vMatIcon.classList.add('mat-wood');
+                else if (rewards.loot.id.includes('copper')) vMatIcon.classList.add('mat-copper');
+                else vMatIcon.classList.add('mat-iron');
+            }
+
+            bossVictoryModal.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (!bossVictoryModal.classList.contains('hidden')) {
+                    bossVictoryModal.classList.add('hidden');
+                    nextFloor();
+                }
+            }, 1500);
+
+        } else {
+            mobKillCount++;
+            if (rewards.loot) {
+                if (!HERO_STATE.inventory[rewards.loot.id]) HERO_STATE.inventory[rewards.loot.id] = 0;
+                HERO_STATE.inventory[rewards.loot.id] += rewards.loot.amount;
+                spawnFloatingText(`+${rewards.loot.amount} ${rewards.loot.name}`, '#fff', 25, 50);
+            }
+            if (currentFloor % 10 === 9 && mobKillCount >= MOBS_TO_BOSS) {
+                if (isAutoBoss) {
+                    nextFloor();
+                } else {
+                    mobKillCount = 0;
+                    spawnNewMonster();
+                    if (btnAdvance) btnAdvance.classList.remove('hidden');
+                }
+            }
+            else if (mobKillCount >= MOBS_TO_BOSS) {
+                nextFloor();
+            }
+            else {
+                spawnNewMonster();
+            }
+        }
+        saveGame();
+    }
+
+    function nextFloor() {
+        increaseFloor();
+        mobKillCount = 0;
+        if (btnAdvance) btnAdvance.classList.add('hidden');
+        spawnNewMonster();
+        if (combatLog) combatLog.innerText = `ADVANCING TO FLOOR ${DUNGEON_STATE.floor}`;
+    }
+
+    function refreshDungeonStats() {
+        const floor = DUNGEON_STATE.floor;
+        DUNGEON_STATE.maxHP = Math.floor(50 * Math.pow(1.15, floor - 1));
+        DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+        DUNGEON_STATE.attack = Math.floor(5 + (floor * 1.5));
+        refreshMonsterVisuals();
+    }
+
+    function spawnNewMonster() {
+        monsterImage.classList.remove('monster-die', 'monster-invisible');
+        monsterImage.classList.add('monster-appear');
+        DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+        setTimeout(() => monsterImage.classList.remove('monster-appear'), 500);
+        updateUI();
+    }
+
+    function handlePlayerDeath() {
+        HERO_STATE.currentHP = HERO_STATE.maxHP;
+        if (DUNGEON_STATE.floor > 1) {
+            DUNGEON_STATE.floor--;
+        }
+        isAutoBoss = false;
+        mobKillCount = 0;
+        spawnFloatingText("DEFEATED!", "#ff0000", 50, 50);
+        tg.HapticFeedback.notificationOccurred('error');
+        if (combatLog) combatLog.innerText = "DEFEATED - FALLING BACK";
+        refreshDungeonStats();
+        DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+        refreshDungeonStats();
+        spawnNewMonster();
+        updateControlButtons();
+    }
+
+    function saveGameIfDirty() {
+        if (window.isGameDirty) {
+            saveGame();
+        }
+    }
+
     function saveGame() {
+        if (!isGameLoaded) {
+            console.warn("Save blocked: Game not fully loaded yet.");
+            return;
+        }
         try {
-            const currentSave = localStorage.getItem('golemEggGameState');
+            const currentSave = localStorage.getItem('reelRpgData');
             if (currentSave) {
-                localStorage.setItem('golemEggGameState_previous', currentSave);
+                localStorage.setItem('reelRpgData_backup', currentSave);
             }
             gameState.lastSavedTimestamp = Date.now();
+            gameState.hero = getHeroData();
+            gameState.dungeon = getDungeonData();
             gameState.checksum = generateChecksum(gameState);
             const saveString = JSON.stringify(gameState);
             if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                tg.CloudStorage.setItem('golemEggGameState', saveString, (err) => {
+                tg.CloudStorage.setItem('reelRpgData', saveString, (err) => {
                     if (err) {
                         console.error("Cloud save failed:", err);
-                        localStorage.setItem('golemEggGameState', saveString);
+                        localStorage.setItem('reelRpgData', saveString);
                     } else {
                     }
                 });
             } else {
-                localStorage.setItem('golemEggGameState', saveString);
+                localStorage.setItem('reelRpgData', saveString);
             }
             window.isGameDirty = false;
-
         } catch (error) {
             console.error("Failed to save game:", error);
         }
     }
 
-    function setEggImage(eggName) {
-        const url = EGG_IMAGES[eggName] || EGG_IMAGES["Default Egg"];
-        golemEgg.style.backgroundImage = `url(${url})`;
-    }
-
     function preloadImages() {
         const imageUrls = Object.values(GAME_ASSETS);
-
         console.log(`[Preloader] Starting to preload ${imageUrls.length} images...`);
         imageUrls.forEach(url => {
             const img = new Image();
@@ -538,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (!savedJSON) return false;
                 const savedState = JSON.parse(savedJSON);
-                if (!savedState || !savedState.checksum || !savedState.egg) {
+                if (!savedState || !savedState.checksum) {
                     console.warn("Save file is missing critical data.");
                     return false;
                 }
@@ -556,236 +651,321 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        const applyLoadedState = (isNew) => {
+            if (gameState.hero) {
+                loadHeroData(gameState.hero);
+                if (!HERO_STATE.equipment) {
+                    HERO_STATE.equipment = { mainHand: 'rusty_sword', body: 'tattered_shirt' };
+                }
+                if (!HERO_STATE.equipmentLevels) {
+                    HERO_STATE.equipmentLevels = { mainHand: 0, body: 0 };
+                }
+                if (!HERO_STATE.inventory) {
+                    HERO_STATE.inventory = {};
+                }
+                if (!HERO_STATE.ownedItems) {
+                    HERO_STATE.ownedItems = ['rusty_sword', 'tattered_shirt'];
+                }
+                console.log("Hero Data Loaded:", HERO_STATE);
+            }
+            if (gameState.dungeon) {
+                loadDungeonData(gameState.dungeon);
+                refreshMonsterVisuals();
+                console.log("Dungeon Data Loaded:", gameState.dungeon);
+            }
+            gameState.inDungeon = false;
+            HERO_STATE.limitGauge = 0;
+            DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+            if (!isNew) {
+                const now = Date.now();
+                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                const energyRegenAmount = Math.floor(timePassedInSeconds / 60);
+                if (energyRegenAmount > 0) {
+                    HERO_STATE.energy = Math.min(HERO_STATE.energy + energyRegenAmount, HERO_STATE.maxEnergy);
+                }
+                if (timePassedInSeconds > 300) {
+                    offlineProgressModal.classList.remove('hidden');
+                }
+            }
+            isGameLoaded = true;
+            onLoadComplete(isNew);
+        };
+
         if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            tg.CloudStorage.getItem('golemEggGameState', (err, cloudSaveString) => {
+            tg.CloudStorage.getItem('reelRpgData', (err, cloudSaveString) => {
                 let isNew = true;
                 if (err) {
                     console.warn("Cloud load failed, trying localStorage...", err);
-                    isNew = !tryLoadingState(localStorage.getItem('golemEggGameState'));
+                    isNew = !tryLoadingState(localStorage.getItem('reelRpgData'));
                 } else if (tryLoadingState(cloudSaveString)) {
                     isNew = false;
                     console.log("Game loaded from cloud.");
                 } else {
                     console.warn("Cloud data corrupt, trying localStorage...");
-                    isNew = !tryLoadingState(localStorage.getItem('golemEggGameState_previous'));
+                    isNew = !tryLoadingState(localStorage.getItem('reelRpgData_backup'));
                 }
-                if (!isNew) {
-                    const now = Date.now();
-                    const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-                    if (timePassedInSeconds > 300) {
-                        offlineProgressModal.classList.remove('hidden');
-                    }
-                    const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
-                    const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-                    const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
-                    gameState.dustPerTap = baseChiselBenefit + eggBonus;
-                    gameState.dustPerSecond = (gameState.droneLevel || 0) * 0.1;
-                }
-                onLoadComplete(isNew);
+                applyLoadedState(isNew);
             });
         } else {
             console.log("No cloud storage, using localStorage.");
             let isNew = true;
             try {
-                if (tryLoadingState(localStorage.getItem('golemEggGameState'))) {
+                if (tryLoadingState(localStorage.getItem('reelRpgData'))) {
                     isNew = false;
-                } else if (tryLoadingState(localStorage.getItem('golemEggGameState_previous'))) {
+                } else if (tryLoadingState(localStorage.getItem('reelRpgData_backup'))) {
                     console.warn("Main save corrupt, loaded backup.");
                     isNew = false;
-                }
-                if (!isNew) {
-                    const now = Date.now();
-                    const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
-                    if (timePassedInSeconds > 300) {
-                        offlineProgressModal.classList.remove('hidden');
-                    }
-                    const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
-                    const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-                    const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
-                    gameState.dustPerTap = baseChiselBenefit + eggBonus;
-                    gameState.dustPerSecond = (gameState.droneLevel || 0) * 0.1;
                 }
             } catch (error) {
                 console.error("Critical error during local load:", error);
             }
-            onLoadComplete(isNew);
+            applyLoadedState(isNew);
         }
+    }
+
+    function triggerTransition(callback) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        sceneTransition.classList.add('active');
+        sceneTransition.classList.remove('curtain-out');
+        sceneTransition.classList.add('curtain-in');
+        setTimeout(() => {
+            if (callback) callback();
+            setTimeout(() => {
+                sceneTransition.classList.remove('curtain-in');
+                sceneTransition.classList.add('curtain-out');
+                setTimeout(() => {
+                    sceneTransition.classList.remove('active');
+                    isTransitioning = false;
+                }, 400);
+
+            }, 500);
+        }, 400);
+    }
+
+    function showCombatLog(message, typeClass) {
+        if (!combatLog) return;
+        combatLog.className = '';
+        if (typeClass) combatLog.classList.add(typeClass);
+        combatLog.innerHTML = message;
+        setTimeout(() => {
+            combatLog.innerHTML = "";
+            combatLog.className = '';
+        }, 2000);
     }
 
     function updateUI() {
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
-        if (gameState.droneLevel === 0) {
-            batteryStatus.innerText = '--:--';
-            batteryStatus.classList.remove('claimable');
-        } else {
-            const now = Date.now();
-            if (now >= gameState.droneCooldownEndTimestamp) {
-                batteryStatus.innerText = 'Claim';
-                batteryStatus.classList.add('claimable');
-            } else {
-                const timeLeftInSeconds = Math.ceil((gameState.droneCooldownEndTimestamp - now) / 1000);
-                batteryStatus.innerText = formatCooldownTime(timeLeftInSeconds);
-                batteryStatus.classList.remove('claimable');
-            }
+        const monsterHpPercent = (DUNGEON_STATE.currentHP / DUNGEON_STATE.maxHP) * 100;
+        monsterHpBar.style.width = `${monsterHpPercent}%`;
+        monsterHpText.innerText = `${formatNumber(DUNGEON_STATE.currentHP)} / ${formatNumber(DUNGEON_STATE.maxHP)} HP`;
+        monsterName.innerText = DUNGEON_STATE.monsterName;
+        if (monsterIntentEl) {
+            monsterIntentEl.className = 'intent-badge';
+            monsterIntentEl.classList.add(DUNGEON_STATE.currentStance);
+            if (DUNGEON_STATE.currentStance === 'aggressive') monsterIntentEl.innerText = "⚔️";
+            else if (DUNGEON_STATE.currentStance === 'spiked') monsterIntentEl.innerText = "🛡️";
+            else if (DUNGEON_STATE.currentStance === 'enraged') monsterIntentEl.innerText = "⚠️";
         }
-        const config = getCurrentEggConfig();
-        gameState.egg.goal = getTapGoal();
-        const displayProgress = Math.min(gameState.egg.progress, gameState.egg.goal);
-        if (hatchProgressValue) {
-            hatchProgressValue.innerText = `${formatWithCommas(displayProgress)} / ${formatWithCommas(gameState.egg.goal)}`;
+        if (!monsterImage.classList.contains('monster-die') && !monsterImage.classList.contains('monster-invisible')) {
+            const assetKey = DUNGEON_STATE.monsterAsset || "eggDefault";
+            monsterImage.style.backgroundImage = `url(${GAME_ASSETS[assetKey]})`;
         }
-        if (eggLevelValue) {
-            eggLevelValue.innerText = `Lv. ${gameState.egg.level} / ${config.maxLevel}`;
-        }
-        hatchChoiceContainer.classList.add('hidden');
-        if (!gameState.isFrenzyMode) {
-            golemEgg.classList.remove('egg-frenzy');
-        }
-        const isProgressBarFull = gameState.egg.progress >= gameState.egg.goal;
-        const isAtMaxLevelForCurrentEgg = gameState.egg.level >= config.maxLevel;
-        const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-        const isLastEgg = currentEggIndex >= EGG_NAMES.length - 1;
-        if (isAtMaxLevelForCurrentEgg && isLastEgg && isProgressBarFull) {
-            hatchChoiceContainer.classList.remove('hidden');
-            hatchEvolveText.innerText = "Max Level";
-            hatchEvolveCost.innerText = "";
-            hatchEvolveButton.disabled = true;
-            hatchFarmButton.classList.add('hidden');
-        } else if (isProgressBarFull) {
-            hatchChoiceContainer.classList.remove('hidden');
-            hatchFarmButton.classList.remove('hidden');
-            golemEgg.classList.add('egg-frenzy');
 
-            if (isAtMaxLevelForCurrentEgg && !isLastEgg) {
-                hatchEvolveText.innerText = "EVOLVE!";
-            } else {
-                hatchEvolveText.innerText = "LEVEL UP!";
-            }
-            const cost = getDustFee();
-            hatchEvolveCost.innerHTML = `
-    ${formatNumber(cost)}
-    <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">
-`;
-            hatchEvolveButton.disabled = gameState.dust < cost;
-        }
-        const chiselNextEffect = document.getElementById('chisel-next-effect');
-        chiselLevelText.innerText = gameState.chiselLevel;
-        chiselEffectText.innerText = `+${formatDecimal(gameState.dustPerTap)}`;
-        if (gameState.chiselLevel >= 91) {
-            buyChiselButton.innerText = "Max Level";
-            buyChiselButton.disabled = true;
-            if (chiselNextEffect && chiselNextEffect.parentElement) {
-                chiselNextEffect.parentElement.style.display = 'none';
-            }
+        const xpPercent = (HERO_STATE.currentExp / HERO_STATE.expToNextLevel) * 100;
+        heroXpBar.style.width = `${xpPercent}%`;
+        heroXpText.innerText = `XP: ${formatNumber(HERO_STATE.currentExp)} / ${formatNumber(HERO_STATE.expToNextLevel)}`;
+        heroLevelText.innerText = `Hero Lv. ${HERO_STATE.level}`;
+        heroStatsText.innerText = `ATK: ${HERO_STATE.baseAttack} | CRIT: ${(HERO_STATE.critChance * 100).toFixed(0)}%`;
+        const heroHpPercent = (HERO_STATE.currentHP / HERO_STATE.maxHP) * 100;
+        heroHpBar.style.width = `${heroHpPercent}%`;
+        heroHpText.innerText = `${Math.ceil(HERO_STATE.currentHP)} / ${HERO_STATE.maxHP} HP`;
+        const energyPercent = (HERO_STATE.energy / HERO_STATE.maxEnergy) * 100;
+        heroEnergyBar.style.width = `${energyPercent}%`;
+        heroEnergyText.innerText = `${Math.floor(HERO_STATE.energy)} / ${HERO_STATE.maxEnergy} Energy`
+        const limitPercent = (HERO_STATE.limitGauge / HERO_STATE.maxLimit) * 100;
+        heroLimitBar.style.width = `${limitPercent}%`;
+        const limitBarContainer = heroLimitBar.parentElement;
+
+        if (HERO_STATE.limitGauge >= HERO_STATE.maxLimit) {
+            heroLimitText.innerText = "LIMIT BREAK READY!";
+            heroLimitText.classList.add('limit-ready-text');
+            limitBarContainer.classList.add('limit-ready');
         } else {
-            const cost = getChiselCost();
-            const nextChiselBenefit = 1 + ((gameState.chiselLevel) * 0.1);
-            const eggBonus = (EGG_NAMES.indexOf(gameState.egg.name) >= 0 ? EGG_NAMES.indexOf(gameState.egg.name) : 0) * 5;
-            const nextTotalEffect = nextChiselBenefit + eggBonus;
-            if (chiselNextEffect) {
-                chiselNextEffect.innerText = `+${formatDecimal(nextTotalEffect)} Dust/Tap`;
-                if (chiselNextEffect.parentElement) {
-                    chiselNextEffect.parentElement.style.display = 'block';
-                }
-            }
-            buyChiselButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
-            buyChiselButton.disabled = gameState.dust < cost;
+            heroLimitText.innerText = "LIMIT GAUGE";
+            heroLimitText.classList.remove('limit-ready-text');
+            limitBarContainer.classList.remove('limit-ready');
         }
-        const droneNextEffect = document.getElementById('drone-next-effect');
-        droneLevelText.innerText = gameState.droneLevel;
-        droneEffectText.innerText = `+${formatDecimal(gameState.dustPerSecond)}`;
-        if (gameState.droneLevel >= 100) {
-            buyDroneButton.innerText = "Max Level";
-            buyDroneButton.disabled = true;
-            if (droneNextEffect && droneNextEffect.parentElement) {
-                droneNextEffect.parentElement.style.display = 'none';
+    }
+
+    function renderDungeonList() {
+        dungeonList.innerHTML = "";
+        const stages = [
+            { id: 1, name: "Slime Plains", start: 1, end: 10 },
+            { id: 2, name: "Copper Mines", start: 11, end: 20 },
+            { id: 3, name: "Iron Fortress", start: 21, end: 30 },
+            { id: 4, name: "Silver Ruins", start: 31, end: 40 },
+            { id: 5, name: "Golden City", start: 41, end: 50 },
+            { id: 6, name: "Obsidian Cave", start: 51, end: 60 },
+            // Add more as needed...
+        ];
+
+        const currentMax = HERO_STATE.maxFloor || 1;
+        stages.forEach(stage => {
+            const isLocked = currentMax < stage.start;
+            const btn = document.createElement('button');
+            btn.className = `stage-btn ${isLocked ? 'locked' : ''}`;
+            btn.disabled = isLocked;
+            const lockIcon = isLocked ? '<div class="lock-icon">🔒</div>' : '';
+            const costDisplay = isLocked ? '' : `<div class="stage-cost">5⚡</div>`;
+            btn.innerHTML = `
+                ${lockIcon}
+                <div class="stage-info">
+                    <span class="stage-title">${stage.name}</span>
+                    <span class="stage-range">Floors ${stage.start} - ${stage.end}</span>
+                </div>
+                ${costDisplay}
+            `;
+            if (!isLocked) {
+                btn.addEventListener('click', () => {
+                    enterStage(stage.start);
+                });
             }
-        } else {
-            const cost = getDroneCost();
-            const nextEffect = gameState.dustPerSecond + 0.1;
-            if (droneNextEffect) {
-                droneNextEffect.innerText = `+${formatDecimal(nextEffect)} Dust/Sec`;
-                if (droneNextEffect.parentElement) {
-                    droneNextEffect.parentElement.style.display = 'block';
-                }
-            }
-            buyDroneButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
-            buyDroneButton.disabled = gameState.dust < cost;
+            dungeonList.appendChild(btn);
+        });
+    }
+
+    function enterStage(startFloor) {
+        if (isTransitioning) return;
+        if (HERO_STATE.energy < 5) {
+            tg.HapticFeedback.notificationOccurred('error');
+            const warning = document.createElement('div');
+            warning.className = 'click-effect';
+            warning.innerText = "Need 5 Energy!";
+            warning.style.color = "#FFD700";
+            warning.style.top = "55%"; warning.style.left = "50%";
+            document.body.appendChild(warning);
+            setTimeout(() => warning.remove(), 1500);
+            return;
         }
-        const batteryNextCapacity = document.getElementById('battery-next-capacity');
-        batteryLevelText.innerText = gameState.batteryLevel;
-        batteryCapacityText.innerText = `${Number(gameState.batteryCapacity / 3600).toFixed(1)} Hours`;
-        if (gameState.droneLevel === 0) {
-            buyBatteryButton.innerText = "Requires Drone";
-            buyBatteryButton.disabled = true;
-            if (batteryNextCapacity && batteryNextCapacity.parentElement) {
-                batteryNextCapacity.parentElement.style.display = 'none';
-            }
-        } else if (gameState.batteryLevel >= batteryLevels.length) {
-            buyBatteryButton.innerText = "Max Level";
-            buyBatteryButton.disabled = true;
-            if (batteryNextCapacity && batteryNextCapacity.parentElement) {
-                batteryNextCapacity.parentElement.style.display = 'none';
-            }
-        } else {
-            const cost = getBatteryCost();
-            const nextCapacitySeconds = batteryLevels[gameState.batteryLevel];
-            const nextCapacityText = `${Number(nextCapacitySeconds / 3600).toFixed(1)} Hours`;
-            if (batteryNextCapacity) {
-                batteryNextCapacity.innerText = nextCapacityText;
-                if (batteryNextCapacity.parentElement) {
-                    batteryNextCapacity.parentElement.style.display = 'block';
+
+        HERO_STATE.energy -= 5;
+        DUNGEON_STATE.floor = startFloor;
+        DUNGEON_STATE.currentStance = 'aggressive';
+        DUNGEON_STATE.maxHP = Math.floor(50 * Math.pow(1.15, startFloor - 1));
+        DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+        DUNGEON_STATE.attack = Math.floor(5 + (startFloor * 1.5));
+        monsterImage.classList.remove('monster-die', 'monster-invisible', 'monster-appear');
+        dungeonModal.classList.add('hidden');
+        triggerTransition(() => {
+            gameState.inDungeon = true;
+            refreshMonsterVisuals();
+            updateUI();
+            tg.HapticFeedback.impactOccurred('medium');
+        });
+    }
+
+    function populateBag() {
+        bagGrid.className = 'bag-list-wrapper';
+        bagGrid.innerHTML = "";
+        const ownedIds = HERO_STATE.ownedItems || [];
+        const inventory = HERO_STATE.inventory || {};
+
+        // --- HELPER: RENDER SECTION ---
+
+        function renderSection(title, items, type) {
+            if (items.length === 0) return;
+            const titleEl = document.createElement('div');
+            titleEl.className = 'bag-section-title';
+            titleEl.innerText = title;
+            bagGrid.appendChild(titleEl);
+            const gridEl = document.createElement('div');
+            gridEl.className = 'bag-section-grid';
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bag-item';
+                let iconHTML = '';
+                let countHTML = '';
+                let clickName = item.name;
+                if (type === 'weapon') {
+                    iconHTML = `<div class="weapon-icon" style="transform:scale(0.7)"></div>`;
+                    const lvl = (HERO_STATE.itemLevels && HERO_STATE.itemLevels[item.id]) || 0;
+                    if (lvl > 0) countHTML = `<span class="bag-item-count" style="color:#2ecc71">+${lvl}</span>`;
                 }
-            }
-            buyBatteryButton.innerHTML = `Upgrade <span class="dust-amount-color">${formatNumber(cost)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
-            buyBatteryButton.disabled = gameState.dust < cost;
+                else if (type === 'armor') {
+                    iconHTML = `<div class="armor-icon" style="transform:scale(0.8)"></div>`;
+                }
+                else if (type === 'material') {
+                    let colorClass = 'mat-iron';
+                    const nameLower = item.name.toLowerCase();
+                    if (nameLower.includes('wood')) colorClass = 'mat-wood';
+                    else if (nameLower.includes('copper')) colorClass = 'mat-copper';
+                    else if (nameLower.includes('silver')) colorClass = 'mat-silver';
+                    else if (nameLower.includes('gold')) colorClass = 'mat-gold';
+                    else if (nameLower.includes('obsidian')) colorClass = 'mat-obsidian';
+                    else if (nameLower.includes('dragon') || nameLower.includes('void')) colorClass = 'mat-mythic';
+
+                    iconHTML = `<div class="bag-item-icon ${colorClass}" title="${item.name}"></div>`;
+                    countHTML = `<span class="bag-item-count">${formatNumber(item.qty)}</span>`;
+                }
+
+                itemDiv.innerHTML = `${iconHTML}${countHTML}`;
+                itemDiv.addEventListener('click', () => {
+                    const nameDisplay = document.createElement('div');
+                    nameDisplay.className = 'click-effect';
+                    nameDisplay.innerText = clickName;
+                    nameDisplay.style.fontSize = "12px";
+                    nameDisplay.style.width = "100%";
+                    nameDisplay.style.textAlign = "center";
+                    nameDisplay.style.top = "50%";
+                    nameDisplay.style.left = "50%";
+                    itemDiv.appendChild(nameDisplay);
+                    setTimeout(() => nameDisplay.remove(), 1000);
+                });
+
+                gridEl.appendChild(itemDiv);
+            });
+
+            bagGrid.appendChild(gridEl);
         }
+
+        const myWeapons = WEAPON_DB.filter(w => ownedIds.includes(w.id));
+        const myArmor = ARMOR_DB.filter(a => ownedIds.includes(a.id));
+        const myMaterials = [];
+        MATERIAL_TIERS.forEach(tier => {
+            const qty = inventory[tier.id];
+            if (qty > 0) {
+                myMaterials.push({ ...tier, qty: qty });
+            }
+        });
+
+        if (myWeapons.length === 0 && myArmor.length === 0 && myMaterials.length === 0) {
+            bagGrid.innerHTML = '<div class="bag-empty-message">Your bag is empty.<br>Defeat monsters to find loot!</div>';
+            return;
+        }
+
+        renderSection("WEAPONS", myWeapons, 'weapon');
+        renderSection("ARMOR", myArmor, 'armor');
+        renderSection("MATERIALS", myMaterials, 'material');
     }
 
     window.refreshGameUI = updateUI;
     window.saveGameGlobal = saveGame;
     window.formatNumberGlobal = formatNumber;
-    function getChiselCost() { return Math.floor(gameState.chiselBaseCost * Math.pow(1.055, gameState.chiselLevel - 1)); } // Multiplier 1.05 -> 1.055
-    function getDroneCost() { return Math.floor(gameState.droneBaseCost * Math.pow(1.05, gameState.droneLevel)); } // Multiplier 1.06 -> 1.05
-    function getBatteryCost() { return Math.floor(gameState.batteryBaseCost * Math.pow(6.0, gameState.batteryLevel - 1)); } // Multiplier 4.0 -> 6.0
-    function getCurrentEggConfig() {
-        const eggName = gameState.egg?.name || "Default Egg";
-        return EGG_TIERS[eggName] || EGG_TIERS["Default Egg"];
-    }
-
-    function getTapGoal() {
-        const config = getCurrentEggConfig();
-        const currentLevel = gameState.egg?.level || 1;
-        const levelMultiplier = Math.max(0, currentLevel - 1);
-        const tapGoal = config.baseTaps + (config.tapsPerLevel * levelMultiplier);
-        return Math.floor(tapGoal);
-    }
-
-    function getDustFee() {
-        const config = getCurrentEggConfig();
-        const currentLevel = gameState.egg?.level || 1;
-        let baseCost;
-        if (currentLevel >= config.maxLevel) {
-            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-            const nextEggIndex = currentEggIndex + 1;
-            if (nextEggIndex < EGG_NAMES.length) {
-                const nextEggName = EGG_NAMES[nextEggIndex];
-                const nextEggConfig = EGG_TIERS[nextEggName];
-                baseCost = nextEggConfig.baseCost;
-            } else {
-                return 0;
+    function gameLoop() {
+        const now = Date.now();
+        const REGEN_COOLDOWN = 60000;
+        if (!HERO_STATE.lastRegenTime) HERO_STATE.lastRegenTime = now;
+        if (HERO_STATE.energy < HERO_STATE.maxEnergy) {
+            if (now - HERO_STATE.lastRegenTime > REGEN_COOLDOWN) {
+                HERO_STATE.energy++;
+                HERO_STATE.lastRegenTime = now;
             }
         } else {
-            baseCost = config.baseCost * Math.pow(DUST_FEE_GROWTH_RATE, currentLevel);
+            HERO_STATE.lastRegenTime = now;
         }
-        const FARM_PENALTY_RATE = 1.05; // 5% cost increase per farm run
-        const penaltyMultiplier = Math.pow(FARM_PENALTY_RATE, gameState.farmRuns || 0);
-        const finalCost = baseCost * penaltyMultiplier;
-        return Math.max(1, Math.floor(finalCost));
-    }
 
-    function gameLoop() {
         updateUI();
     }
 
@@ -836,299 +1016,144 @@ document.addEventListener('DOMContentLoaded', () => {
         nextRewardValue.innerHTML = rewardText;
     }
 
-    function getGeodeChance() {
-        return 0.03;
-    }
-
-    function handleGeodeEvent(e) {
-        const dustIconHtml = `<img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">`;
-        const gemIconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
-        const prizeRoll = Math.random();
-        let reward = 0;
-        let rarity = '';
-        let rarityClass = '';
-        let rewardText = '';
-        const baseReward = 1000;
-
-        if (prizeRoll < 0.02) {
-            // 🎇 EPIC GEODE!
-            rarity = "EPIC GEODE!";
-            rarityClass = 'epic';
-            reward = baseReward * 500; // 500k dust
-            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml} & 3 ${gemIconHtml}`;
-            gameState.gemShards += 3;
-            gameState.dust += reward;
-
-        } else if (prizeRoll < 0.10) {
-            // 💎 Rare Geode!
-            rarity = "Rare Geode!";
-            rarityClass = 'rare';
-            reward = baseReward * 100;
-            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
-            gameState.dust += reward;
-
-        } else if (prizeRoll < 0.20) {
-            // 🟣 Uncommon Geode!
-            rarity = "Uncommon Geode!";
-            rarityClass = 'uncommon';
-            reward = baseReward * 50;
-            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
-            gameState.dust += reward;
-
-        } else {
-            // ⚪ Common Geode
-            rarity = "Common Geode";
-            rarityClass = 'common';
-            reward = baseReward * 5; // 5k dust
-            rewardText = `+ ${formatNumber(reward)} ${dustIconHtml}`;
-            gameState.dust += reward;
-        }
-
-        const geodeMessage = document.createElement('div');
-        geodeMessage.className = `geode-effect ${rarityClass}`;
-        const gameContainer = document.querySelector('.game-container');
-        const containerRect = gameContainer.getBoundingClientRect();
-        const x = e.clientX - containerRect.left;
-        const y = e.clientY - containerRect.top;
-        geodeMessage.style.left = `${x}px`;
-        geodeMessage.style.top = `${y}px`;
-        geodeMessage.innerHTML = `${rarity}<br>${rewardText}`;
-        if (gameContainer) {
-            gameContainer.appendChild(geodeMessage);
-        } else {
-            document.body.appendChild(geodeMessage);
-        }
-        setTimeout(() => {
-            geodeMessage.remove();
-        }, 4000);
-        updateUI();
-        tg?.HapticFeedback?.notificationOccurred('success');
-    }
-
-    function startFrenzyMode() {
-        if (gameState.isFrenzyMode || Date.now() < gameState.frenzyCooldownUntil) return;
-        golemEgg.classList.add('egg-frenzy');
-        gameState.isFrenzyMode = true;
-        frenzyAccumulatedDust = 0;
-        let timeLeft = 15;
-        frenzyTimerContainer.classList.remove('hidden');
-        frenzyTimer.innerText = `${timeLeft}s`;
-        tg.HapticFeedback.notificationOccurred('success');
-        frenzyInterval = setInterval(() => {
-            timeLeft--;
-            frenzyTimer.innerText = `${timeLeft}s`;
-            if (timeLeft <= 0) {
-                endFrenzyMode();
-            }
-        }, 1000);
-        clearInterval(particleSpawnInterval);
-        particleSystem.mode = "frenzy";
-        const frenzyRate = particleSystem.baseRate * particleSystem.frenzyRateMultiplier;
-        startParticleLoop(frenzyRate);
-        updateUI();
-    }
-
-    function endFrenzyMode() {
-        clearInterval(frenzyInterval);
-        golemEgg.classList.remove('egg-frenzy');
-        frenzyTimerContainer.classList.add('hidden');
-        gameState.isFrenzyMode = false;
-        gameState.frenzyCooldownUntil = Date.now() + 180000;
-        if (frenzyAccumulatedDust > 0) {
-            const iconHtml = `<img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Dust">`;
-            temporaryMessage.innerHTML = `Got ${formatWithCommas(frenzyAccumulatedDust)} ${iconHtml}`;
-            temporaryMessage.classList.remove('hidden');
-            temporaryMessage.classList.add('show');
-            setTimeout(() => {
-                temporaryMessage.classList.remove('show');
-            }, 2700);
-            setTimeout(() => {
-                temporaryMessage.classList.add('hidden');
-            }, 3000);
-        }
-        particleSystem.mode = "normal";
-        startParticleLoop(particleSystem.baseRate);
-        updateUI();
-    }
-
     // --- EVENT LISTENERS ---
-    hatchEvolveButton.addEventListener('click', () => {
-        const config = getCurrentEggConfig();
-        const cost = getDustFee();
-        let isEvolving = false;
 
-        if (!gameState.egg || gameState.egg.level > config.maxLevel) {
-            console.log("Cannot level up: Already at max level or egg state invalid.");
-            return;
-        }
-        if (gameState.egg.progress < gameState.egg.goal) {
-            console.log("Cannot level up: Progress bar not full.");
-            return;
-        }
-        if (gameState.dust < cost) {
-            tg.HapticFeedback.notificationOccurred('error');
-            console.log("Cannot level up: Not enough dust.");
-            return;
-        }
-
-        gameState.dust -= cost;
-        gameState.egg.level++;
-        gameState.egg.progress = 0;
-        gameState.farmRuns = 0;
-
-        // --- PRESTIGE (UNLOCKING NEXT EGG) ---
-        if (gameState.egg.level > config.maxLevel) {
-            isEvolving = true;
-            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-            const nextEggIndex = currentEggIndex + 1;
-            if (nextEggIndex < EGG_NAMES.length) {
-                const newEggName = EGG_NAMES[nextEggIndex];
-                console.log(`PRESTIGE! Unlocking ${newEggName}`);
-                gameState.egg.name = newEggName;
-                gameState.egg.level = 1;
-                gameState.egg.progress = 0;
-                setEggImage(newEggName);
-                const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
-                const eggBonus = (nextEggIndex * 5);
-                gameState.dustPerTap = baseChiselBenefit + eggBonus;
-                const gemReward = 10 + (5 * (nextEggIndex - 1));
-                gameState.gemShards += gemReward;
-                const iconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
-                const rewardEffect = document.createElement('div');
-                rewardEffect.className = 'evolution-reward-effect';
-                rewardEffect.innerHTML = `Reward ${gemReward} ${iconHtml}`;
-                clickEffectContainer.appendChild(rewardEffect);
-                setTimeout(() => {
-                    rewardEffect.remove();
-                }, 3000);
-                tg.HapticFeedback.notificationOccurred('success');
+    if (btnAuto) {
+        btnAuto.addEventListener('click', () => {
+            isAutoCombat = !isAutoCombat;
+            updateControlButtons();
+            if (isAutoCombat) {
+                startCombatLoop();
             } else {
-                console.log("Congratulations! Reached max level on the final egg!");
-                gameState.egg.level = config.maxLevel;
-                gameState.egg.progress = 0;
+                if (combatInterval) clearInterval(combatInterval);
             }
-        } else if (gameState.egg.level === config.maxLevel) {
-            console.log(`Reached Max Level ${config.maxLevel} for ${gameState.egg.name}. Next level up will prestige.`);
-            if (gameState.egg.progress !== 0) gameState.egg.progress = 0;
-        }
+            tg.HapticFeedback.impactOccurred('medium');
+        });
+    }
 
-        gameState.egg.goal = getTapGoal();
-
-        // --- DYNAMIC POPUP IMAGE LOGIC (Reading from assets.js) ---
-        const levelupPopup = document.getElementById('levelup-popup');
-        const popupImage = levelupPopup.querySelector('img');
-
-        if (isEvolving) {
-            popupImage.src = GAME_ASSETS.iconEvolve;
-            popupImage.alt = 'Evolve!';
-        } else {
-            popupImage.src = GAME_ASSETS.iconLevelUp;
-            popupImage.alt = 'Level Up!';
-        }
-
-        levelupPopup.classList.remove('hidden');
-        levelupPopup.classList.add('show');
-        spawnFireworkParticles();
-        setTimeout(() => {
-            levelupPopup.classList.remove('show');
-            setTimeout(() => levelupPopup.classList.add('hidden'), 600);
-        }, 2500);
-
-        tg.HapticFeedback.notificationOccurred('success');
-        saveGame();
-        updateUI();
-        window.isGameDirty = true;
-    });
-
-
-    // --- LISTENER FOR THE FARM BUTTON ---
-    hatchFarmButton.addEventListener('click', () => {
-        gameState.farmRuns++;
-        gameState.egg.progress = 0;
-        tg.HapticFeedback.impactOccurred('medium');
-        window.isGameDirty = true;
-        saveGame();
-        updateUI();
-    });
-
-    golemEgg.addEventListener('click', () => {
-        let isOvercharge = false;
-        const now = Date.now();
-        const COOLDOWN_DURATION = 100;
-        if (now - gameState.lastTapTimestamp < COOLDOWN_DURATION) {
-            return;
-        }
-        gameState.lastTapTimestamp = now;
-        if (!gameState.isFrenzyMode && gameState.egg.progress >= gameState.egg.goal) {
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
-        let dustEarned = gameState.dustPerTap;
-        let isCritical = false;
-
-        // --- FRENZY / CRITICAL / GEODE EVENTS ---
-        if (gameState.isFrenzyMode) {
-            isCritical = true;
-            dustEarned *= 2;
-            frenzyAccumulatedDust += dustEarned;
-        } else {
-            if (Date.now() > gameState.frenzyCooldownUntil && Math.random() < 0.005 && gameState.egg.progress < gameState.egg.goal) {
-                startFrenzyMode();
-                return;
-            }
-            gameState.tapsSinceLastGeode = (gameState.tapsSinceLastGeode || 0) + 1;
-            const geodeRoll = Math.random();
-            if (gameState.tapsSinceLastGeode >= MIN_TAPS_BETWEEN_GEODES && geodeRoll < getGeodeChance()) {
-                gameState.tapsSinceLastGeode = 0;
-                spawnGeode();
-                return;
-            }
-            if (Math.random() < 0.10) {
-                isCritical = true;
-                dustEarned *= 2;
-                golemEgg.classList.add('egg-wobble');
-                setTimeout(() => golemEgg.classList.remove('egg-wobble'), 500);
-            }
-        }
-
-        // --- MINI-SLOT TRIGGER WITH TAP COOLDOWN ---
-        if (!slotActive && !gameState.isFrenzyMode) {
-            gameState.tapsSinceLastSpin = (gameState.tapsSinceLastSpin || 0) + 1;
-            const SPIN_BASE_CHANCE = 0.02;
-            const roll = Math.random();
-            if (gameState.tapsSinceLastSpin >= MIN_TAPS_BETWEEN_SPINS && roll < SPIN_BASE_CHANCE) {
-                gameState.tapsSinceLastSpin = 0;
-                spawnTreasureBox();
-            }
-        }
-
-        // --- MAIN GAMEPLAY: EGG LEVEL PROGRESSION ---
-        gameState.dust += dustEarned;
-        if (gameState.egg && gameState.egg.progress < gameState.egg.goal) {
-            const tapPower = gameState.dustPerTap || 1;
-            gameState.egg.progress += tapPower;
-            if (gameState.egg.progress > gameState.egg.goal) {
-                gameState.egg.progress = gameState.egg.goal;
-            }
-        }
-
-        updateUI();
-        window.isGameDirty = true;
-        if (isCritical) {
-            tg.HapticFeedback.notificationOccurred('warning');
-        } else {
+    if (btnBoss) {
+        btnBoss.addEventListener('click', () => {
+            if (!isAutoCombat) return;
+            isAutoBoss = !isAutoBoss;
+            updateControlButtons();
             tg.HapticFeedback.impactOccurred('light');
+        });
+    }
+
+    if (btnAdvance) {
+        btnAdvance.addEventListener('click', () => {
+            btnAdvance.classList.add('hidden');
+            nextFloor();
+            tg.HapticFeedback.notificationOccurred('success');
+        });
+    }
+
+    if (btnSelectArea) {
+        btnSelectArea.addEventListener('click', () => {
+            renderDungeonList();
+            dungeonModal.classList.remove('hidden');
+        });
+    }
+
+    function updateControlButtons() {
+        if (isAutoCombat) {
+            btnAuto.classList.add('active');
+            btnAuto.innerText = "ON";
+            btnBoss.disabled = false;
+        } else {
+            btnAuto.classList.remove('active');
+            btnAuto.innerText = "AUTO";
+            btnBoss.disabled = true;
+            isAutoBoss = false;
         }
-        const effect = document.createElement('div');
-        effect.className = 'click-effect';
-        effect.innerText = `+${formatDecimal(dustEarned)}`;
-        if (isCritical) effect.classList.add('critical');
-        if (isOvercharge) {
-            effect.classList.add('overcharge');
+
+        if (isAutoBoss) {
+            btnBoss.classList.add('active');
+            btnBoss.innerText = "ON";
+        } else {
+            btnBoss.classList.remove('active');
+            btnBoss.innerText = "BOSS";
         }
-        effect.style.left = `${Math.random() * 60 + 20}%`;
-        clickEffectContainer.appendChild(effect);
-        setTimeout(() => effect.remove(), 1000);
+    }
+
+    if (autoCombatBtn) {
+        autoCombatBtn.addEventListener('click', () => {
+            isAutoCombat = !isAutoCombat;
+
+            if (isAutoCombat) {
+                autoCombatBtn.classList.add('active');
+                autoCombatBtn.innerText = "ON";
+                if (!btnActionAttack.disabled) {
+                    runAutoCombat();
+                }
+            } else {
+                autoCombatBtn.classList.remove('active');
+                autoCombatBtn.innerText = "AUTO";
+                if (autoCombatTimer) clearTimeout(autoCombatTimer);
+            }
+
+            tg.HapticFeedback.impactOccurred('medium');
+        });
+    }
+
+    if (headerBagButton) {
+        headerBagButton.addEventListener('click', () => {
+            populateBag();
+            openModal('bag-modal');
+            tg.HapticFeedback.impactOccurred('light');
+        });
+    }
+
+    if (closeBagButton) {
+        closeBagButton.addEventListener('click', () => {
+            bagModal.classList.add('closing');
+            setTimeout(() => {
+                bagModal.classList.add('hidden');
+                bagModal.classList.remove('closing');
+            }, 300);
+        });
+    }
+
+    victoryContinueBtn.addEventListener('click', () => {
+        bossVictoryModal.classList.add('hidden');
+        tg.HapticFeedback.impactOccurred('light');
+        updateUI();
+        const monsterImage = document.getElementById('monster-image');
+        monsterImage.classList.remove('monster-invisible');
+        monsterImage.classList.add('monster-appear');
+
+        setTimeout(() => {
+            monsterImage.classList.remove('monster-appear');
+        }, 500);
+    });
+
+    victoryLeaveBtn.addEventListener('click', () => {
+        bossVictoryModal.classList.add('hidden');
+
+        triggerTransition(() => {
+            gameState.inDungeon = false;
+            HERO_STATE.limitGauge = 0;
+            HERO_STATE.currentBlock = 0;
+            saveGame();
+            updateUI();
+        });
+    });
+
+    closeDungeonButton.addEventListener('click', () => {
+        dungeonModal.classList.add('hidden');
+    });
+
+    reviveButton.addEventListener('click', () => {
+        deathModal.classList.add('hidden');
+        triggerTransition(() => {
+            HERO_STATE.currentHP = 1;
+            DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+            DUNGEON_STATE.currentStance = 'aggressive';
+            HERO_STATE.limitGauge = 0;
+            gameState.inDungeon = false;
+            saveGame();
+            updateUI();
+        });
     });
 
     document.addEventListener('visibilitychange', () => {
@@ -1150,19 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    upgradeButton.addEventListener('click', () => {
-        updateUI();
-        upgradeModal.classList.remove('hidden');
-    });
-
-    closeUpgradeButton.addEventListener('click', () => {
-        upgradeModal.classList.add('closing');
-        setTimeout(() => {
-            upgradeModal.classList.add('hidden');
-            upgradeModal.classList.remove('closing');
-        }, 300);
-    });
-
     if (headerCalendarButton) {
         headerCalendarButton.addEventListener('click', () => {
             updateCalendarModal();
@@ -1177,60 +1189,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    buyChiselButton.addEventListener('click', () => {
-        if (gameState.chiselLevel >= 91) return;
-        const cost = getChiselCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.chiselLevel++;
-            const baseChiselBenefit = 1 + ((gameState.chiselLevel - 1) * 0.1);
-            const currentEggIndex = EGG_NAMES.indexOf(gameState.egg.name);
-            const eggBonus = (currentEggIndex >= 0 ? currentEggIndex : 0) * 5;
-            gameState.dustPerTap = baseChiselBenefit + eggBonus;
-            updateUI();
-            window.isGameDirty = true;
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
-    buyDroneButton.addEventListener('click', () => {
-        if (gameState.droneLevel >= 100) return;
-        const cost = getDroneCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.droneLevel++;
-            gameState.dustPerSecond = gameState.droneLevel * 0.1;
-            if (gameState.droneLevel === 1) {
-                gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
-            }
-            updateUI();
-            window.isGameDirty = true;
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
-    buyBatteryButton.addEventListener('click', () => {
-        if (gameState.batteryLevel >= batteryLevels.length) { return; }
-        const cost = getBatteryCost();
-        if (gameState.dust >= cost) {
-            gameState.dust -= cost;
-            gameState.batteryLevel++;
-            gameState.batteryCapacity = batteryLevels[gameState.batteryLevel - 1];
-            gameState.droneCooldownEndTimestamp = Date.now() + (gameState.batteryCapacity * 1000);
-            updateUI();
-            window.isGameDirty = true;
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-    });
-
     function spawnParticle() {
         const wrapper = document.createElement('div');
         wrapper.className = 'glow-wrapper';
         const particle = document.createElement('div');
         particle.className = 'glow-particle';
-        if (gameState.isFrenzyMode) {
-            particle.classList.add('frenzy');
-        }
         const brightness = 0.8 + Math.random() * 0.8;
         particle.style.filter = `brightness(${brightness})`;
         const angle = Math.random() * Math.PI * 2;
@@ -1242,109 +1205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.appendChild(particle);
         particleContainer.appendChild(wrapper);
         setTimeout(() => wrapper.remove(), 5100);
-    }
-
-    function spawnFireworkParticles() {
-        const popupElement = document.getElementById('levelup-popup');
-        const container = document.querySelector('.egg-image-wrapper');
-        if (!popupElement || !container) return;
-        const particleCount = 15;
-        const containerRect = container.getBoundingClientRect();
-        const popupRect = popupElement.getBoundingClientRect();
-        const startXBase = popupRect.left - containerRect.left + (popupRect.width / 2);
-        const startYBase = popupRect.top - containerRect.top + (popupRect.height * 0.8);
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'firework-particle';
-            const startX = startXBase + (Math.random() - 0.5) * 30;
-            const startY = startYBase + (Math.random() - 0.5) * 20;
-            particle.style.left = `${startX}px`;
-            particle.style.top = `${startY}px`;
-            const angle = (Math.random() - 0.5) * (Math.PI / 2);
-            const travelDistance = 150 + Math.random() * 60;
-            const endX = Math.sin(angle) * travelDistance;
-            const endY = -Math.cos(angle) * travelDistance;
-            const duration = 1.2 + Math.random() * 0.6;
-            const delay = Math.random() * 0.2;
-            particle.style.setProperty('--firework-x', `${endX}px`);
-            particle.style.setProperty('--firework-y', `${endY}px`);
-            particle.style.animation = `firework-shoot ${duration}s ease-out ${delay}s forwards`;
-            container.appendChild(particle);
-            setTimeout(() => {
-                particle.remove();
-            }, (duration + delay) * 1000 + 100);
-        }
-    }
-
-    slotSpinBtn.addEventListener("click", () => {
-        slotSpinBtn.disabled = true;
-        if (!slotActive) return;
-        slotReels.forEach(r => {
-            r.classList.add("spinning");
-            r.style.transform = "translateY(0)";
-        });
-        const results = [
-            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)],
-            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)],
-            weightedSlotProbabilities[Math.floor(Math.random() * weightedSlotProbabilities.length)]
-        ];
-        setTimeout(() => stopReel(0, results[0]), 1000);
-        setTimeout(() => stopReel(1, results[1]), 2000);
-        const tensionDelay = (slotSymbols[results[0]] === slotSymbols[results[1]]) ? 3500 : 2500;
-        setTimeout(() => {
-            stopReel(2, results[2]);
-            handleSlotResult(results);
-        }, tensionDelay);
-    });
-
-    function stopReel(index, stopIndex) {
-        const reel = slotReels[index];
-        reel.classList.remove("spinning");
-        reel.style.filter = "none";
-        reel.style.transform = `translateY(${-100 * stopIndex}px)`;
-    }
-
-    function handleSlotResult(results) {
-        const [r1, r2, r3] = results;
-        const win = (
-            slotSymbols[r1].name === slotSymbols[r2].name &&
-            slotSymbols[r2].name === slotSymbols[r3].name
-        );
-        if (tg && tg.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred(win ? 'success' : 'warning');
-        }
-        let rewardDisplayHtml = '';
-        if (win) {
-            const winningSymbolName = slotSymbols[r1].name;
-            if (winningSymbolName === 'crystaldust') {
-                const dustReward = 50000;
-                gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
-            } else if (winningSymbolName === 'geode') {
-                const dustReward = 100000;
-                gameState.dust += dustReward;
-                rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
-            } else if (winningSymbolName === 'gem') {
-                const gemReward = 5;
-                gameState.gemShards += gemReward;
-                rewardDisplayHtml = `${gemReward} <img src="${GAME_ASSETS.iconGem}" class="slot-icon-small">`;
-            }
-            slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
-            slotResult.className = "slot-result win";
-        } else {
-            let dustReward = 10000;
-            gameState.dust += dustReward;
-            const rewardDisplayHtml = `${formatWithCommas(dustReward)} <img src="${GAME_ASSETS.iconCrystalDust}" class="slot-icon-small">`;
-            slotResult.innerHTML = `You Win!<br>${rewardDisplayHtml}`;
-            slotResult.className = "slot-result win";
-        }
-        updateUI();
-        window.isGameDirty = true;
-        slotResult.classList.remove("hidden");
-        slotResult.classList.add("show");
-        slotOverlay.addEventListener("click", () => {
-            closeSlot();
-        }, { once: true });
     }
 
     offlineProgressModal.addEventListener('click', (event) => {
@@ -1363,65 +1223,195 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    const batteryDisplayContainer = batteryStatus.parentElement;
-    batteryDisplayContainer.addEventListener('click', () => {
-        if (gameState.droneLevel === 0) return;
-        const now = Date.now();
-        if (now < gameState.droneCooldownEndTimestamp) {
-            console.log("Drone reward is not ready yet.");
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
-        const dustEarned = gameState.dustPerSecond * gameState.batteryCapacity;
-        gameState.dust += dustEarned;
-        tg.HapticFeedback.notificationOccurred('success');
-        const dustCounterRect = dustCounter.getBoundingClientRect();
-        const effect = document.createElement('div');
-        effect.className = 'drone-claim-effect';
-        effect.innerText = `+${formatDecimal(dustEarned)}`;
-        effect.style.left = `${dustCounterRect.left + dustCounterRect.width / 2}px`;
-        effect.style.top = `${dustCounterRect.top + dustCounterRect.height / 2}px`;
-        const gameContainer = document.querySelector('.game-container');
-        if (gameContainer) {
-            gameContainer.appendChild(effect);
-        } else {
-            document.body.appendChild(effect);
-        }
-        setTimeout(() => effect.remove(), 4000);
-        gameState.droneCooldownEndTimestamp = now + (gameState.batteryCapacity * 1000);
-        updateUI();
-        window.isGameDirty = true;
-    });
+    function initCheats() {
+        window.addEventListener('keydown', (e) => {
+            if (!e.key) return;
+            const key = e.key.toLowerCase();
+            switch (key) {
+                // 🌀 Force open slot machine
+                case 's':
+                    console.log('[DEV] Forcing Spin-to-Win...');
+                    openSlot();
+                    break;
+
+                // 💎 Add gems
+                case 'g':
+                    console.log('[DEV] +10 Gem Shards');
+                    gameState.gemShards = (gameState.gemShards || 0) + 10;
+                    updateUI();
+                    break;
+
+                // ✨ Add crystal dust
+                case 'c':
+                    console.log('[DEV] +1M Crystal Dust (for testing)');
+                    gameState.dust = (gameState.dust || 0) + 1000000;
+                    updateUI();
+                    break;
+
+                // --- SET DUST TO ZERO ---
+                case 'z':
+                    console.log('[DEV] Setting Crystal Dust to 0...');
+                    gameState.dust = 0;
+                    updateUI();
+                    break;
+
+                // --- HEAL MONSTER ---
+                case 'h':
+                    console.log('[DEV] Healing Monster...');
+                    DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+                    updateUI();
+                    break;
+
+                case 'p':
+                    HERO_STATE.baseAttack += 50;
+                    console.log(`[DEV] Attack INCREASED: ${HERO_STATE.baseAttack}`);
+                    const upMsg = document.createElement('div');
+                    upMsg.className = 'click-effect';
+                    upMsg.innerText = `ATK UP! (${HERO_STATE.baseAttack})`;
+                    upMsg.style.color = "#00ff00";
+                    upMsg.style.top = "50%"; upMsg.style.left = "50%";
+                    if (document.getElementById('click-effect-container')) {
+                        document.getElementById('click-effect-container').appendChild(upMsg);
+                    } else {
+                        document.body.appendChild(upMsg);
+                    }
+                    setTimeout(() => upMsg.remove(), 1000);
+                    updateUI();
+                    break;
+
+                // --- O: POWER DOWN (-50 ATK) ---
+                case 'o':
+                    HERO_STATE.baseAttack = Math.max(1, HERO_STATE.baseAttack - 50);
+                    console.log(`[DEV] Attack DECREASED: ${HERO_STATE.baseAttack}`);
+                    const downMsg = document.createElement('div');
+                    downMsg.className = 'click-effect';
+                    downMsg.innerText = `ATK DOWN... (${HERO_STATE.baseAttack})`;
+                    downMsg.style.color = "#ff0000";
+                    downMsg.style.top = "50%"; downMsg.style.left = "50%";
+                    if (document.getElementById('click-effect-container')) {
+                        document.getElementById('click-effect-container').appendChild(downMsg);
+                    } else {
+                        document.body.appendChild(downMsg);
+                    }
+                    setTimeout(() => downMsg.remove(), 1000);
+                    updateUI();
+                    break;
+
+                // --- ADD REEL TICKET BY 1 ---
+                case 'v':
+                    console.log('[DEV] +1 Reel Ticket');
+                    gameState.reelTickets = (gameState.reelTickets || 0) + 1;
+                    window.isGameDirty = true;
+                    const reelGameTicketAmountEl = document.getElementById('reel-game-ticket-amount');
+                    if (reelGameTicketAmountEl) {
+                        reelGameTicketAmountEl.innerText = formatNumber(gameState.reelTickets);
+                    }
+                    updateUI();
+                    break;
+
+                case 'b': // 'b' for Bonus
+                    console.log('[DEV] Forcing Free Spins Bonus...');
+                    if (typeof window.openReelGame === 'function' && typeof window.dev_triggerFreeSpins === 'function') {
+                        const reelScreen = document.getElementById('reel-game-screen');
+                        if (reelScreen && reelScreen.classList.contains('hidden')) {
+                            console.log('[DEV] Reel game is closed, opening it first...');
+                            window.openReelGame();
+                            setTimeout(() => {
+                                window.dev_triggerFreeSpins(15);
+                            }, 500);
+                        } else {
+                            window.dev_triggerFreeSpins(15);
+                        }
+                    } else {
+                        console.log('[DEV] Reel game functions not found. Open the reel game at least once.');
+                    }
+
+                // 📅 Force daily login    
+                case 'l':
+                    console.log('[DEV] Forcing Daily Login...');
+                    gameState.lastLoginDate = null;
+                    handleDailyLogin();
+                    saveGame();
+                    break;
+
+                // M: Mimic Force Feed
+                case 'm':
+                    if (window.dev_forceFeed) {
+                        window.dev_forceFeed();
+                    } else {
+                        console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                    }
+                    break;
+
+                // N: Next Mimic Reward (sets to 24/25)
+                case 'n':
+                    if (window.dev_setNextReward) {
+                        window.dev_setNextReward();
+                    } else {
+                        console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                    }
+                    break;
+
+                case 'k':
+                    if (window.dev_resetFeeds) {
+                        window.dev_resetFeeds();
+                    } else {
+                        console.log('[DEV] Mimic modal must be loaded to use this cheat.');
+                    }
+                    break;
+
+
+                // 🔄 Reset all progress
+                case 'r':
+                    console.log('[DEV] Soft reset requested...');
+                    console.log('[DEV] Resetting progress... (Bypassing confirm for testing)');
+                    try {
+                        localStorage.clear();
+                        console.log('[DEV] LocalStorage cleared.');
+                        if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                            tg.CloudStorage.removeItem('reelRpgData', (err, removed) => {
+                                console.log('[DEV] Reloading page after cloud attempt...');
+                                location.reload();
+                            });
+                        } else {
+                            console.log('[DEV] Reloading page...');
+                            location.reload();
+                        }
+                    } catch (e) {
+                        console.error('[DEV] Error during reset:', e);
+                        location.reload();
+                    }
+                    break;
+
+                // 🔋 Set Energy to 1 (Test "Last Hit" scenario)
+                case 'e':
+                    console.log('[DEV] Setting Energy to 1...');
+                    HERO_STATE.energy = 1;
+                    updateUI();
+                    break;
+
+                // 🪫 Set Energy to 0 (Test "Out of Energy" scenario)
+                case '0':
+                    console.log('[DEV] Draining all Energy...');
+                    HERO_STATE.energy = 0;
+                    updateUI();
+                    break;
+
+                // ⚡ Restore Full Energy (Reset test)
+                case 'q': // 'Q' for Quick Fill
+                    console.log('[DEV] Restoring Full Energy...');
+                    HERO_STATE.energy = HERO_STATE.maxEnergy;
+                    updateUI();
+                    break;
+            }
+        });
+    }
 
     // --- INITIALIZE GAME ---
 
     loadGame((isNewPlayer) => {
-        if (typeof gameState.tapsSinceLastSpin !== 'number') {
-            gameState.tapsSinceLastSpin = MIN_TAPS_BETWEEN_SPINS;
-        }
-        if (typeof gameState.tapsSinceLastGeode !== 'number') {
-            gameState.tapsSinceLastGeode = MIN_TAPS_BETWEEN_GEODES;
-        }
-        if (!gameState.egg || typeof gameState.egg.level !== 'number') {
-            gameState.egg = { name: "Default Egg", level: 1, progress: 0, goal: 100 };
-        }
-        const config = getCurrentEggConfig();
-        if (gameState.egg.level > config.maxLevel) {
-            gameState.egg.level = config.maxLevel;
-            gameState.egg.progress = 0;
-        }
-        gameState.egg.goal = getTapGoal();
-        if (gameState.egg.progress > gameState.egg.goal) {
-            gameState.egg.progress = gameState.egg.goal;
-        }
         if (isNewPlayer) {
             console.log("New player detected, starting fresh game state.");
-            gameState.egg = {
-                name: "Default Egg",
-                level: 1,
-                progress: 0,
-                goal: getTapGoal()
-            };
             gameState.blackjack_level = 0;
             gameState.blackjack_exp = 0;
             gameState.mimicStage = 1;
@@ -1434,205 +1424,55 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.reelRewardResetTime = sevenDaysFromNow;
             saveGame();
         } else {
-            if (typeof gameState.blackjack_level === 'undefined') {
-                gameState.blackjack_level = 0;
-            }
-            if (typeof gameState.blackjack_exp === 'undefined') {
-                gameState.blackjack_exp = 0;
-            }
-
-            if (typeof gameState.slot_level === 'undefined') {
-                gameState.slot_level = 1;
-            }
-            if (typeof gameState.slot_exp === 'undefined') {
-                gameState.slot_exp = 0;
-            }
-
-            if (typeof gameState.slot_last_win === 'undefined') {
-                gameState.slot_last_win = 0;
-            }
-
+            if (typeof gameState.blackjack_level === 'undefined') gameState.blackjack_level = 0;
+            if (typeof gameState.blackjack_exp === 'undefined') gameState.blackjack_exp = 0;
+            if (typeof gameState.slot_level === 'undefined') gameState.slot_level = 1;
+            if (typeof gameState.slot_exp === 'undefined') gameState.slot_exp = 0;
+            if (typeof gameState.slot_last_win === 'undefined') gameState.slot_last_win = 0;
             if (typeof gameState.mimicStage === 'undefined') {
                 gameState.mimicStage = 1;
                 gameState.mimicFeedProgress = 0;
                 gameState.mimicFeedsToday = 0;
                 gameState.mimicLastFeedDate = null;
-                if (typeof gameState.reelRewardProgress === 'undefined') {
-                    const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
-                    gameState.reelRewardProgress = 0;
-                    gameState.reelRewardClaims = [false, false, false, false, false];
-                    gameState.reelRewardResetTime = sevenDaysFromNow;
-                }
+            }
+            if (typeof gameState.reelRewardProgress === 'undefined') {
+                const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
+                gameState.reelRewardProgress = 0;
+                gameState.reelRewardClaims = [false, false, false, false, false];
+                gameState.reelRewardResetTime = sevenDaysFromNow;
             }
         }
-        setEggImage(gameState.egg.name);
-        handleDailyLogin();
-        updateUI();
+
+        try {
+            console.log("Initial UI Update...");
+            updateUI();
+        } catch (e) {
+            console.error("Error updating UI on load:", e);
+        }
+
+        try {
+            handleDailyLogin();
+        } catch (e) {
+            console.warn("Error handling daily login:", e);
+        }
+
         if (typeof tg.ready === 'function') {
             tg.ready();
         }
+        initCheats();
         setInterval(gameLoop, 1000);
-        function saveGameIfDirty() {
-            if (window.isGameDirty) {
-                saveGame();
-                window.isGameDirty = false;
-            }
-        }
         setInterval(saveGameIfDirty, 5000);
         window.addEventListener('beforeunload', saveGame);
-        particleSpawnInterval = setInterval(spawnParticle, 500);
+        if (particleContainer) {
+            particleSpawnInterval = setInterval(spawnParticle, 500);
+        }
 
         console.log("Game initialized.");
+        gameState.inDungeon = true;
+        refreshDungeonStats();
+        updateControlButtons();
+        startCombatLoop();
         preloadImages();
-    });
-
-    // === DEVELOPER CHEATS ===
-    window.addEventListener('keydown', (e) => {
-        if (!e.key) return;
-        const key = e.key.toLowerCase();
-        switch (key) {
-            // 🌀 Force open slot machine
-            case 's':
-                console.log('[DEV] Forcing Spin-to-Win...');
-                openSlot();
-                break;
-
-            // ⚡ Toggle Frenzy Mode
-            case 'f':
-                if (!gameState.isFrenzyMode) {
-                    console.log('[DEV] Frenzy Mode START');
-                    startFrenzyMode();
-                } else {
-                    console.log('[DEV] Frenzy Mode END');
-                    endFrenzyMode();
-                }
-                break;
-
-            // 💎 Add gems
-            case 'g':
-                console.log('[DEV] +10 Gem Shards');
-                gameState.gemShards = (gameState.gemShards || 0) + 10;
-                updateUI();
-                break;
-
-            // ✨ Add crystal dust
-            case 'c':
-                console.log('[DEV] +1M Crystal Dust (for testing)');
-                gameState.dust = (gameState.dust || 0) + 1000000;
-                updateUI();
-                break;
-
-            // --- SET DUST TO ZERO ---
-            case 'z':
-                console.log('[DEV] Setting Crystal Dust to 0...');
-                gameState.dust = 0;
-                updateUI();
-                break;
-
-            // --- SET HATCH PROGRESS TO MAX ---
-            case 'h':
-                console.log('[DEV] Setting Hatch Progress to Max...');
-                gameState.egg.progress = getTapGoal();
-                updateUI();
-                break;
-
-            // --- ADD REEL TICKET BY 1 ---
-            case 'v':
-                console.log('[DEV] +1 Reel Ticket');
-                gameState.reelTickets = (gameState.reelTickets || 0) + 1;
-                window.isGameDirty = true;
-                const reelGameTicketAmountEl = document.getElementById('reel-game-ticket-amount');
-                if (reelGameTicketAmountEl) {
-                    reelGameTicketAmountEl.innerText = formatNumber(gameState.reelTickets);
-                }
-                updateUI();
-                break;
-
-            case 'b': // 'b' for Bonus
-                console.log('[DEV] Forcing Free Spins Bonus...');
-                if (typeof window.openReelGame === 'function' && typeof window.dev_triggerFreeSpins === 'function') {
-
-                    // Check if reel game screen is hidden
-                    const reelScreen = document.getElementById('reel-game-screen');
-                    if (reelScreen && reelScreen.classList.contains('hidden')) {
-                        console.log('[DEV] Reel game is closed, opening it first...');
-                        window.openReelGame();
-
-                        // Give the game a moment to open before triggering
-                        setTimeout(() => {
-                            window.dev_triggerFreeSpins(15); // Award 15 free spins
-                        }, 500); // 500ms delay
-                    } else {
-                        // Reel game is already open, just trigger
-                        window.dev_triggerFreeSpins(15); // Award 15 free spins
-                    }
-                } else {
-                    console.log('[DEV] Reel game functions not found. Open the reel game at least once.');
-                }
-
-            // 🧰 Spawn treasure box manually
-            case 't':
-                console.log('[DEV] Spawning treasure box manually...');
-                spawnTreasureBox();
-                gameState.tapsSinceLastSpin = 0;
-                break;
-
-            // 📅 Force daily login    
-            case 'l':
-                console.log('[DEV] Forcing Daily Login...');
-                gameState.lastLoginDate = null;
-                handleDailyLogin();
-                saveGame();
-                break;
-
-            // M: Mimic Force Feed
-            case 'm':
-                if (window.dev_forceFeed) {
-                    window.dev_forceFeed();
-                } else {
-                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
-                }
-                break;
-
-            // N: Next Mimic Reward (sets to 24/25)
-            case 'n':
-                if (window.dev_setNextReward) {
-                    window.dev_setNextReward();
-                } else {
-                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
-                }
-                break;
-
-            case 'k':
-                if (window.dev_resetFeeds) {
-                    window.dev_resetFeeds();
-                } else {
-                    console.log('[DEV] Mimic modal must be loaded to use this cheat.');
-                }
-                break;
-
-
-            // 🔄 Reset all progress
-            case 'r':
-                console.log('[DEV] Soft reset requested...');
-                console.log('[DEV] Resetting progress... (Bypassing confirm for testing)');
-                try {
-                    localStorage.clear();
-                    console.log('[DEV] LocalStorage cleared.');
-                    if (tg && tg.CloudStorage && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        tg.CloudStorage.removeItem('golemEggGameState', (err, removed) => {
-                            console.log('[DEV] Reloading page after cloud attempt...');
-                            location.reload();
-                        });
-                    } else {
-                        console.log('[DEV] Reloading page...');
-                        location.reload();
-                    }
-                } catch (e) {
-                    console.error('[DEV] Error during reset:', e);
-                    location.reload();
-                }
-                break;
-        }
+        setTimeout(updateUI, 100);
     });
 });

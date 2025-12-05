@@ -132,5 +132,17 @@ export const GAME_ASSETS = {
     sfxWinSmall: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/sounds/win_small.mp3?raw=true',
     sfxWinMedium: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/sounds/win_medium.mp3?raw=true',
     sfxScatter: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/sounds/scatter_tension.mp3?raw=true',
-    sfxBonusTrigger: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/sounds/bonus_trigger.mp3?raw=true'
+    sfxBonusTrigger: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/sounds/bonus_trigger.mp3?raw=true',
+
+    // --- MINING ---
+    // Placeholders: Replace these with specific images later
+    mineEntrance: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true', 
+    miningItem1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Pickaxe
+    miningItem2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Helmet
+    miningItem3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Rail
+    miningItem4: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Cart
+    miningItem5: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Sieve
+    miningItem6: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Dynamite
+    miningItem7: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Drill
+    miningItem8: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Nexus
 };

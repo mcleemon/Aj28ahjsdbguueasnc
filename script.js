@@ -2,6 +2,7 @@ import { GAME_ASSETS } from './assets.js';
 import { HERO_STATE, grantHeroExp, getHeroData, loadHeroData, recalculateHeroStats } from './hero.js';
 import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonData, loadDungeonData, refreshMonsterVisuals, calculateStatsForFloor } from './dungeon.js';
 import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
+import { getMiningState, getItemLevel, getNextCost, getItemPPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, MINING_ITEMS, SILO_LEVELS } from './mining.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
@@ -98,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroLevelText = document.getElementById('hero-level');
     const heroStatsText = document.getElementById('hero-stats-text');
     const deathModal = document.getElementById('death-modal');
-    const reviveButton = document.getElementById('revive-button');
     const clickEffectContainer = document.getElementById('click-effect-container');
     const loginRewardModal = document.getElementById('login-reward-modal');
     const headerCalendarButton = document.getElementById('header-calendar-button');
@@ -131,11 +131,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const dungeonTitle = document.getElementById('dungeon-title');
     const defeatCountdown = document.getElementById('defeat-countdown');
     const limitBarContainer = heroLimitBar.parentElement;
+    const scrollMenu = document.getElementById('main-scroll-menu');
+    const scrollLeftBtn = document.getElementById('scroll-arrow-left');
+    const scrollRightBtn = document.getElementById('scroll-arrow-right');
+
+    // --- MINING DOM ELEMENTS ---
+    const miningModal = document.getElementById('mining-modal');
+    const openMiningButton = document.getElementById('scroll-mining-button');
+    const closeMiningButton = document.getElementById('close-mining-button');
+    const miningTotalPphDisplay = document.getElementById('mining-total-pph-display');
+    const miningSiloTimer = document.getElementById('mining-silo-timer');
+    const siloCapacityBarInner = document.getElementById('silo-capacity-bar-inner');
+    const siloAmountText = document.getElementById('silo-amount-text');
+    const btnClaimSilo = document.getElementById('btn-claim-silo');
+    const miningSiloClickArea = document.getElementById('mining-silo-click-area');
+
+    // Upgrade Panel Elements
+    const miningUpgradePanel = document.getElementById('mining-upgrade-panel');
+    const upgradeName = document.getElementById('upgrade-name');
+    const upgradeLevelLabel = document.getElementById('upgrade-level-label');
+    const upgradePphPreview = document.getElementById('upgrade-pph-preview');
+    const upgradeCostDisplay = document.getElementById('upgrade-cost-display');
+    const btnBuyMiningUpgrade = document.getElementById('btn-buy-mining-upgrade');
 
     window.isGameDirty = false;
     let isTransitioning = false;
     let combatMode = null;
     let isLimitBreakQueued = false;
+    let currentMiningSelection = null;
 
     // --- COMBAT LOOP VARIABLES ---
     let combatLoopId = null;
@@ -378,6 +401,162 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CORE FUNCTIONS ---
 
+    // --- MINING SYSTEM LOGIC ---
+
+    function updateMiningUI() {
+        if (miningModal.classList.contains('hidden')) return;
+
+        const miningState = getMiningState();
+
+        // 1. Update Top Stats
+        const totalPPH = getTotalPPH();
+        miningTotalPphDisplay.innerText = `${formatNumber(totalPPH)}/hr`;
+
+        // 2. Update Silo Status
+        const currentMined = getMinedAmount();
+        const capacity = getSiloCapacity();
+        const percentFull = Math.min(100, (currentMined / capacity) * 100);
+
+        siloCapacityBarInner.style.width = `${percentFull}%`;
+        siloAmountText.innerText = `${formatNumber(currentMined)} / ${formatNumber(capacity)}`;
+
+        // Silo Timer (Time until full)
+        if (currentMined >= capacity) {
+            miningSiloTimer.innerText = "FULL";
+            miningSiloTimer.style.color = "#ff5555";
+        } else {
+            const pph = getTotalPPH();
+            if (pph > 0) {
+                const remaining = capacity - currentMined;
+                const hoursLeft = remaining / pph;
+                const minutesLeft = Math.floor(hoursLeft * 60);
+                const h = Math.floor(minutesLeft / 60);
+                const m = minutesLeft % 60;
+                miningSiloTimer.innerText = `${h}h ${m}m`;
+                miningSiloTimer.style.color = "#fff";
+            } else {
+                miningSiloTimer.innerText = "Active";
+            }
+        }
+
+        // 3. Update Satellite Slots (1-8)
+        document.querySelectorAll('.mining-slot').forEach(slot => {
+            const id = parseInt(slot.dataset.id);
+            if (!id) return; // Skip if not a data slot
+
+            const level = getItemLevel(id);
+            const unlocked = isItemUnlocked(id);
+            const badge = slot.querySelector('.mining-lvl-badge');
+
+            // Lock State
+            if (!unlocked) {
+                slot.classList.add('locked');
+                badge.innerText = "Locked";
+            } else {
+                slot.classList.remove('locked');
+                badge.innerText = `Lv.${level}`;
+            }
+
+            // Selection State
+            if (currentMiningSelection === id) {
+                slot.classList.add('selected');
+            } else {
+                slot.classList.remove('selected');
+            }
+        });
+
+        // 4. Update Upgrade Panel (if something is selected)
+        if (currentMiningSelection) {
+            miningUpgradePanel.classList.remove('hidden');
+            updateUpgradePanel();
+        } else {
+            miningUpgradePanel.classList.add('hidden');
+        }
+
+        // 5. Update Claim Button State
+        if (currentMined > 0) {
+            btnClaimSilo.disabled = false;
+            btnClaimSilo.querySelector('span').innerText = "CLAIM";
+        } else {
+            btnClaimSilo.disabled = true;
+            btnClaimSilo.querySelector('span').innerText = "EMPTY";
+        }
+    }
+
+    function updateUpgradePanel() {
+        if (currentMiningSelection === 'silo') {
+            // SILO UPGRADE UI
+            const currentLvl = getMiningState().siloLevel;
+            const nextLvl = currentLvl + 1;
+            const nextData = SILO_LEVELS.find(s => s.level === nextLvl);
+            const currentData = SILO_LEVELS.find(s => s.level === currentLvl);
+
+            upgradeName.innerText = "Silo Expansion";
+            upgradeLevelLabel.innerText = `Level ${currentLvl} ➜ ${nextLvl}`;
+
+            if (nextData) {
+                upgradePphPreview.innerHTML = `${currentData.hours}h ➜ <span class="gain" style="color:#00ffff">${nextData.hours}h Cap</span>`;
+                upgradeCostDisplay.innerText = formatNumber(nextData.cost);
+
+                const canAfford = window.gameState.dust >= nextData.cost;
+                btnBuyMiningUpgrade.disabled = !canAfford;
+            } else {
+                upgradePphPreview.innerText = "Max Capacity";
+                upgradeCostDisplay.innerText = "---";
+                btnBuyMiningUpgrade.disabled = true;
+            }
+            return;
+        }
+
+        // ITEM UPGRADE UI
+        const item = MINING_ITEMS.find(i => i.id === currentMiningSelection);
+        if (!item) return;
+
+        const level = getItemLevel(item.id);
+        const cost = getNextCost(item.id);
+        const currentPPH = getItemPPH(item.id);
+        // Calculate Next PPH manually since helper gets current
+        const nextPPH = item.basePPH * (level + 1);
+        const gain = nextPPH - currentPPH;
+
+        upgradeName.innerText = item.name;
+        upgradeLevelLabel.innerText = `Level ${level} ➜ ${level + 1}`;
+        upgradePphPreview.innerHTML = `+${formatNumber(currentPPH)} ➜ <span class="gain">+${formatNumber(nextPPH)}</span>`;
+        upgradeCostDisplay.innerText = formatNumber(cost);
+
+        const canAfford = window.gameState.dust >= cost;
+        btnBuyMiningUpgrade.disabled = !canAfford;
+    }
+
+    function selectMiningItem(id) {
+        if (typeof id === 'number' && !isItemUnlocked(id)) {
+            if (window.Telegram) tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
+
+        currentMiningSelection = id;
+        updateMiningUI();
+        if (window.Telegram) tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function handleMiningPurchase() {
+        let success = false;
+        if (currentMiningSelection === 'silo') {
+            success = buySiloUpgrade();
+        } else {
+            success = buyMiningUpgrade(currentMiningSelection);
+        }
+
+        if (success) {
+            spawnFloatingText("UPGRADED!", "#00ffff", 50, 50, 'mining-modal'); // You might need to adjust target
+            updateMiningUI();
+            updateUI(); // Refresh main dust counter
+            if (window.Telegram) tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            if (window.Telegram) tg.HapticFeedback.notificationOccurred('error');
+        }
+    }
+
     function executeLimitBreakSequence() {
         if (combatLoopId) cancelAnimationFrame(combatLoopId);
         const container = document.querySelector('.game-container');
@@ -598,21 +777,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMonsterDeath() {
-        // --- 1. Death Animation ---
         monsterImage.classList.remove('monster-die');
         void monsterImage.offsetWidth;
         monsterImage.classList.add('monster-die');
-
-        // --- 2. Energy Cost & Global XP ---
         if (HERO_STATE.energy > 0) {
             HERO_STATE.energy -= 1;
             grantGlobalExp(1);
         }
-
-        // Check if Out of Energy
         if (HERO_STATE.energy <= 0) {
             HERO_STATE.energy = 0;
-            // Stop Combat if running
             if (combatMode) {
                 combatMode = null;
                 updateControlButtons();
@@ -622,13 +795,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentFloor = DUNGEON_STATE.floor;
         const isBoss = (currentFloor % 10 === 0);
-
-        // --- 3. Calculate Rewards ---
         const rewards = calculateRewards();
         gameState.dust += rewards.dustReward;
         grantHeroExp(rewards.xpReward);
-
-        // Visual: Dust to Counter
         spawnIconTextAtElement(
             'dust-counter',
             `<img src="${GAME_ASSETS.iconCrystalDust}" style="width:18px; vertical-align:middle;"> +${formatNumber(rewards.dustReward)}`,
@@ -637,7 +806,6 @@ document.addEventListener('DOMContentLoaded', () => {
             true
         );
 
-        // --- 4. Handle Boss Victory ---
         if (isBoss) {
             const isFirstKill = currentFloor > (HERO_STATE.maxFloor || 1);
 
@@ -647,8 +815,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.gemShards += gemsEarned;
                 spawnFloatingText(`+${gemsEarned} Gems!`, '#e74c3c', 40, 50);
             }
-
-            // Update Victory Modal UI
             const vDust = document.getElementById('victory-dust-amount');
             const vXp = document.getElementById('victory-xp-amount');
             const vGemCard = document.getElementById('victory-card-gem');
@@ -670,7 +836,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Show Loot in Modal
             if (rewards.loot && vMatCard) {
                 vMatCard.classList.remove('hidden');
                 if (vMatAmt) vMatAmt.innerText = rewards.loot.amount;
@@ -699,20 +864,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             if (rewards.loot) {
-                // Add to Inventory
                 if (!HERO_STATE.inventory[rewards.loot.id]) HERO_STATE.inventory[rewards.loot.id] = 0;
                 HERO_STATE.inventory[rewards.loot.id] += rewards.loot.amount;
-
-                // --- VISUAL: Prepare Icon HTML ---
                 let iconHTML = '';
-
-                // 1. Look up the item data to check for an icon
                 const itemData = MATERIAL_TIERS.find(m => m.id === rewards.loot.id);
                 const hasCustomIcon = itemData && itemData.icon && GAME_ASSETS[itemData.icon];
-
                 if (hasCustomIcon) {
-                    // OPTION A: Use Custom Image (Bag/Potion/etc)
-                    // We inline the styles to ensure it looks right in the floating text
                     const imgUrl = GAME_ASSETS[itemData.icon];
                     iconHTML = `<div style="
                         width: 24px; 
@@ -723,7 +880,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         background-position: center;
                     "></div>`;
                 } else {
-                    // OPTION B: Use Colored Circle (Fallback)
                     let matClass = 'mat-iron';
                     const id = rewards.loot.id;
                     if (id.includes('wood')) matClass = 'mat-wood';
@@ -735,8 +891,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     iconHTML = `<div class="bag-item-icon ${matClass} icon-small-circle" style="width:20px; height:20px;"></div>`;
                 }
-
-                // Spawn the Pop-up
                 spawnIconTextAtElement(
                     'header-bag-button',
                     `${iconHTML} +${rewards.loot.amount}`,
@@ -773,43 +927,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handlePlayerDeath() {
-        // 1. Immediate Pause
-        combatMode = null; // Stop fighting
-        updateControlButtons(); // Update UI
-
-        // 2. Show Defeat Modal
+        combatMode = null;
+        updateControlButtons();
         if (deathModal) deathModal.classList.remove('hidden');
-
-        // 3. Start Countdown (3 seconds)
         let timeLeft = 3;
         if (defeatCountdown) defeatCountdown.innerText = timeLeft;
-
         const timerId = setInterval(() => {
             timeLeft--;
             if (defeatCountdown) defeatCountdown.innerText = timeLeft;
-
             if (timeLeft <= 0) {
                 clearInterval(timerId);
-                performRetreat(); // Execute the fallback
+                performRetreat();
             }
         }, 1000);
     }
 
     function performRetreat() {
-        // 1. Close Modal
         if (deathModal) deathModal.classList.add('hidden');
-
-        // 2. Heal & Drop Floor
         HERO_STATE.currentHP = HERO_STATE.maxHP;
         if (DUNGEON_STATE.floor > 1) {
             DUNGEON_STATE.floor--;
         }
-
-        // 3. Switch to Safe Farming Mode
         combatMode = 'farm';
         if (combatLog) combatLog.innerText = "RETREATING TO PREVIOUS FLOOR...";
-
-        // 4. Resume Game
         refreshDungeonStats();
         spawnNewMonster();
         updateControlButtons();
@@ -922,6 +1062,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (timePassedInSeconds > 300) {
                     offlineProgressModal.classList.remove('hidden');
+                }
+                const minedOffline = getMinedAmount();
+                if (minedOffline > 0) {
+                    // Update the "Welcome Back" modal text
+                    // (You might need to add an ID to your offline modal text element if not present)
+                    const welcomeTitle = document.getElementById('welcome-back-title');
+                    if (welcomeTitle) {
+                        const msg = document.createElement('div');
+                        msg.innerHTML = `<br>Your Golems mined:<br><span style="color:#00ffff; font-size:24px;">+${formatNumber(minedOffline)} Dust</span>`;
+                        msg.style.textAlign = 'center';
+                        msg.style.color = '#fff';
+                        welcomeTitle.parentNode.appendChild(msg);
+                    }
+                    // Note: We don't auto-claim. User must go to Silo to claim.
+                    // Or if you WANT auto-claim on load:
+                    // gameState.dust += claimSilo();
                 }
             }
             isGameLoaded = true;
@@ -1041,9 +1197,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- DUNGEON NAVIGATION LOGIC (NEW) ---
+    // --- DUNGEON NAVIGATION LOGIC ---
 
-    // 1. The 15 Major Zones Configuration
     const ZONE_DATA = [
         { name: "Slime Plains", start: 1, mat: "Wood" },
         { name: "Copper Canyon", start: 101, mat: "Copper" },
@@ -1062,29 +1217,20 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Celestial Throne", start: 1401, mat: "Celestial" }
     ];
 
-    // 1. Render the List of Zones (Top Level)
     function renderDungeonList() {
         dungeonList.innerHTML = "";
-
-        // --- HEADER LOGIC: Show (X), Hide (<) ---
         if (dungeonBackButton) dungeonBackButton.classList.add('hidden');
-        if (closeDungeonButton) closeDungeonButton.classList.remove('hidden'); // Show X
+        if (closeDungeonButton) closeDungeonButton.classList.remove('hidden');
         if (dungeonTitle) dungeonTitle.innerText = "WORLD MAP";
         if (dungeonBackButton) dungeonBackButton.onclick = null;
-
         const currentMax = HERO_STATE.maxFloor || 1;
-
         ZONE_DATA.forEach((zone, index) => {
             const isLocked = currentMax < zone.start;
             const btn = document.createElement('button');
             btn.className = `stage-btn ${isLocked ? 'locked' : ''}`;
             btn.disabled = isLocked;
-
-            // REMOVED manual height setting so it uses the CSS default (80px)
-
             const lockIcon = isLocked ? '<div class="lock-icon">🔒</div>' : '';
             const arrowIcon = isLocked ? '' : '<div style="font-size:20px; color:#aaa; font-weight:bold;">▶</div>';
-
             btn.innerHTML = `
                 ${lockIcon}
                 <div class="stage-info">
@@ -1184,16 +1330,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 let clickName = item.name;
                 let iconClass = 'weapon-icon';
                 if (type === 'armor') iconClass = 'armor-icon';
-
-                // Check if we have a valid custom image
                 const hasCustomIcon = item.icon && GAME_ASSETS[item.icon];
-
                 if (type === 'material') {
                     if (hasCustomIcon) {
-                        // CASE A: Custom Image Exists -> Use clean base class (Transparent)
                         iconClass = 'bag-item-icon';
                     } else {
-                        // CASE B: No Image -> Use Color Fallbacks (Brown/Gray squares)
                         let colorClass = 'mat-iron';
                         const nameLower = item.name.toLowerCase();
                         if (nameLower.includes('wood')) colorClass = 'mat-wood';
@@ -1220,7 +1361,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     countHTML = `<span class="bag-item-count">${formatNumber(item.qty)}</span>`;
                 }
-
                 itemDiv.innerHTML = `${iconHTML}<span class="bag-item-name">${item.name}</span>${countHTML}`;
                 itemDiv.addEventListener('click', () => {
                     const nameDisplay = document.createElement('div');
@@ -1234,13 +1374,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemDiv.appendChild(nameDisplay);
                     setTimeout(() => nameDisplay.remove(), 1000);
                 });
-
                 gridEl.appendChild(itemDiv);
             });
-
             bagGrid.appendChild(gridEl);
         }
-
         const myWeapons = WEAPON_DB.filter(w => ownedIds.includes(w.id));
         const myArmor = ARMOR_DB.filter(a => ownedIds.includes(a.id));
         const myMaterials = [];
@@ -1250,12 +1387,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 myMaterials.push({ ...tier, qty: qty });
             }
         });
-
         if (myWeapons.length === 0 && myArmor.length === 0 && myMaterials.length === 0) {
             bagGrid.innerHTML = '<div class="bag-empty-message">Your bag is empty.<br>Defeat monsters to find loot!</div>';
             return;
         }
-
         renderSection("WEAPONS", myWeapons, 'weapon');
         renderSection("ARMOR", myArmor, 'armor');
         renderSection("MATERIALS", myMaterials, 'material');
@@ -1275,6 +1410,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             HERO_STATE.lastRegenTime = now;
+        }
+
+        if (!miningModal.classList.contains('hidden')) {
+            updateMiningUI();
         }
 
         updateUI();
@@ -1330,23 +1469,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
 
+    if (scrollMenu && scrollLeftBtn && scrollRightBtn) {
+        scrollLeftBtn.addEventListener('click', () => {
+            // Scroll left by the width of approx 2 icons
+            scrollMenu.scrollBy({ left: -150, behavior: 'smooth' });
+            if (window.Telegram) tg.HapticFeedback.impactOccurred('light');
+        });
+
+        scrollRightBtn.addEventListener('click', () => {
+            // Scroll right by the width of approx 2 icons
+            scrollMenu.scrollBy({ left: 150, behavior: 'smooth' });
+            if (window.Telegram) tg.HapticFeedback.impactOccurred('light');
+        });
+    }
+
+    // --- MINING LISTENERS ---
+    if (openMiningButton) {
+        openMiningButton.addEventListener('click', () => {
+            updateMiningUI();
+            openModal('mining-modal');
+        });
+    }
+
+    if (closeMiningButton) {
+        closeMiningButton.addEventListener('click', () => {
+            closeModal('mining-modal');
+        });
+    }
+
+    // Handle clicking the 8 Satellite Slots
+    document.querySelectorAll('.mining-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+            const id = parseInt(slot.dataset.id);
+            if (id) selectMiningItem(id);
+        });
+    });
+
+    // Handle clicking the Center Silo (for Upgrade selection)
+    if (miningSiloClickArea) {
+        miningSiloClickArea.addEventListener('click', () => {
+            currentMiningSelection = 'silo';
+            updateMiningUI();
+        });
+    }
+
+    // Handle Claim Button
+    if (btnClaimSilo) {
+        btnClaimSilo.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering silo selection
+            const amount = claimSilo();
+            if (amount > 0) {
+                spawnFloatingText(`+${formatNumber(amount)} DUST`, "#ffd700", 50, 50);
+                updateUI();
+                updateMiningUI();
+                if (window.Telegram) tg.HapticFeedback.notificationOccurred('success');
+            }
+        });
+    }
+
+    // Handle Upgrade Button
+    if (btnBuyMiningUpgrade) {
+        btnBuyMiningUpgrade.addEventListener('click', handleMiningPurchase);
+    }
+
     limitBarContainer.addEventListener('click', (e) => {
-        // 1. Check if charged
         if (HERO_STATE.limitGauge < HERO_STATE.maxLimit) return;
-
-        // 2. Check if already queued or busy
         if (isLimitBreakQueued || isTransitioning) return;
-
-        // 3. Queue it
         isLimitBreakQueued = true;
-
-        // 4. Immediate Visual Feedback
         heroLimitText.innerText = "QUEUED...";
         if (window.Telegram) tg.HapticFeedback.impactOccurred('heavy');
-
-        // 5. Special Case: If combat is STOPPED (Manual Mode), start it now
         if (!combatMode) {
-            combatMode = 'manual_break'; // Temporary state just to start loop
+            combatMode = 'manual_break';
             startCombatLoop();
         }
     });

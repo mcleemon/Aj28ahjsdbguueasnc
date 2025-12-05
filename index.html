@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.92">
+    <link rel="stylesheet" href="style.css?v=2.13.93">
     <link rel="stylesheet" href="blackjack.css?v=1.0.24">
     <link rel="stylesheet" href="reel-game.css?v=1.0.6">
 </head>
@@ -109,18 +109,23 @@
                     </div>
                 </div>
             </div>
-            <div class="scroll-menu-container">
-                <div class="scroll-menu">
-                    <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing" alt="Fishing">
-                    <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
-                        alt="Blackjack">
-                    <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
-                        alt="Roulette">
-
-                    <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
-
-                    <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
+            <div class="scroll-navigation-wrapper">
+                <button id="scroll-arrow-left" class="scroll-arrow-btn">&lt;</button>
+                <div class="scroll-menu-container">
+                    <div class="scroll-menu" id="main-scroll-menu">
+                        <img id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"
+                            alt="Mining">
+                        <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
+                        <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"
+                            alt="Fishing">
+                        <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
+                            alt="Blackjack">
+                        <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
+                        <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
+                            alt="Roulette">
+                    </div>
                 </div>
+                <button id="scroll-arrow-right" class="scroll-arrow-btn">&gt;</button>
             </div>
             <div class="button-bar">
                 <button id="hero-menu-button" data-asset-bg-key="buttonNav">HERO</button>
@@ -933,6 +938,120 @@
             </div>
         </div>
     </div>
+
+    <div id="mining-modal" class="modal hidden">
+        <div class="mining-panel">
+            <div class="mining-header">
+                <button id="close-mining-button" data-asset-bg-key="closeButton"></button>
+                <h2>MINING CAMP</h2>
+            </div>
+
+            <div class="mining-content">
+                <div class="mining-stats-bar">
+                    <div class="stat-pill">
+                        <span class="stat-label">TOTAL PPH</span>
+                        <span id="mining-total-pph-display" class="stat-value">0/hr</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="stat-label">SILO</span>
+                        <span id="mining-silo-timer" class="stat-value">00:00</span>
+                    </div>
+                </div>
+
+                <div class="mining-cockpit">
+
+                    <div class="mining-column left-col">
+                        <div class="mining-slot" data-id="1">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem1">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="2">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem2">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="3">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem3">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="4">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem4">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mining-center-silo">
+                        <div id="mining-silo-click-area">
+                            <img id="mining-silo-image" data-asset-key="mineEntrance">
+                            <div class="silo-capacity-bar-outer">
+                                <div id="silo-capacity-bar-inner"></div>
+                            </div>
+                            <span id="silo-amount-text">0 / 500</span>
+                        </div>
+                        <button id="btn-claim-silo" class="card-buy-button" data-asset-bg-key="buttonShop">
+                            <span>CLAIM</span>
+                        </button>
+                    </div>
+
+                    <div class="mining-column right-col">
+                        <div class="mining-slot" data-id="5">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem5">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="6">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem6">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="7">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem7">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                        <div class="mining-slot" data-id="8">
+                            <div class="mining-icon-frame">
+                                <img data-asset-key="miningItem8">
+                                <div class="mining-lvl-badge">Lv.0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mining-upgrade-panel" class="mining-upgrade-panel hidden">
+                    <div class="upgrade-header-row">
+                        <h3 id="upgrade-name">Rusty Pickaxe</h3>
+                        <span id="upgrade-level-label">Level 5 ➜ 6</span>
+                    </div>
+
+                    <div class="upgrade-stats-row">
+                        <div class="upgrade-stat">
+                            <span class="label">PPH</span>
+                            <span id="upgrade-pph-preview" class="value">+50 <span class="gain">(+10)</span></span>
+                        </div>
+                        <div class="upgrade-stat cost-stat">
+                            <span class="label">COST</span>
+                            <span id="upgrade-cost-display" class="value cost-color">100</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-buy-mining-upgrade" class="card-buy-button" data-asset-bg-key="buttonShop">
+                        <span>UPGRADE</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="death-modal" class="modal hidden" style="z-index: 200;">
         <div class="defeat-panel">
             <div class="defeat-header">
@@ -994,16 +1113,17 @@
     </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.92" type="module"></script>
-    <script src="assets.js?v=1.0.10" type="module"></script>
+    <script src="script.js?v=2.13.93" type="module"></script>
+    <script src="assets.js?v=1.0.11" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="hero.js?v=1.1.3" type="module"></script>
-    <script src="dungeon.js?v=1.1.3" type="module"></script>
-    <script src="smithy.js?v=1.0.1" type="module"></script>
+    <script src="mining.js?v=1.0.0" type="module"></script>
+    <script src="hero.js?v=1.1.4" type="module"></script>
+    <script src="dungeon.js?v=1.1.4" type="module"></script>
+    <script src="smithy.js?v=1.0.2" type="module"></script>
     <script src="shop.js?v=1.0.14" type="module"></script>
     <script src="tasks.js?v=1.0.9" type="module"></script>
-    <script src="heroMenu.js?v=2.0.1" type="module"></script>
+    <script src="heroMenu.js?v=2.0.2" type="module"></script>
     <script src="blackjack.js?v=1.1.21" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>

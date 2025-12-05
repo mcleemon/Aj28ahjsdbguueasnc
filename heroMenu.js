@@ -1,7 +1,7 @@
 // heroMenu.js - v2.3.0
 // Handles Hero Equipment (Updated to read from Item-Based Levels)
 
-import { HERO_STATE } from './hero.js';
+import { HERO_STATE, recalculateHeroStats } from './hero.js';
 import { GAME_ASSETS } from './assets.js';
 import { WEAPON_DB, ARMOR_DB } from './items.js';
 
@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- HELPER: CALCULATE STATS ---
     function getWeaponDamage(baseDmg, level) {
-        return Math.floor(baseDmg * (1 + (level * 0.1)));
+        // CHANGED: 0.5 (50% per level)
+        return Math.floor(baseDmg * (1 + (level * 0.5)));
     }
 
     function getItemLevel(itemId) {
@@ -51,12 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSlotVisual(slotEl, type) {
         const itemId = HERO_STATE.equipment[type];
-        const isStarter = (itemId === 'rusty_sword' || itemId === 'tattered_shirt');
 
+        // 1. Visual Styling (Border/Glow)
+        const isStarter = (itemId === 'rusty_sword' || itemId === 'tattered_shirt');
         slotEl.style.borderColor = isStarter ? '#555' : '#3498db';
         slotEl.style.boxShadow = isStarter ? 'inset 0 0 10px #000' : '0 0 10px #3498db';
 
-        // Inject Level Badge
+        // 2. Inject Level Badge
         let badge = slotEl.querySelector('.slot-level-badge');
         if (!badge) {
             badge = document.createElement('span');
@@ -69,9 +71,48 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.style.fontWeight = 'bold';
             slotEl.appendChild(badge);
         }
-
         const level = getItemLevel(itemId);
         badge.innerText = level > 0 ? `+${level}` : '';
+
+        // 3. Inject Item Name
+        let nameEl = slotEl.querySelector('.slot-item-name');
+        if (!nameEl) {
+            nameEl = document.createElement('span');
+            nameEl.className = 'slot-item-name';
+            slotEl.appendChild(nameEl);
+        }
+
+        // Lookup Item Data
+        let itemName = "Empty";
+        let itemData = null; // Store the object
+
+        if (type === 'mainHand') {
+            itemData = WEAPON_DB.find(w => w.id === itemId);
+        } else {
+            itemData = ARMOR_DB.find(a => a.id === itemId);
+        }
+
+        if (itemData) {
+            itemName = itemData.name;
+        }
+
+        nameEl.innerText = itemName;
+
+        // 4. NEW: Apply Custom Image (Global Logic)
+        const iconDiv = slotEl.querySelector('.slot-icon');
+        if (iconDiv) {
+            // Reset to default (CSS shapes)
+            iconDiv.style.backgroundImage = '';
+
+            // Check if item exists and has an icon defined
+            if (itemData && itemData.icon && GAME_ASSETS[itemData.icon]) {
+                iconDiv.style.backgroundImage = `url('${GAME_ASSETS[itemData.icon]}')`;
+                // Ensure fit
+                iconDiv.style.backgroundSize = 'contain';
+                iconDiv.style.backgroundRepeat = 'no-repeat';
+                iconDiv.style.backgroundPosition = 'center';
+            }
+        }
     }
 
     // --- EQUIP MODAL LOGIC ---
@@ -89,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentEquippedId = HERO_STATE.equipment[slotType];
 
         const myItems = db.filter(item => ownedIds.includes(item.id));
+        // Sort by Tier (High to Low)
         myItems.sort((a, b) => b.tier - a.tier);
 
         myItems.forEach(item => {
@@ -96,9 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemDiv = document.createElement('div');
             itemDiv.className = `forge-item ${isEquipped ? 'equipped' : ''}`;
 
-            const iconClass = isWeapon ? 'weapon-icon' : 'armor-icon';
             const level = getItemLevel(item.id);
 
+            // --- IMAGE LOGIC ---
+            let iconClass = isWeapon ? 'weapon-icon' : 'armor-icon';
+            let iconStyle = '';
+
+            if (item.icon && GAME_ASSETS[item.icon]) {
+                iconStyle = `style="background-image: url('${GAME_ASSETS[item.icon]}');"`;
+            }
+
+            // --- STATS LOGIC ---
             let statDisplay = "";
             if (isWeapon) {
                 const dmg = getWeaponDamage(item.damage, level);
@@ -111,7 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnState = isEquipped ? "disabled" : "";
 
             itemDiv.innerHTML = `
-                <div class="forge-icon-box"><div class="${iconClass}"></div></div>
+                <div class="forge-icon-box">
+                    <div class="${iconClass}" ${iconStyle}></div>
+                </div>
                 <div class="forge-details">
                     <span class="forge-name">${item.name}</span>
                     <span class="forge-stats">${statDisplay}</span>
@@ -133,13 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleEquip(item, slotType) {
         HERO_STATE.equipment[slotType] = item.id;
         const level = getItemLevel(item.id);
-
-        if (slotType === 'mainHand') {
-            HERO_STATE.baseAttack = getWeaponDamage(item.damage, level);
-        } else {
-            HERO_STATE.defense = item.defense; // If armor scaling exists, apply here too
-        }
-
+        recalculateHeroStats();
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         }

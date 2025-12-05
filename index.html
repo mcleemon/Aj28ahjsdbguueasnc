@@ -65,12 +65,10 @@
                         <div id="monster-hp-text" class="rpg-value">50 / 50 HP</div>
                     </div>
                     <div class="left-controls-stack">
+                        <button id="btn-attack-toggle" class="control-circle-btn">ATTACK</button>
                         <button id="btn-auto-toggle" class="control-circle-btn">AUTO</button>
-
-                        <button id="btn-boss-toggle" class="control-circle-btn" disabled>BOSS</button>
-
-                        <button id="btn-advance" class="control-rect-btn hidden">BOSS ▶</button>
-
+                    </div>
+                    <div class="right-controls-stack">
                         <button id="select-area-button" class="control-circle-btn map-btn-style">
                             MAP
                         </button>
@@ -887,8 +885,10 @@
     <div id="dungeon-selector-modal" class="modal hidden" style="z-index: 150;">
         <div class="dungeon-panel">
             <div class="dungeon-header">
+                <button id="dungeon-back-button" class="back-arrow-btn hidden"></button>
+
                 <button id="close-dungeon-button"></button>
-                <h2>WORLD MAP</h2>
+                <h2 id="dungeon-title">STAGES</h2>
             </div>
             <div class="dungeon-content">
                 <div id="dungeon-list" class="dungeon-list">
@@ -933,15 +933,13 @@
             </div>
         </div>
     </div>
-    <div id="death-modal" class="modal hidden">
-        <div class="modal-content" style="background: #3e0000; border: 2px solid red;">
-            <h2 style="color: red; font-size: 36px;">DEFEATED</h2>
-            <p style="color: white;">The monster knocked you out!</p>
-            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                <button id="revive-button" data-asset-bg-key="buttonGeneric" style="width: 200px;">
-                    RETREAT <br>
-                </button>
+    <div id="death-modal" class="modal hidden" style="z-index: 200;">
+        <div class="defeat-panel">
+            <div class="defeat-header">
+                <div class="defeat-title">DEFEATED</div>
+                <div class="defeat-subtitle">Going back to previous floor in...</div>
             </div>
+            <div id="defeat-countdown">3</div>
         </div>
     </div>
     <div id="boss-victory-modal" class="modal hidden" style="z-index: 200;">
@@ -978,14 +976,6 @@
                     <div class="loot-amount" id="victory-mat-amount" style="color: #fff;">0</div>
                     <div class="loot-label" id="victory-mat-label">Loot</div>
                 </div>
-            </div>
-            <div class="victory-buttons">
-                <button id="victory-continue-btn" class="victory-btn btn-continue">
-                    <span>CONTINUE</span>
-                </button>
-                <button id="victory-leave-btn" class="victory-btn btn-leave">
-                    <span>REST AT CAMP</span>
-                </button>
             </div>
         </div>
     </div>

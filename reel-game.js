@@ -1069,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.dust -= currentTotalBet;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
+        if (saveGame) saveGame();
         gameState.slot_exp = (gameState.slot_exp || 0) + EXP_FOR_SPIN;
         if (window.refreshGameUI) window.refreshGameUI();
         syncReelGameUI();

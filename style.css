@@ -499,172 +499,9 @@ button:active {
         0 0 70px rgba(255, 150, 0, 0.3);
 }
 
-#slot-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 200;
-}
-
-#slot-overlay.hidden {
-    display: none;
-}
-
-.slot-machine-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    animation: fadeIn 0.3s ease;
-}
-
-.slot-ui {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-    gap: 15px;
-    z-index: 3;
-}
-
-.slot-frame {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    height: auto;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.slot-machine {
-    display: flex;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 12px;
-    z-index: 1;
-}
-
-.slot-symbol-text {
-    width: 100%;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Graduate', serif;
-    font-weight: bold;
-    font-size: 22px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    box-sizing: border-box;
-    background-color: #1a1a1a;
-    border-bottom: 2px solid #333;
-}
-
-.reel {
-    width: 80px;
-    height: 100px;
-    overflow: hidden;
-    background: #000;
-    border: 2px solid #666;
-    border-radius: 8px;
-    position: relative;
-}
-
-.symbols {
-    display: flex;
-    flex-direction: column;
-}
-
-.symbol {
-    width: 80px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-}
-
-.slot-icon {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-#slot-spin-btn {
-    margin-top: 0;
-    padding: 10px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: gold;
-    color: #000;
-    font-weight: bold;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-#slot-spin-btn:hover {
-    transform: scale(0.95);
-    background: #ffdb4d;
-}
-
-#slot-spin-btn:disabled {
-    background: #777;
-    color: #ccc;
-    cursor: not-allowed;
-}
-
-#slot-result {
-    position: absolute;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 10px;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    color: white;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    white-space: nowrap;
-}
-
-#slot-result.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-#slot-result.win {
-    color: gold;
-    text-shadow: 0 0 10px gold, 0 0 20px orange;
-}
-
-#slot-result.lose {
-    color: #aaa;
-    text-shadow: 0 0 5px #333;
-}
-
 .spinning {
     animation: spin 0.15s linear infinite;
     filter: blur(3px);
-}
-
-.slot-fade-out {
-    animation: fadeOut 1s ease forwards;
 }
 
 .icon-crystaldust {
@@ -679,12 +516,6 @@ button:active {
     height: 20px;
     vertical-align: middle;
     margin-right: -2px;
-}
-
-.slot-icon-small {
-    width: 18px;
-    height: 18px;
-    vertical-align: middle;
 }
 
 #offline-dust-amount {
@@ -702,14 +533,6 @@ button:active {
     width: 18px;
     height: 18px;
     vertical-align: -4px;
-}
-
-.slot-machine-container.fade-out {
-    animation: fadeOut 1s ease forwards;
-}
-
-#slot-overlay.banner-only .slot-machine-container {
-    display: none;
 }
 
 .settings-modal-content {
@@ -1073,40 +896,6 @@ img {
     width: 100%;
     min-height: 18.5vh;
     max-height: 150px;
-}
-
-#combat-log-box {
-    width: 90%;
-    min-height: 28px;
-    margin: 10px auto 4px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    font-family: 'Graduate', serif;
-    font-size: 14px;
-    color: #fff;
-    text-shadow: 1px 1px 0 #000;
-    opacity: 1;
-    pointer-events: none;
-}
-
-#combat-log-box {
-    display: none !important;
-}
-
-.log-heal {
-    color: #2ecc71;
-}
-
-.log-block {
-    color: #3498db;
-}
-
-.log-miss {
-    color: #95a5a6;
 }
 
 .shop-panel {
@@ -2348,69 +2137,6 @@ img {
     text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 0 0 2px #000;
     z-index: 5;
     pointer-events: none;
-}
-
-#combat-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 360px;
-}
-
-.combat-btn {
-    flex: 1 1 0px;
-    height: 60px;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-family: 'Graduate', serif;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.1s, filter 0.1s;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    position: relative;
-    min-width: 0;
-}
-
-.combat-btn:active {
-    transform: translateY(3px);
-}
-
-.combat-btn:disabled {
-    filter: grayscale(100%);
-    cursor: not-allowed;
-}
-
-.btn-attack {
-    background: linear-gradient(to bottom, #e74c3c, #c0392b);
-    border-bottom: 4px solid #962d22;
-}
-
-.btn-defend {
-    background: linear-gradient(to bottom, #3498db, #2980b9);
-    border-bottom: 4px solid #1f618d;
-}
-
-.btn-heal {
-    background: linear-gradient(to bottom, #2ecc71, #27ae60);
-    border-bottom: 4px solid #1e8449;
-}
-
-.btn-label {
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.btn-cost {
-    font-size: 10px;
-    opacity: 0.9;
-    margin-top: 4px;
-    font-family: 'Nunito', sans-serif;
 }
 
 .intent-badge {

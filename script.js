@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBagButton = document.getElementById('close-bag-button');
     const bagGrid = document.getElementById('bag-grid');
     const headerBagButton = document.getElementById('header-bag-button');
-    const combatLog = document.getElementById('combat-log-box');
     const dungeonModal = document.getElementById('dungeon-selector-modal');
     const closeDungeonButton = document.getElementById('close-dungeon-button');
     const dungeonList = document.getElementById('dungeon-list');
@@ -670,17 +669,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lastFrameTime = performance.now();
         combatTimer = 0;
         isPlayerTurn = true;
-        const modeText = combatMode === 'push' ? 'PUSHING STAGES' : 'FARMING FLOOR';
-        if (combatLog) combatLog.innerText = `COMBAT STARTED: ${modeText}`;
 
         combatLoopId = requestAnimationFrame(performCombatStep);
     }
     function performCombatStep(currentTime) {
         combatLoopId = requestAnimationFrame(performCombatStep);
         if (!gameState.inDungeon || HERO_STATE.currentHP <= 0 || (!combatMode && isPlayerTurn) || HERO_STATE.energy <= 0) {
-            if (!combatMode && combatLog && combatLog.innerText !== "PAUSED") {
-                combatLog.innerText = "PAUSED";
-            }
             if (HERO_STATE.energy <= 0 && combatMode) {
                 updateUI();
             }
@@ -911,7 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function nextFloor() {
         increaseFloor();
         spawnNewMonster();
-        if (combatLog) combatLog.innerText = `ADVANCING TO FLOOR ${DUNGEON_STATE.floor}`;
     }
 
     function refreshDungeonStats() {
@@ -949,7 +942,6 @@ document.addEventListener('DOMContentLoaded', () => {
             DUNGEON_STATE.floor--;
         }
         combatMode = 'farm';
-        if (combatLog) combatLog.innerText = "RETREATING TO PREVIOUS FLOOR...";
         refreshDungeonStats();
         spawnNewMonster();
         updateControlButtons();
@@ -1137,17 +1129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 400);
     }
 
-    function showCombatLog(message, typeClass) {
-        if (!combatLog) return;
-        combatLog.className = '';
-        if (typeClass) combatLog.classList.add(typeClass);
-        combatLog.innerHTML = message;
-        setTimeout(() => {
-            combatLog.innerHTML = "";
-            combatLog.className = '';
-        }, 2000);
-    }
-
     function updateUI() {
         const playerLevelEl = document.getElementById('player-level');
         if (playerLevelEl) {
@@ -1305,7 +1286,6 @@ document.addEventListener('DOMContentLoaded', () => {
             refreshMonsterVisuals();
             updateUI();
             tg.HapticFeedback.impactOccurred('medium');
-            if (combatLog) combatLog.innerText = `WARPED TO ${DUNGEON_STATE.monsterName}`;
         });
     }
 

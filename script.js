@@ -848,11 +848,13 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (!bossVictoryModal.classList.contains('hidden')) {
                     bossVictoryModal.classList.add('hidden');
+
                     if (combatMode === 'push') {
                         nextFloor();
                     } else {
                         spawnNewMonster();
                     }
+                    saveGame();
                 }
             }, 3000);
 
@@ -938,7 +940,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function performRetreat() {
         if (deathModal) deathModal.classList.add('hidden');
         HERO_STATE.currentHP = HERO_STATE.maxHP;
-        if (DUNGEON_STATE.floor > 1) {
+        const isCheckpoint = (DUNGEON_STATE.floor - 1) % 10 === 0;
+        if (DUNGEON_STATE.floor > 1 && !isCheckpoint) {
             DUNGEON_STATE.floor--;
         }
         combatMode = 'farm';

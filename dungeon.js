@@ -39,13 +39,10 @@ export function refreshMonsterVisuals() {
     const floor = DUNGEON_STATE.floor;
     let zoneIndex = Math.floor((floor - 1) / 100);
     if (zoneIndex >= MONSTER_TYPES.length) zoneIndex = MONSTER_TYPES.length - 1;
-
     const monsterType = MONSTER_TYPES[zoneIndex];
     const prefixIndex = Math.floor(((floor - 1) % 100) / 10);
     const prefix = TIER_PREFIXES[prefixIndex] || "Infinite";
-
     DUNGEON_STATE.monsterAsset = monsterType.asset;
-
     const baseName = `${prefix} ${monsterType.name}`.trim();
     if (floor % 10 === 0) {
         DUNGEON_STATE.monsterName = `BOSS: ${baseName}`;
@@ -63,58 +60,51 @@ export function hitMonster(damageAmount) {
 export function calculateRewards() {
     const floor = DUNGEON_STATE.floor;
     const isBoss = (floor % 10 === 0);
-
-    // --- LEVEL GAP PENALTY CALCULATION (Dust Only) ---
     const heroLvl = HERO_STATE.level;
-    const mobLvl = floor;
-    const gap = heroLvl - mobLvl;
-
-    let dustPenaltyMult = 1.0; // Default: 100% Rewards
-
-    if (gap >= 50) {
-        // Extreme Gap: 90% Dust Reduction
-        dustPenaltyMult = 0.1;
-    }
-    else if (gap >= 30) {
-        // Major Gap: 60% Dust Reduction
-        dustPenaltyMult = 0.4;
-    }
-
-    // --- ITEM DROPS (Standard Logic - No Penalty) ---
+    const gap = heroLvl - floor;
+    const isFirstKill = floor > (HERO_STATE.maxFloor || 0);
+    let dustPenaltyMult = 1.0;
+    if (gap >= 50) dustPenaltyMult = 0.1;
+    else if (gap >= 30) dustPenaltyMult = 0.4;
     let lootDrop = null;
-
-    // Calculate Standard Chance based on Floor Depth
-    let chance = 0.70;
-    if (floor > 500) chance = 0.40;
-    if (floor > 1000) chance = 0.15;
-
-    // Bosses always guarantee a drop
-    const finalDropChance = isBoss ? 1.0 : chance;
-
-    if (Math.random() <= finalDropChance) {
-        for (let i = MATERIAL_TIERS.length - 1; i >= 0; i--) {
-            if (floor >= MATERIAL_TIERS[i].dropFloor) {
-                lootDrop = {
-                    id: MATERIAL_TIERS[i].id,
-                    name: MATERIAL_TIERS[i].name,
-                    amount: isBoss ? 3 : 1
-                };
-                break;
+    const allowLoot = !isBoss || isFirstKill;
+    if (allowLoot) {
+        let chance = 0.40;
+        if (floor > 300) chance = 0.30;
+        if (floor > 600) chance = 0.20;
+        if (floor > 900) chance = 0.10;
+        if (floor > 1200) chance = 0.05;
+        const finalDropChance = isBoss ? 1.0 : chance;
+        if (Math.random() <= finalDropChance) {
+            for (let i = MATERIAL_TIERS.length - 1; i >= 0; i--) {
+                if (floor >= MATERIAL_TIERS[i].dropFloor) {
+                    lootDrop = {
+                        id: MATERIAL_TIERS[i].id,
+                        name: MATERIAL_TIERS[i].name,
+                        amount: isBoss ? 3 : 1
+                    };
+                    break;
+                }
             }
         }
     }
-
-    // --- DUST REWARD (With Penalty) ---
     let dustMultiplier = 15;
     if (floor > 500) dustMultiplier = 10;
     if (floor > 1000) dustMultiplier = 5;
-
     let rawDust = Math.floor(floor * dustMultiplier);
-    const dustReward = Math.floor(rawDust * dustPenaltyMult);
-
-    // --- GEM REWARDS ---
-    let gemRewardAmount = 0;
+    let rawXp = Math.floor(floor * 10 + Math.pow(floor, 1.1));
     if (isBoss) {
+        if (isFirstKill) {
+            rawDust *= 3;
+            rawXp *= 3;
+        } else {
+            rawDust *= 1.5;
+            rawXp *= 1.5;
+        }
+    }
+    const dustReward = Math.floor(rawDust * dustPenaltyMult);
+    let gemRewardAmount = 0;
+    if (isBoss && isFirstKill) {
         if (floor <= 200) gemRewardAmount = 1;
         else if (floor <= 500) gemRewardAmount = 2;
         else if (floor <= 1000) gemRewardAmount = 3;
@@ -123,7 +113,7 @@ export function calculateRewards() {
 
     return {
         dustReward: dustReward,
-        xpReward: Math.floor(floor * 10 + Math.pow(floor, 1.1)),
+        xpReward: Math.floor(rawXp),
         gemReward: gemRewardAmount,
         loot: lootDrop
     };
@@ -175,4 +165,9 @@ export function getDungeonData() { return { ...DUNGEON_STATE }; }
 export function loadDungeonData(savedData) {
     if (!savedData) return;
     Object.assign(DUNGEON_STATE, savedData);
+    if (DUNGEON_STATE.floor > 1 && DUNGEON_STATE.floor % 10 === 0) {
+        console.warn(`[Safety] Loaded on Boss Floor ${DUNGEON_STATE.floor}. Retreating to ${DUNGEON_STATE.floor - 1}.`);
+        DUNGEON_STATE.floor -= 1;
+        calculateStatsForFloor(DUNGEON_STATE.floor);
+    }
 }

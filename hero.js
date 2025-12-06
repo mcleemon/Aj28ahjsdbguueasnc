@@ -31,10 +31,13 @@ export const HERO_STATE = {
 const MAX_LEVEL = 1000;
 
 // --- NEW HELPER: FORCE STAT UPDATE ---
-export function recalculateHeroStats(globalLevel = 1) {
+export function recalculateHeroStats() {
+    const globalLevel = (window.gameState && window.gameState.globalLevel) ? window.gameState.globalLevel : 1;
+
     let totalAttack = 10 + ((HERO_STATE.level - 1) * 2);
     let totalDefense = 0 + ((HERO_STATE.level - 1) * 1);
     let totalHP = 150 + ((HERO_STATE.level - 1) * 10);
+
     const weaponId = HERO_STATE.equipment.mainHand;
     const weapon = WEAPON_DB.find(w => w.id === weaponId);
     if (weapon) {
@@ -42,6 +45,7 @@ export function recalculateHeroStats(globalLevel = 1) {
         const weaponDmg = Math.floor(weapon.damage * (1 + (lvl * 0.5)));
         totalAttack += weaponDmg;
     }
+
     const armorId = HERO_STATE.equipment.body;
     const armor = ARMOR_DB.find(a => a.id === armorId);
     if (armor) {
@@ -49,12 +53,16 @@ export function recalculateHeroStats(globalLevel = 1) {
         const armorDef = Math.floor(armor.defense * (1 + (lvl * 0.5)));
         totalDefense += armorDef;
     }
+
     HERO_STATE.baseAttack = totalAttack;
     HERO_STATE.defense = totalDefense;
     HERO_STATE.maxHP = totalHP;
+
     if (HERO_STATE.currentHP > HERO_STATE.maxHP) HERO_STATE.currentHP = HERO_STATE.maxHP;
-    HERO_STATE.maxEnergy = 50 + (globalLevel * 2);
-    console.log(`Stats Recalculated: ATK ${totalAttack} | DEF ${totalDefense} | HP ${totalHP} | MAX ENERGY ${HERO_STATE.maxEnergy}`);
+
+    HERO_STATE.maxEnergy = Math.min(250, 50 + (globalLevel * 2));
+
+    console.log(`Stats Recalculated: ATK ${totalAttack} | DEF ${totalDefense} | HP ${totalHP} | MAX ENERGY ${HERO_STATE.maxEnergy} (Global Lv.${globalLevel})`);
 }
 
 export function grantHeroExp(amount) {

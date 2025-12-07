@@ -136,13 +136,13 @@ export const GAME_ASSETS = {
 
     // --- MINING ---
     // Placeholders: Replace these with specific images later
-    mineEntrance: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true', 
-    miningItem1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Pickaxe
-    miningItem2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Helmet
-    miningItem3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Rail
-    miningItem4: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Cart
-    miningItem5: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Sieve
-    miningItem6: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Dynamite
-    miningItem7: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Drill
-    miningItem8: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true', // Nexus
+    mineEntrance: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/Mining.png?raw=true', 
+    miningItem1: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningpickaxe.png?raw=true', // Pickaxe
+    miningItem2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/mininghelm.png?raw=true', // Helmet
+    miningItem3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningworker.png?raw=true', // Worker
+    miningItem4: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningdynamite.png?raw=true', // Dynamite
+    miningItem5: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningcart.png?raw=true', // Cart
+    miningItem6: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true', // Power Cell
+    miningItem7: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningdrill.png?raw=true', // Drill
+    miningItem8: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningnexus.png?raw=true', // Nexus
 };

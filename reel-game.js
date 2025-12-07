@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reelGameOverlayText = document.getElementById('reel-game-overlay-text');
     const reelGameOverlayTitle = document.getElementById('reel-game-overlay-title');
     const reelGameFreeSpinsCounterEl = document.getElementById('reel-game-free-spins-counter');
+    const reelScreen = document.getElementById('reel-game-screen');
 
     // --- REEL GAME CONSTANTS (5x3) ---
     const SYMBOL_HEIGHT = 80;
@@ -727,6 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stopAutoSpin();
         }
         if (isSpinning) return;
+        if (reelScreen) reelScreen.classList.remove('free-spin-active');
         audioManager.stopMusic(true); // Fade out music
         bodyEl.style.backgroundImage = `url('${GAME_ASSETS.background}')`;
         gameContainer.classList.remove('hidden');
@@ -1043,11 +1045,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 tg.HapticFeedback.notificationOccurred('error');
                 return;
             }
+            gameState.reelTickets -= 1;
+            gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
         } else {
             if (gameState.dust < currentTotalBet) {
                 tg.HapticFeedback.notificationOccurred('error');
                 return;
             }
+            gameState.dust -= currentTotalBet;
+            gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
         isSpinning = true;
         audioManager.playSound('spin');
@@ -1063,10 +1069,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reelGameColumns.forEach(col => col.classList.remove('reel-column-hunting'));
         if (isFreeSpins) {
         } else if (isTicketMode) {
-            gameState.reelTickets = (gameState.reelTickets || 1) - 1;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
         } else {
-            gameState.dust -= currentTotalBet;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
         if (saveGame) saveGame();
@@ -1267,9 +1271,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function triggerFreeSpins(spinsAwarded) {
         console.log(`FREE SPINS TRIGGERED! ${spinsAwarded} spins awarded.`);
+        if (reelGameWinDisplay) {
+            reelGameWinDisplay.classList.remove('visible');
+            if (reelGameWinTitleEl) reelGameWinTitleEl.innerText = "";
+            if (reelGameWinNumberEl) reelGameWinNumberEl.innerText = "";
+        }
         audioManager.playSound('bonus');
         tg.HapticFeedback.notificationOccurred('success');
         showReelOverlay(`YOU WIN ${spinsAwarded} FREE SPINS!`);
+        if (reelScreen) reelScreen.classList.add('free-spin-active');
         if (reelGameFreeSpinsCounterEl) reelGameFreeSpinsCounterEl.classList.remove('hidden');
         await wait(2500);
         hideReelOverlay();
@@ -1298,6 +1308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(500);
         gameState.dust += freeSpinsTotalWin;
         isFreeSpins = false;
+        if (reelScreen) reelScreen.classList.remove('free-spin-active');
         isAutoSpinning = false;
         isSpinning = false;
         populateReels();

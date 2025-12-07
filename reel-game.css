@@ -492,11 +492,74 @@
     width: 100%;
     max-width: 400px;
     background: #4a2c0c;
-    border: 5px solid #b16c27;
+    border: 5px solid transparent;
     border-radius: 15px;
     padding: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    background-image: linear-gradient(#2e1c05, #2e1c05),
+        linear-gradient(110deg, #5c3a1e 35%, #b38040 50%, #5c3a1e 65%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    background-size: 200% 100%;
+
+    animation: shimmer-idle 3s linear infinite;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* --- ANIMATIONS --- */
+
+@keyframes shimmer-idle {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+@keyframes neon-race {
+    0% {
+        background-position: 0% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes window-fever-pulse {
+    0% {
+        box-shadow: inset 0 0 20px #000;
+        border-color: #aa00aa;
+    }
+
+    100% {
+        box-shadow: inset 0 0 60px #000;
+        border-color: #ff00ff;
+    }
+}
+
+/* --- FEVER MODE (Free Spins) --- */
+
+#reel-game-screen.free-spin-active .reel-game-frame-wrapper {
+    background-image: linear-gradient(#1a051a, #1a051a),
+        linear-gradient(90deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+    background-size: 200% 100%;
+    animation: neon-race 1s linear infinite;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 30px #1a051a;
+    border-width: 6px;
+}
+
+#reel-game-screen.free-spin-active .reel-game-window {
+    animation: window-fever-pulse 1.5s ease-in-out infinite alternate;
+    background-color: #111;
+}
+
+#reel-game-screen.free-spin-active .reel-game-column {
+    border-right: 1px solid rgba(255, 0, 255, 0.4);
 }
 
 .reel-ticket-button {
@@ -846,8 +909,7 @@
 
 .reel-game-symbol .symbol-bar3,
 .reel-game-symbol .symbol-bar2,
-.reel-game-symbol .symbol-bar1
-    {
+.reel-game-symbol .symbol-bar1 {
     color: #ffffff;
     font-size: 1.4em;
 }

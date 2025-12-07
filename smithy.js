@@ -123,35 +123,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCraftCard(item, highestTierOwned, container, type) {
         const ownedIds = HERO_STATE.ownedItems;
         const isOwned = ownedIds.includes(item.id);
-
-        // --- REMOVED "isTooFar" LOGIC ---
-        // We now render the full card for every item, regardless of tier gap.
-
         const itemDiv = document.createElement('div');
         itemDiv.className = 'forge-item';
-
         const iconClass = type === 'weapon' ? 'weapon-icon' : 'armor-icon';
         const statLabel = type === 'weapon' ? 'Base DMG' : 'Base DEF';
         const statValue = type === 'weapon' ? item.damage : item.defense;
-
-        // --- MAIN COST ---
         const mainMatCount = 50;
         const dustCost = getForgeCost(item.tier);
-
         const haveDust = window.gameState.dust >= dustCost;
         const formattedDust = window.formatNumberGlobal ? window.formatNumberGlobal(dustCost) : dustCost;
-
         let canCraft = haveDust;
         let ingredientsHTML = "";
-
-        // A. Dust
         ingredientsHTML += `
             <span class="recipe-item ${haveDust ? '' : 'missing'}">
                 <img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust">
                 ${formattedDust}
             </span>`;
-
-        // B. Main Material
         if (item.matReq) {
             const qty = (HERO_STATE.inventory[item.matReq] || 0);
             const haveIt = qty >= mainMatCount;
@@ -165,16 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 </span>`;
         }
 
-        // C. Extra Materials (Composite Recipe)
         if (item.extraMats) {
             item.extraMats.forEach(mat => {
                 const qty = (HERO_STATE.inventory[mat.id] || 0);
                 const haveIt = qty >= mat.count;
                 if (!haveIt) canCraft = false;
-
                 let matClass = getMatClass(mat.id);
                 const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
-
                 ingredientsHTML += `
                     <span class="recipe-item ${haveIt ? '' : 'missing'}">
                         <div class="bag-item-icon ${matClass} icon-small-circle"></div> 
@@ -189,8 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             actionBtn = `<button class="forge-btn" ${canCraft ? '' : 'disabled'}>CRAFT</button>`;
         }
-
-        // Render the Full Card
         itemDiv.innerHTML = `
             <div class="forge-icon-box"><div class="${iconClass}"></div></div>
             <div class="forge-details">
@@ -202,8 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ${actionBtn}
         `;
-
-        // Attach Listener
         if (!isOwned) {
             const btn = itemDiv.querySelector('.forge-btn');
             if (btn && !btn.disabled) {
@@ -213,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         } else {
-            // If owned, simple layout (optional override for owned items)
             itemDiv.innerHTML = `
                 <div class="forge-icon-box"><div class="${iconClass}"></div></div>
                 <div class="forge-details">
@@ -228,23 +207,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function craftItem(item, dustCost, mainMatCount, type) {
-        // Deduct Dust
-        window.gameState.dust -= dustCost;
-
-        // Deduct Main Material
+        if (window.gameState.dust < dustCost) return;
+        if (item.matReq) {
+            const currentQty = HERO_STATE.inventory[item.matReq] || 0;
+            if (currentQty < mainMatCount) return;
+        }
+        if (item.extraMats) {
+            for (const mat of item.extraMats) {
+                const currentQty = HERO_STATE.inventory[mat.id] || 0;
+                if (currentQty < mat.count) return;
+            }
+        }
         if (item.matReq) {
             HERO_STATE.inventory[item.matReq] -= mainMatCount;
         }
-
-        // Deduct Extra Materials (Composite)
         if (item.extraMats) {
             item.extraMats.forEach(mat => {
                 HERO_STATE.inventory[mat.id] -= mat.count;
             });
         }
-
         HERO_STATE.ownedItems.push(item.id);
-
         if (!HERO_STATE.itemLevels) HERO_STATE.itemLevels = {};
         HERO_STATE.itemLevels[item.id] = 0;
         if (window.saveGameGlobal) window.saveGameGlobal();
@@ -257,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
             recalculateHeroStats();
             renderArmorList();
         }
-
         if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         if (window.refreshGameUI) window.refreshGameUI();
     }
@@ -347,31 +328,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- UPGRADE COST ---
         const baseForgeCost = getForgeCost(item.tier);
         const dust = Math.floor(baseForgeCost * (1 + (level * 0.2)));
-
-        // Material Cost Curve (2 -> 10)
         let mats = 2;
         if (level >= 3) mats = 4;
         if (level >= 6) mats = 6;
         if (level >= 9) mats = 10;
-
         sharpenCostDust.innerText = window.formatNumberGlobal ? window.formatNumberGlobal(dust) : dust;
         sharpenCostMat.innerText = mats;
-
-        // Mat Icon Style
         let matClass = 'mat-iron';
         if (item.matReq) {
             matClass = getMatClass(item.matReq);
         }
         sharpenMatIcon.className = `bag-item-icon ${matClass} icon-small-circle`;
-
         const haveDust = window.gameState.dust >= dust;
         const haveMats = (HERO_STATE.inventory[item.matReq] || 0) >= mats;
-
         doSharpenBtn.disabled = false;
-
-        // Clone button to remove old listeners
         doSharpenBtn.onclick = null;
-
         if (level >= 10) {
             doSharpenBtn.disabled = true;
             doSharpenBtn.innerText = "MAX LEVEL";
@@ -381,33 +352,108 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             doSharpenBtn.disabled = false;
             doSharpenBtn.innerText = `SHARPEN (${chance}%)`;
-            // Assign new click handler
             doSharpenBtn.onclick = () => performSharpen(chance, dust, mats, item.matReq, item.id, isWeapon);
         }
     }
 
     function performSharpen(chance, dustCost, matCost, matId, itemId, isWeapon) {
+        // --- 1. SECURITY CHECKS & DEDUCTIONS (Immediate) ---
+        const currentLevel = (HERO_STATE.itemLevels && HERO_STATE.itemLevels[itemId]) || 0;
+        if (currentLevel >= 10) return;
+
+        // Disable button immediately to prevent double clicks
+        doSharpenBtn.disabled = true;
+        doSharpenBtn.innerText = "FORGING...";
+        sharpenMsg.innerText = "";
+
         window.gameState.dust -= dustCost;
         HERO_STATE.inventory[matId] -= matCost;
 
+        // --- 2. CALCULATE OUTCOME (Immediate) ---
         const roll = Math.random() * 100;
         const success = roll < chance;
 
-        if (success) {
-            HERO_STATE.itemLevels[itemId] = (HERO_STATE.itemLevels[itemId] || 0) + 1;
-            recalculateHeroStats();
-            sharpenMsg.innerText = "SUCCESS!";
-            sharpenMsg.className = "sharpen-msg msg-success";
-            if (window.Telegram) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        } else {
-            sharpenMsg.innerText = "FAILED...";
-            sharpenMsg.className = "sharpen-msg msg-fail";
-            if (window.Telegram) window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-        }
+        // Save immediately so no "reload cheat" works
+        if (window.saveGameGlobal) window.saveGameGlobal();
 
-        updateSharpenUI();
-        if (window.refreshGameUI) window.refreshGameUI();
-        setTimeout(() => sharpenMsg.innerText = "", 2000);
+        // --- 3. ANIMATION SEQUENCE ---
+        const container = document.querySelector('.sharpen-icon-frame');
+
+        // A. Create Hammer
+        const hammer = document.createElement('div');
+        hammer.className = 'smithy-hammer';
+        hammer.innerText = '🔨';
+        container.appendChild(hammer);
+
+        // B. Start Swing
+        requestAnimationFrame(() => hammer.classList.add('striking'));
+
+        // C. IMPACT (at 420ms - matches 60% of 0.7s animation)
+        setTimeout(() => {
+            spawnSmithySparks(document.querySelector('.sharpen-icon-frame'));
+            container.classList.add('shake-vertical');
+
+            // Heavy Haptic
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+            }
+
+            // Remove shake class quickly
+            setTimeout(() => container.classList.remove('shake-vertical'), 200);
+        }, 420);
+
+        // D. REVEAL RESULT (at 700ms - after hammer finishes)
+        setTimeout(() => {
+            hammer.remove(); // Clean up hammer
+
+            if (success) {
+                HERO_STATE.itemLevels[itemId] = (HERO_STATE.itemLevels[itemId] || 0) + 1;
+                recalculateHeroStats();
+                sharpenMsg.innerText = "SUCCESS!";
+                sharpenMsg.className = "sharpen-msg msg-success";
+                if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            } else {
+                sharpenMsg.innerText = "FAILED...";
+                sharpenMsg.className = "sharpen-msg msg-fail";
+                if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+            }
+
+            // Refresh UI
+            updateSharpenUI();
+            if (window.refreshGameUI) window.refreshGameUI();
+
+            // Clear message after delay
+            setTimeout(() => sharpenMsg.innerText = "", 2000);
+
+        }, 700);
+    }
+
+    function spawnSmithySparks(container) {
+        const rect = container.getBoundingClientRect();
+        // Spawn sparks in the center of the container (where the icon is)
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2; // Adjust if needed
+
+        for (let i = 0; i < 20; i++) {
+            const spark = document.createElement('div');
+            spark.className = 'smithy-spark';
+            spark.style.left = '50%';
+            spark.style.top = '40%'; // Hit the item icon area
+
+            // Random explosion direction
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 50 + Math.random() * 100;
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+
+            spark.style.setProperty('--tx', `${tx}px`);
+            spark.style.setProperty('--ty', `${ty}px`);
+
+            spark.style.animation = `spark-fly 0.6s ease-out forwards`;
+
+            container.appendChild(spark);
+            setTimeout(() => spark.remove(), 600);
+        }
     }
 
     // --- NAVIGATION ---

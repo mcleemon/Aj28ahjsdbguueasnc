@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameState = window.gameState;
     const saveGame = window.saveGameGlobal;
     const formatNumber = window.formatNumberGlobal;
+    let wobbleTimer = null;
 
     // --- 3. CONSTANTS ---
     const FEEDS_PER_REWARD = 25;
@@ -77,12 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
             updateMimicUI();
             return;
         }
-
         gameState.dust -= cost;
         gameState.mimicFeedsToday++;
         gameState.mimicFeedProgress++;
+        mimicImage.classList.remove('monster-wobble');
+        void mimicImage.offsetWidth;
         mimicImage.classList.add('monster-wobble');
-        setTimeout(() => mimicImage.classList.remove('monster-wobble'), 500);
+        if (wobbleTimer) clearTimeout(wobbleTimer);
+        wobbleTimer = setTimeout(() => mimicImage.classList.remove('monster-wobble'), 500);
         resultText.innerText = `The Mimic chews... (${gameState.mimicFeedProgress} / ${FEEDS_PER_REWARD})`;
         if (gameState.mimicFeedProgress >= FEEDS_PER_REWARD) {
             updateMimicUI();

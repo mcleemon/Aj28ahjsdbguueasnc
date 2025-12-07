@@ -141,11 +141,11 @@ button:active {
 .game-arena {
     flex-grow: 1;
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     position: relative;
     width: 100%;
-    flex-direction: column;
     padding-top: 10px;
 }
 
@@ -894,8 +894,10 @@ img {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    min-height: 18.5vh;
-    max-height: 150px;
+    min-height: auto;
+    max-height: none;
+    margin-bottom: 5px;
+    z-index: 5;
 }
 
 .shop-panel {
@@ -3663,6 +3665,94 @@ img {
     }
 }
 
+/* --- SMITHY IMPACT VISUALS --- */
+
+.smithy-hammer {
+    position: absolute;
+    top: -50%;
+    left: 60%;
+    font-size: 90px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transform-origin: bottom right;
+    filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
+    overflow: visible;
+}
+
+.smithy-hammer.striking {
+    animation: hammer-smash 0.6s ease-in forwards;
+}
+
+@keyframes hammer-smash {
+    0% {
+        opacity: 1;
+        transform: rotate(10deg);
+    }
+
+    40% {
+        transform: rotate(30deg);
+    }
+
+    60% {
+        transform: rotate(-50deg) scale(1.1);
+    }
+
+    80% {
+        transform: rotate(-40deg) scale(1.0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(-40deg);
+    }
+}
+
+.smithy-spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #ffd700;
+    border-radius: 50%;
+    z-index: 99;
+    pointer-events: none;
+    box-shadow: 0 0 10px #ff4500;
+    top: 50%;
+    left: 50%;
+}
+
+@keyframes spark-fly {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+.shake-vertical {
+    animation: shake-v 0.2s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake-v {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(10px);
+    }
+
+    75% {
+        transform: translateY(-5px);
+    }
+}
+
 /* --- GLASS CAPSULE UI --- */
 .stat {
     background-color: rgba(0, 0, 0, 0.6);
@@ -4023,6 +4113,88 @@ img {
     background: radial-gradient(circle, #004444 0%, #001111 100%);
 }
 
+/* --- JUICY EFFECTS --- */
+
+/* 2. BOSS SPOTLIGHTS */
+.spotlight-beam {
+    position: absolute;
+    bottom: -50%;
+    width: 100px;
+    height: 200%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.4), transparent);
+    z-index: -1;
+    transform-origin: bottom center;
+    pointer-events: none;
+    filter: blur(15px);
+}
+
+.spotlight-left {
+    left: -20px;
+    animation: sweep-left 2s ease-in-out infinite alternate;
+}
+
+.spotlight-right {
+    right: -20px;
+    animation: sweep-right 2s ease-in-out infinite alternate;
+}
+
+@keyframes sweep-left {
+    0% {
+        transform: rotate(15deg);
+        opacity: 0.3;
+    }
+
+    100% {
+        transform: rotate(45deg);
+        opacity: 0.7;
+    }
+}
+
+@keyframes sweep-right {
+    0% {
+        transform: rotate(-15deg);
+        opacity: 0.3;
+    }
+
+    100% {
+        transform: rotate(-45deg);
+        opacity: 0.7;
+    }
+}
+
+/* 3. FULL SCREEN CELEBRATION */
+.fullscreen-confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.falling-confetti {
+    position: absolute;
+    top: -20px;
+    width: 10px;
+    height: 20px;
+    background: #ff0000;
+    animation: fall-sway 3s linear forwards;
+}
+
+@keyframes fall-sway {
+    0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(110vh) rotate(720deg) translateX(var(--sway));
+        opacity: 0;
+    }
+}
+
 @keyframes curtain-drop {
     0% {
         transform: translateY(-100%);
@@ -4262,5 +4434,194 @@ img {
     to {
         opacity: 0;
         transform: scale(0.95);
+    }
+}
+
+.energy-fill.refilling {
+    background-image: linear-gradient(45deg,
+            rgba(255, 255, 255, 0.2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.2) 75%,
+            transparent 75%,
+            transparent);
+    background-size: 20px 20px;
+    animation: energy-flow 1s linear infinite;
+}
+
+@keyframes energy-flow {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 20px 0;
+    }
+}
+
+/* --- LIVING MINE ANIMATIONS --- */
+
+.anim-swing {
+    transform-origin: bottom right;
+    animation: mining-swing 1.5s ease-in-out infinite;
+}
+
+@keyframes mining-swing {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(-25deg);
+    }
+}
+
+.anim-bob {
+    animation: mining-bob 2s ease-in-out infinite;
+}
+
+@keyframes mining-bob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+.anim-breathe {
+    animation: mining-breathe 3s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+@keyframes mining-breathe {
+
+    0%,
+    100% {
+        transform: scale(1, 1);
+    }
+
+    50% {
+        transform: scale(1.05, 0.95);
+    }
+}
+
+.anim-pulse-red {
+    animation: mining-pulse-red 2s infinite;
+}
+
+@keyframes mining-pulse-red {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 0 transparent);
+        transform: scale(1);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 5px #ff0000);
+        transform: scale(1.05);
+    }
+}
+
+.anim-rock {
+    transform-origin: bottom center;
+    animation: mining-rock 1s ease-in-out infinite;
+}
+
+@keyframes mining-rock {
+
+    0%,
+    100% {
+        transform: rotate(-3deg);
+    }
+
+    50% {
+        transform: rotate(3deg);
+    }
+}
+
+.anim-pulse-glow {
+    transform-origin: center center;
+    animation: mining-battery-pulse 2s ease-in-out infinite;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+@keyframes mining-battery-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.3)) brightness(1);
+    }
+    50% { 
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.8)) brightness(1.2);
+    }
+}
+
+.anim-shake {
+    animation: mining-drill 0.2s linear infinite;
+}
+
+@keyframes mining-drill {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    25% {
+        transform: translate(1px, 1px);
+    }
+
+    50% {
+        transform: translate(-1px, -1px);
+    }
+
+    75% {
+        transform: translate(-1px, 1px);
+    }
+
+    100% {
+        transform: translate(1px, -1px);
+    }
+}
+
+.anim-float-glow {
+    animation: mining-nexus-rainbow 4s ease-in-out infinite;
+}
+
+@keyframes mining-nexus-rainbow {
+    /* 0%: Bottom + Red */
+    0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 5px #ff0000); 
+    }
+
+    /* 25%: Motion interpolates automatically (smooth). Color changes to Gold. */
+    25% {
+        filter: drop-shadow(0 0 10px #ffd700); 
+    }
+
+    /* 50%: Top Peak + Cyan */
+    50% {
+        transform: translateY(-10px); /* Move this once here */
+        filter: drop-shadow(0 0 15px #00ffff); 
+    }
+
+    /* 75%: Motion interpolates automatically (smooth). Color changes to Purple. */
+    75% {
+        filter: drop-shadow(0 0 10px #ff00ff); 
+    }
+
+    /* 100%: Bottom + Red */
+    100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 5px #ff0000); 
     }
 }

@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.94">
+    <link rel="stylesheet" href="style.css?v=2.13.95">
     <link rel="stylesheet" href="blackjack.css?v=1.0.24">
     <link rel="stylesheet" href="reel-game.css?v=1.0.6">
 </head>
@@ -48,6 +48,13 @@
                         </span>
                         <span id="gem-shards-counter">0</span>
                     </div>
+                    <div class="stat">
+                        <span class="label">
+                            <img data-asset-key="iconGem" alt="Prism Stone" class="icon-gem">
+                            Prism Stone
+                        </span>
+                        <span id="prism-stone-counter">0</span>
+                    </div>
                 </div>
             </div>
             <div id="temporary-message" class="temporary-message hidden"></div>
@@ -67,6 +74,7 @@
                     <div class="left-controls-stack">
                         <button id="btn-attack-toggle" class="control-circle-btn">ATTACK</button>
                         <button id="btn-auto-toggle" class="control-circle-btn">AUTO</button>
+                        <button id="btn-fast-toggle" class="control-circle-btn">FAST</button>
                     </div>
                     <div class="right-controls-stack">
                         <button id="select-area-button" class="control-circle-btn map-btn-style">
@@ -935,7 +943,7 @@
                         <span id="mining-total-pph-display" class="stat-value">0/hr</span>
                     </div>
                     <div class="stat-pill">
-                        <span class="stat-label">SILO</span>
+                        <span class="stat-label">CAPACITY</span>
                         <span id="mining-silo-timer" class="stat-value">00:00</span>
                     </div>
                 </div>
@@ -970,7 +978,11 @@
                     </div>
                     <div class="mining-center-silo">
                         <div id="mining-silo-click-area">
-                            <img id="mining-silo-image" data-asset-key="mineEntrance">
+                            <div class="mining-icon-frame large-frame">
+                                <img id="mining-silo-image" data-asset-key="mineEntrance">
+                                <div class="mining-lvl-badge" id="silo-level-badge">Lv.1</div>
+                            </div>
+                            <div class="mining-slot-label static-label">Mining Site</div>
                             <div class="silo-capacity-bar-outer">
                                 <div id="silo-capacity-bar-inner"></div>
                             </div>
@@ -1015,7 +1027,7 @@
 
                     <div class="upgrade-stats-row">
                         <div class="upgrade-stat">
-                            <span class="label">PPH</span>
+                            <span class="label" id="upgrade-stat-label">PPH</span>
                             <span id="upgrade-pph-preview" class="value">+50 <span class="gain">(+10)</span></span>
                         </div>
                         <div class="upgrade-stat cost-stat">
@@ -1090,20 +1102,20 @@
     </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.94" type="module"></script>
+    <script src="script.js?v=2.13.95" type="module"></script>
     <script src="assets.js?v=1.0.11" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="hero.js?v=1.1.5" type="module"></script>
-    <script src="dungeon.js?v=1.1.5" type="module"></script>
-    <script src="smithy.js?v=1.0.3" type="module"></script>
+    <script src="hero.js?v=1.1.6" type="module"></script>
+    <script src="dungeon.js?v=1.1.6" type="module"></script>
+    <script src="smithy.js?v=1.0.4" type="module"></script>
     <script src="shop.js?v=1.0.14" type="module"></script>
     <script src="tasks.js?v=1.0.9" type="module"></script>
-    <script src="heroMenu.js?v=2.0.3" type="module"></script>
+    <script src="heroMenu.js?v=2.0.4" type="module"></script>
     <script src="blackjack.js?v=1.1.21" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>
-    <script src="reel-game.js?v=1.0.6" type="module"></script>
+    <script src="reel-game.js?v=1.0.7" type="module"></script>
 </body>
 
 </html>

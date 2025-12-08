@@ -7,24 +7,24 @@ import { GAME_ASSETS } from './assets.js';
 // --- CONFIGURATION (Balanced Economy Table) ---
 export const MINING_ITEMS = [
     // LEFT SIDE (Labor - Lower Cost Scaling)
-    { id: 1, name: "Pickaxe", baseCost: 100, basePPH: 50, costMult: 1.14, icon: 'miningItem1' },
-    { id: 2, name: "Helmet", baseCost: 2500, basePPH: 200, costMult: 1.14, icon: 'miningItem2', reqId: 1 },
-    { id: 3, name: "Worker", baseCost: 12000, basePPH: 600, costMult: 1.15, icon: 'miningItem3', reqId: 2 },
-    { id: 4, name: "Dynamite Crate", baseCost: 50000, basePPH: 2000, costMult: 1.15, icon: 'miningItem4', reqId: 3 },
+    { id: 1, name: "Pickaxe", baseCost: 1000, basePPH: 50, costMult: 1.16, icon: 'miningItem1' },
+    { id: 2, name: "Helmet", baseCost: 25000, basePPH: 200, costMult: 1.16, icon: 'miningItem2', reqId: 1 },
+    { id: 3, name: "Worker", baseCost: 120000, basePPH: 600, costMult: 1.15, icon: 'miningItem3', reqId: 2 },
+    { id: 4, name: "Dynamite Crate", baseCost: 500000, basePPH: 2000, costMult: 1.15, icon: 'miningItem4', reqId: 3 },
 
     // RIGHT SIDE (Tech - Higher Cost Scaling)
-    { id: 5, name: "Minecart", baseCost: 150000, basePPH: 5000, costMult: 1.16, icon: 'miningItem5', reqId: 4 },
-    { id: 6, name: "Power Cell", baseCost: 400000, basePPH: 12000, costMult: 1.16, icon: 'miningItem6', reqId: 5 },
-    { id: 7, name: "Mana Drill", baseCost: 1000000, basePPH: 25000, costMult: 1.17, icon: 'miningItem7', reqId: 6 },
-    { id: 8, name: "Nexus Core", baseCost: 2500000, basePPH: 50000, costMult: 1.18, icon: 'miningItem8', reqId: 7 }
+    { id: 5, name: "Minecart", baseCost: 600000, basePPH: 5000, costMult: 1.16, icon: 'miningItem5', reqId: 4 },
+    { id: 6, name: "Power Cell", baseCost: 1600000, basePPH: 12000, costMult: 1.16, icon: 'miningItem6', reqId: 5 },
+    { id: 7, name: "Driller", baseCost: 4000000, basePPH: 25000, costMult: 1.17, icon: 'miningItem7', reqId: 6 },
+    { id: 8, name: "Nexus Core", baseCost: 10000000, basePPH: 50000, costMult: 1.18, icon: 'miningItem8', reqId: 7 }
 ];
 
 export const SILO_LEVELS = [
-    { level: 1, hours: 4, cost: 0 },
-    { level: 2, hours: 6, cost: 250000 },
-    { level: 3, hours: 8, cost: 1000000 },
-    { level: 4, hours: 12, cost: 10000000 },
-    { level: 5, hours: 24, cost: 100000000 }
+    { level: 1, hours: 2, cost: 0 },
+    { level: 2, hours: 4, cost: 250000 },
+    { level: 3, hours: 6, cost: 5000000 },
+    { level: 4, hours: 12, cost: 25000000 },
+    { level: 5, hours: 18, cost: 300000000 }
 ];
 
 // --- CORE FUNCTIONS ---
@@ -49,11 +49,10 @@ export function getNextCost(itemId) {
     const item = MINING_ITEMS.find(i => i.id === itemId);
     if (!item) return 0;
     const level = getItemLevel(itemId);
-    
-    // Use specific Item Multiplier (or default to 1.15 if missing)
-    const mult = item.costMult || 1.15; 
-    
-    // Formula: Base * (Mult ^ Level)
+    const mult = item.costMult || 1.15;
+    if (level === 0) {
+        return Math.floor(item.baseCost * 2);
+    }
     return Math.floor(item.baseCost * Math.pow(mult, level));
 }
 
@@ -61,7 +60,8 @@ export function getItemPPH(itemId) {
     const item = MINING_ITEMS.find(i => i.id === itemId);
     if (!item) return 0;
     const level = getItemLevel(itemId);
-    return item.basePPH * level;
+    if (level <= 0) return 0;
+    return Math.floor(item.basePPH * Math.pow(level, 0.9));
 }
 
 export function getTotalPPH() {

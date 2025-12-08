@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginRewardText = document.getElementById('login-reward-text');
     const btnAttack = document.getElementById('btn-attack-toggle');
     const btnAuto = document.getElementById('btn-auto-toggle');
+    const btnFast = document.getElementById('btn-fast-toggle');
     const btnSelectArea = document.getElementById('select-area-button');
     const gameBody = document.body;
     const sceneTransition = document.getElementById('scene-transition');
@@ -134,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollLeftBtn = document.getElementById('scroll-arrow-left');
     const scrollRightBtn = document.getElementById('scroll-arrow-right');
     const energyTimerText = document.getElementById('energy-timer');
+    const prismStoneCounter = document.getElementById('void-stone-counter');
 
     // --- MINING DOM ELEMENTS ---
     const miningModal = document.getElementById('mining-modal');
@@ -167,6 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const COMBAT_RATE = 1000;
     const MAX_LAG_CATCHUP = 3000;
     let isPlayerTurn = true;
+    let combatSpeedMultiplier = 1.0;
+    const BASE_COMBAT_RATE = 1000;
 
     let modalStack = [];
 
@@ -179,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- CURRENCIES ---
             dust: 0,
             gemShards: 0,
+            prismStones: 0,
             reelTickets: 0,
 
             // --- SYSTEM VARS ---
@@ -430,6 +435,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const capacity = getSiloCapacity();
         const percentFull = Math.min(100, (currentMined / capacity) * 100);
         siloCapacityBarInner.style.width = `${percentFull}%`;
+        const siloBadge = document.getElementById('silo-level-badge');
+        if (siloBadge) {
+            siloBadge.innerText = `Lv.${miningState.siloLevel}`;
+        }
+        const centerContainer = document.querySelector('.mining-center-silo');
+        if (centerContainer) {
+            if (currentMiningSelection === 'silo') {
+                centerContainer.classList.add('selected');
+            } else {
+                centerContainer.classList.remove('selected');
+            }
+        }
+        const siloImg = document.getElementById('mining-silo-image');
+        if (siloImg) {
+            siloImg.classList.remove('silo-glow-low', 'silo-glow-med', 'silo-glow-full');
+            if (percentFull >= 100) {
+                siloImg.classList.add('silo-glow-full');
+            } else if (percentFull >= 50) {
+                siloImg.classList.add('silo-glow-med');
+            } else {
+                siloImg.classList.add('silo-glow-low');
+            }
+        }
         siloAmountText.innerText = `${formatNumber(currentMined)} / ${formatNumber(capacity)}`;
         if (currentMined >= capacity) {
             miningSiloTimer.innerText = "FULL";
@@ -448,32 +476,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 miningSiloTimer.innerText = "Active";
             }
         }
+
         document.querySelectorAll('.mining-slot').forEach(slot => {
             const id = parseInt(slot.dataset.id);
             if (!id) return;
             const level = getItemLevel(id);
             const unlocked = isItemUnlocked(id);
             const badge = slot.querySelector('.mining-lvl-badge');
+            const itemData = MINING_ITEMS.find(i => i.id === id);
+            let labelEl = slot.querySelector('.mining-slot-label');
+            if (!labelEl && itemData) {
+                labelEl = document.createElement('div');
+                labelEl.className = 'mining-slot-label';
+                labelEl.innerText = itemData.name;
+                slot.appendChild(labelEl);
+            }
             const imgEl = slot.querySelector('img');
             if (imgEl) {
-                imgEl.classList.remove('anim-swing', 'anim-bob', 'anim-breathe', 'anim-pulse-red', 'anim-rock', 'anim-spin', 'anim-shake', 'anim-float-glow');
+                imgEl.classList.remove('anim-swing', 'anim-bob', 'anim-breathe', 'anim-pulse-red', 'anim-rock', 'anim-spin', 'anim-shake', 'anim-float-glow', 'anim-pulse-glow');
                 if (unlocked) {
-                    if (id === 1) imgEl.classList.add('anim-swing');       // Pickaxe
-                    if (id === 2) imgEl.classList.add('anim-bob');         // Helmet
-                    if (id === 3) imgEl.classList.add('anim-breathe');     // Worker
-                    if (id === 4) imgEl.classList.add('anim-pulse-red');   // Dynamite
-                    if (id === 5) imgEl.classList.add('anim-rock');        // Minecart
-                    if (id === 6) imgEl.classList.add('anim-pulse-glow');       // Power Cell
-                    if (id === 7) imgEl.classList.add('anim-shake');       // Drill
-                    if (id === 8) imgEl.classList.add('anim-float-glow');  // Nexus
+                    if (id === 1) imgEl.classList.add('anim-swing');
+                    if (id === 2) imgEl.classList.add('anim-bob');
+                    if (id === 3) imgEl.classList.add('anim-breathe');
+                    if (id === 4) imgEl.classList.add('anim-pulse-red');
+                    if (id === 5) imgEl.classList.add('anim-rock');
+                    if (id === 6) imgEl.classList.add('anim-pulse-glow');
+                    if (id === 7) imgEl.classList.add('anim-shake');
+                    if (id === 8) imgEl.classList.add('anim-float-glow');
                 }
             }
             if (!unlocked) {
                 slot.classList.add('locked');
                 badge.innerText = "Locked";
+                if (labelEl) labelEl.style.display = 'none';
             } else {
                 slot.classList.remove('locked');
                 badge.innerText = `Lv.${level}`;
+                if (labelEl) labelEl.style.display = 'block';
             }
             if (currentMiningSelection === id) {
                 slot.classList.add('selected');
@@ -481,11 +520,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 slot.classList.remove('selected');
             }
         });
+
+        miningUpgradePanel.classList.remove('hidden');
+
         if (currentMiningSelection) {
-            miningUpgradePanel.classList.remove('hidden');
+            if (miningUpgradePanel.querySelector('.upgrade-placeholder-text')) {
+                miningUpgradePanel.querySelector('.upgrade-placeholder-text').remove();
+            }
+            Array.from(miningUpgradePanel.children).forEach(child => child.style.display = 'flex');
             updateUpgradePanel();
         } else {
-            miningUpgradePanel.classList.add('hidden');
+            Array.from(miningUpgradePanel.children).forEach(child => child.style.display = 'none');
+            let placeholder = miningUpgradePanel.querySelector('.upgrade-placeholder-text');
+            if (!placeholder) {
+                placeholder = document.createElement('div');
+                placeholder.className = 'upgrade-placeholder-text';
+                placeholder.innerText = "SELECT A FACILITY TO UPGRADE";
+                miningUpgradePanel.appendChild(placeholder);
+            }
+            placeholder.style.display = 'block';
         }
         if (currentMined > 0) {
             btnClaimSilo.disabled = false;
@@ -497,47 +550,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUpgradePanel() {
+        const MAX_ITEM_LEVEL = 50;
+        const MAX_SILO_LEVEL = 5;
         if (currentMiningSelection === 'silo') {
-            // SILO UPGRADE UI
             const currentLvl = getMiningState().siloLevel;
             const nextLvl = currentLvl + 1;
-            const nextData = SILO_LEVELS.find(s => s.level === nextLvl);
-            const currentData = SILO_LEVELS.find(s => s.level === currentLvl);
-
-            upgradeName.innerText = "Silo Expansion";
-            upgradeLevelLabel.innerText = `Level ${currentLvl} ➜ ${nextLvl}`;
-
-            if (nextData) {
-                upgradePphPreview.innerHTML = `${currentData.hours}h ➜ <span class="gain" style="color:#00ffff">${nextData.hours}h Cap</span>`;
-                upgradeCostDisplay.innerText = formatNumber(nextData.cost);
-
-                const canAfford = window.gameState.dust >= nextData.cost;
-                btnBuyMiningUpgrade.disabled = !canAfford;
-            } else {
-                upgradePphPreview.innerText = "Max Capacity";
+            upgradeName.innerText = "Mining Site";
+            const statLabel = document.getElementById('upgrade-stat-label');
+            if (statLabel) statLabel.innerText = "CAPACITY";
+            if (currentLvl >= MAX_SILO_LEVEL) {
+                upgradeLevelLabel.innerText = "MAX LEVEL";
+                upgradeLevelLabel.style.color = "#ffd700";
+                const currentData = SILO_LEVELS.find(s => s.level === currentLvl);
+                upgradePphPreview.innerHTML = `<span style="font-size:16px; color:#fff;">${currentData.hours} Hours</span>`;
                 upgradeCostDisplay.innerText = "---";
                 btnBuyMiningUpgrade.disabled = true;
+                btnBuyMiningUpgrade.querySelector('span').innerText = "MAXED OUT";
+            } else {
+                const nextData = SILO_LEVELS.find(s => s.level === nextLvl);
+                const currentData = SILO_LEVELS.find(s => s.level === currentLvl);
+                upgradeLevelLabel.innerText = `Level ${currentLvl} ➜ ${nextLvl}`;
+                upgradeLevelLabel.style.color = "#ccc";
+                upgradePphPreview.innerHTML = `
+                    <span style="font-size:11px; color:#aaa;">${currentData.hours}h</span> 
+                    <span style="color:#666; margin:0 4px;">➜</span> 
+                    <span style="font-size:16px; color:#00ffff; font-weight:bold;">${nextData.hours}h Cap</span>
+                `;
+                upgradeCostDisplay.innerText = formatNumber(nextData.cost);
+                const canAfford = window.gameState.dust >= nextData.cost;
+                btnBuyMiningUpgrade.disabled = !canAfford;
+                btnBuyMiningUpgrade.querySelector('span').innerText = "UPGRADE";
             }
             return;
         }
-
-        // ITEM UPGRADE UI
         const item = MINING_ITEMS.find(i => i.id === currentMiningSelection);
         if (!item) return;
-
         const level = getItemLevel(item.id);
-        const cost = getNextCost(item.id);
-        const currentPPH = getItemPPH(item.id);
-        const nextPPH = item.basePPH * (level + 1);
-        const gain = nextPPH - currentPPH;
-
         upgradeName.innerText = item.name;
-        upgradeLevelLabel.innerText = `Level ${level} ➜ ${level + 1}`;
-        upgradePphPreview.innerHTML = `+${formatNumber(currentPPH)} ➜ <span class="gain">+${formatNumber(nextPPH)}</span>`;
-        upgradeCostDisplay.innerText = formatNumber(cost);
-
-        const canAfford = window.gameState.dust >= cost;
-        btnBuyMiningUpgrade.disabled = !canAfford;
+        const statLabel = document.getElementById('upgrade-stat-label');
+        if (statLabel) statLabel.innerText = "PPH";
+        if (level >= MAX_ITEM_LEVEL) {
+            upgradeLevelLabel.innerText = "MAX LEVEL (50)";
+            upgradeLevelLabel.style.color = "#ffd700";
+            const currentPPH = Math.floor(item.basePPH * Math.pow(level, 0.9));
+            upgradePphPreview.innerHTML = `<span style="font-size:16px; color:#fff;">${formatNumber(currentPPH)} PPH</span>`;
+            upgradeCostDisplay.innerText = "---";
+            btnBuyMiningUpgrade.disabled = true;
+            btnBuyMiningUpgrade.querySelector('span').innerText = "MAXED OUT";
+        } else {
+            const cost = getNextCost(item.id);
+            const currentPPH = level === 0 ? 0 : Math.floor(item.basePPH * Math.pow(level, 0.9));
+            const nextPPH = Math.floor(item.basePPH * Math.pow(level + 1, 0.9));
+            upgradeLevelLabel.innerText = `Level ${level} ➜ ${level + 1}`;
+            upgradeLevelLabel.style.color = "#ccc";
+            upgradePphPreview.innerHTML = `
+                <span style="font-size:11px; color:#aaa;">${formatNumber(currentPPH)}</span> 
+                <span style="color:#666; margin:0 4px;">➜</span> 
+                <span style="font-size:16px; color:#2ecc71; font-weight:bold;">${formatNumber(nextPPH)}</span>
+            `;
+            upgradeCostDisplay.innerText = formatNumber(cost);
+            const canAfford = window.gameState.dust >= cost;
+            btnBuyMiningUpgrade.disabled = !canAfford;
+            btnBuyMiningUpgrade.querySelector('span').innerText = "UPGRADE";
+        }
     }
 
     function selectMiningItem(id) {
@@ -582,6 +657,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.classList.remove('shake-heavy');
             void container.offsetWidth;
             container.classList.add('shake-heavy');
+            setTimeout(() => {
+                container.classList.remove('shake-heavy');
+            }, 500);
         }
         const baseDmg = HERO_STATE.baseAttack * 10;
         const monsterDef = DUNGEON_STATE.defense || 0;
@@ -686,6 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         combatLoopId = requestAnimationFrame(performCombatStep);
     }
+
     function performCombatStep(currentTime) {
         combatLoopId = requestAnimationFrame(performCombatStep);
         if (!gameState.inDungeon || HERO_STATE.currentHP <= 0 || (!combatMode && isPlayerTurn) || HERO_STATE.energy <= 0) {
@@ -697,14 +776,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deltaTime = currentTime - lastFrameTime;
         lastFrameTime = currentTime;
-
         if (deltaTime > MAX_LAG_CATCHUP) {
             combatTimer = 0;
             return;
         }
-
+        const currentCombatRate = BASE_COMBAT_RATE / combatSpeedMultiplier;
         combatTimer += deltaTime;
-        while (combatTimer >= COMBAT_RATE) {
+        while (combatTimer >= currentCombatRate) {
             if (isPlayerTurn) {
                 if (isLimitBreakQueued) {
                     executeLimitBreakSequence();
@@ -714,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 performMonsterAttack();
             }
-            combatTimer -= COMBAT_RATE;
+            combatTimer -= currentCombatRate;
         }
     }
 
@@ -848,14 +926,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 vMatCard.classList.remove('hidden');
                 if (vMatAmt) vMatAmt.innerText = rewards.loot.amount;
                 if (vMatLabel) vMatLabel.innerText = rewards.loot.name;
-
                 if (!HERO_STATE.inventory[rewards.loot.id]) HERO_STATE.inventory[rewards.loot.id] = 0;
                 HERO_STATE.inventory[rewards.loot.id] += rewards.loot.amount;
-
                 vMatIcon.className = 'loot-icon-wrapper';
                 if (rewards.loot.id.includes('wood')) vMatIcon.classList.add('mat-wood');
                 else if (rewards.loot.id.includes('copper')) vMatIcon.classList.add('mat-copper');
                 else vMatIcon.classList.add('mat-iron');
+            } else if (vMatCard) {
+                vMatCard.classList.add('hidden');
             }
 
             spawnBossConfetti();
@@ -950,6 +1028,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function handlePlayerDeath() {
         combatMode = null;
         updateControlButtons();
+        combatSpeedMultiplier = 1.0;
+        if (btnFast) {
+            btnFast.innerText = "FAST";
+            btnFast.classList.remove('active');
+        }
         if (deathModal) deathModal.classList.remove('hidden');
         let timeLeft = 3;
         if (defeatCountdown) defeatCountdown.innerText = timeLeft;
@@ -1160,6 +1243,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         dustCounter.innerText = formatNumber(gameState.dust);
         gemShardsCounter.innerText = formatNumber(gameState.gemShards);
+        if (prismStoneCounter) {
+            prismStoneCounter.innerText = formatNumber(gameState.prismStones || 0);
+        }
         const monsterHpPercent = (DUNGEON_STATE.currentHP / DUNGEON_STATE.maxHP) * 100;
         monsterHpBar.style.width = `${monsterHpPercent}%`;
         monsterHpText.innerText = `${formatNumber(DUNGEON_STATE.currentHP)} / ${formatNumber(DUNGEON_STATE.maxHP)} HP`;
@@ -1180,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         heroXpBar.style.width = `${xpPercent}%`;
         heroXpText.innerText = `XP: ${formatNumber(HERO_STATE.currentExp)} / ${formatNumber(HERO_STATE.expToNextLevel)}`;
         heroLevelText.innerText = `Hero Lv. ${HERO_STATE.level}`;
-        heroStatsText.innerText = `ATK: ${HERO_STATE.baseAttack} | CRIT: ${(HERO_STATE.critChance * 100).toFixed(0)}%`;
+        heroStatsText.innerText = `ATK: ${HERO_STATE.baseAttack} | DEF: ${HERO_STATE.defense || 0}`;
         const heroHpPercent = (HERO_STATE.currentHP / HERO_STATE.maxHP) * 100;
         heroHpBar.style.width = `${heroHpPercent}%`;
         heroHpText.innerText = `${Math.ceil(HERO_STATE.currentHP)} / ${HERO_STATE.maxHP} HP`;
@@ -1240,8 +1326,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${lockIcon}
                 <div class="stage-info">
                     <span class="stage-title">${zone.name}</span>
-                    <span class="stage-range">Zone ${index + 1} • Floors ${zone.start}-${zone.start + 99}</span>
-                    <span style="font-size:10px; color:#aaa;">Target: ${zone.mat}</span>
+                    <span class="stage-range">Area ${index + 1} • Level ${zone.start}-${zone.start + 99}</span>
+                    <span style="font-size:10px; color:#aaa;">Drop: ${zone.mat}</span>
                 </div>
                 ${arrowIcon}
             `;
@@ -1282,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = `
                 ${lockIcon}
                 <div class="stage-info">
-                    <span class="stage-title">Floors ${bracketStart} - ${bracketEnd}</span>
+                    <span class="stage-title">Level ${bracketStart} - ${bracketEnd}</span>
                     ${statusText}
                 </div>
                 ${costDisplay}
@@ -1486,6 +1572,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
+
+    if (btnFast) {
+        btnFast.addEventListener('click', () => {
+            // Cycle Logic: 1.0 -> 1.5 -> 2.0 -> 3.0 -> 1.0
+            if (combatSpeedMultiplier === 1.0) {
+                combatSpeedMultiplier = 1.5;
+                btnFast.innerText = "x1.5";
+                btnFast.classList.add('active');
+            } else if (combatSpeedMultiplier === 1.5) {
+                combatSpeedMultiplier = 2.0;
+                btnFast.innerText = "x2.0";
+            } else if (combatSpeedMultiplier === 2.0) {
+                combatSpeedMultiplier = 3.0;
+                btnFast.innerText = "x3.0";
+            } else {
+                combatSpeedMultiplier = 1.0;
+                btnFast.innerText = "FAST";
+                btnFast.classList.remove('active');
+            }
+
+            if (window.Telegram) tg.HapticFeedback.impactOccurred('medium');
+        });
+    }
 
     if (scrollMenu && scrollLeftBtn && scrollRightBtn) {
         scrollLeftBtn.addEventListener('click', () => {

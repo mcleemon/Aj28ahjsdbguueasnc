@@ -28,8 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- HELPER: CALCULATE STATS ---
     function getWeaponDamage(baseDmg, level) {
-        // CHANGED: 0.5 (50% per level)
         return Math.floor(baseDmg * (1 + (level * 0.5)));
+    }
+
+    function getArmorDefense(baseDef, level) {
+        return Math.floor(baseDef * (1 + (level * 0.5)));
     }
 
     function getItemLevel(itemId) {
@@ -154,7 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dmg = getWeaponDamage(item.damage, level);
                 statDisplay = `DMG: ${dmg} <span style="color:#2ecc71">(+${level})</span>`;
             } else {
-                statDisplay = `DEF: ${item.defense} <span style="color:#2ecc71">(+${level})</span>`;
+                const def = getArmorDefense(item.defense, level);
+                statDisplay = `DEF: ${def} <span style="color:#2ecc71">(+${level})</span>`;
             }
 
             const btnText = isEquipped ? "EQUIPPED" : "EQUIP";

@@ -2,7 +2,7 @@ import { GAME_ASSETS } from './assets.js';
 import { HERO_STATE, grantHeroExp, getHeroData, loadHeroData, recalculateHeroStats } from './hero.js';
 import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonData, loadDungeonData, refreshMonsterVisuals, calculateStatsForFloor } from './dungeon.js';
 import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
-import { getMiningState, getItemLevel, getNextCost, getItemPPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, MINING_ITEMS, SILO_LEVELS } from './mining.js';
+import { getMiningState, getItemLevel, getNextCost, getItemPPH, calculatePPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, MINING_ITEMS, SILO_LEVELS } from './mining.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
@@ -259,6 +259,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHECKSUM_SALT = "reel_rpg_secure_salt_v1";
 
     // --- HELPER FUNCTIONS ---
+
+    function fitMiningToScreen() {
+        const panel = document.querySelector('.mining-panel');
+        if (!panel) return;
+
+        // 1. Reset scale first to get accurate "natural" measurements
+        panel.style.transform = 'scale(1)';
+
+        // 2. Measure sizes
+        const screenHeight = window.innerHeight;
+        const panelHeight = panel.offsetHeight;
+        const padding = 40; // Safety margin (20px top + 20px bottom)
+
+        // 3. Calculate Scale
+        // If panel + padding is taller than screen, shrink it!
+        if (panelHeight + padding > screenHeight) {
+            const scale = screenHeight / (panelHeight + padding);
+            panel.style.transform = `scale(${scale})`;
+        } else {
+            // Otherwise, keep it full size
+            panel.style.transform = 'scale(1)';
+        }
+    }
+
+    // Also ensure it resizes if the player rotates their phone
+    window.addEventListener('resize', () => {
+        if (!document.getElementById('mining-modal').classList.contains('hidden')) {
+            fitMiningToScreen();
+        }
+    });
 
     function spawnBossConfetti() {
         const container = document.createElement('div');
@@ -592,15 +622,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (level >= MAX_ITEM_LEVEL) {
             upgradeLevelLabel.innerText = "MAX LEVEL (50)";
             upgradeLevelLabel.style.color = "#ffd700";
-            const currentPPH = Math.floor(item.basePPH * Math.pow(level, 0.9));
+            const currentPPH = calculatePPH(item.id, level);
             upgradePphPreview.innerHTML = `<span style="font-size:16px; color:#fff;">${formatNumber(currentPPH)} PPH</span>`;
             upgradeCostDisplay.innerText = "---";
             btnBuyMiningUpgrade.disabled = true;
             btnBuyMiningUpgrade.querySelector('span').innerText = "MAXED OUT";
         } else {
             const cost = getNextCost(item.id);
-            const currentPPH = level === 0 ? 0 : Math.floor(item.basePPH * Math.pow(level, 0.9));
-            const nextPPH = Math.floor(item.basePPH * Math.pow(level + 1, 0.9));
+            const currentPPH = calculatePPH(item.id, level);
+            const nextPPH = calculatePPH(item.id, level + 1);
             upgradeLevelLabel.innerText = `Level ${level} ➜ ${level + 1}`;
             upgradeLevelLabel.style.color = "#ccc";
             upgradePphPreview.innerHTML = `
@@ -1613,6 +1643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openMiningButton.addEventListener('click', () => {
             updateMiningUI();
             openModal('mining-modal');
+            setTimeout(fitMiningToScreen, 50);
         });
     }
 

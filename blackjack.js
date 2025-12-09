@@ -1,5 +1,5 @@
 // blackjack.js
-// v1.1.21
+// v1.1.23 (Fixed Win Target & Bet Animation)
 import { GAME_ASSETS } from './assets.js';
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bodyEl = document.body;
     const gameContainer = document.querySelector('.game-container');
     const blackjackScreen = document.getElementById('blackjack-screen');
+    const gameWrapper = document.getElementById('game-wrapper');
 
     // Get the MAIN game's dust counter
     const mainDustCounter = document.getElementById('dust-counter');
@@ -81,6 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getGameScale() {
+        if (!gameWrapper) return 1;
+        const rect = gameWrapper.getBoundingClientRect();
+        if (gameWrapper.offsetWidth === 0) return 1; 
+        return rect.width / gameWrapper.offsetWidth;
+    }
+
     // --- 4. CORE GAME STATE FUNCTIONS ---
 
     function loadGameState() {
@@ -146,7 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function animateBet(chipButton) {
-        // 1. Get Start and End positions
+        const currentScale = getGameScale();
+
+        // 1. Get Screen Rects
         const startRect = chipButton.getBoundingClientRect();
         const stackRect = document.getElementById('bet-stack-area').getBoundingClientRect();
         const containerRect = blackjackScreen.getBoundingClientRect();
@@ -156,31 +166,35 @@ document.addEventListener('DOMContentLoaded', () => {
         flyingChip.src = chipButton.src;
         flyingChip.className = 'flying-chip';
 
-        // 3. Set start position
-        const startX = startRect.left - containerRect.left + (startRect.width - 60) / 2;
-        const startY = startRect.top - containerRect.top + (startRect.height - 60) / 2;
+        // 3. Calculate Start Position (Relative to Blackjack Screen)
+        // Divide by scale to convert "Screen Pixels" back to "Game Pixels"
+        const startX = (startRect.left - containerRect.left) / currentScale + (startRect.width / currentScale - 60) / 2;
+        const startY = (startRect.top - containerRect.top) / currentScale + (startRect.height / currentScale - 60) / 2;
+        
         flyingChip.style.left = `${startX}px`;
         flyingChip.style.top = `${startY}px`;
 
-        // 4. Calculate end position (center of the stack)
-        const endX = stackRect.left - containerRect.left + (stackRect.width - 60) / 2;
-        const endY = stackRect.top - containerRect.top + (stackRect.height - 60) / 2;
+        // 4. Calculate End Position
+        const endX = (stackRect.left - containerRect.left) / currentScale + (stackRect.width / currentScale - 60) / 2;
+        const endY = (stackRect.top - containerRect.top) / currentScale + (stackRect.height / currentScale - 60) / 2;
 
-        // 5. Calculate travel distance
-        const travelX = endX - startX;
-        const travelY = endY - startY;
-
-        // 6. Add to DOM and animate
+        // 5. Add to DOM
         const animationContainer = document.getElementById('blackjack-animation-container');
         if (animationContainer) {
             animationContainer.appendChild(flyingChip);
         }
-        setTimeout(() => {
-            const offsetX = (Math.random() - 0.5) * 30; // +/- 15px
-            const offsetY = (Math.random() - 0.5) * 10; // +/- 5px
-            const rotation = (Math.random() - 0.5) * 20; // +/- 10 degrees
-            flyingChip.style.transform = `translate(${travelX + offsetX}px, ${travelY + offsetY}px) rotate(${rotation}deg) scale(0.9)`;
-        }, 10);
+        
+        // 6. Animate
+        // Force reflow to ensure start position is rendered
+        void flyingChip.offsetWidth;
+
+        // Calculate deltas
+        const moveX = endX - startX;
+        const moveY = endY - startY;
+        const randomRot = (Math.random() - 0.5) * 360;
+
+        flyingChip.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        flyingChip.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${randomRot}deg) scale(0.9)`;
     }
 
     // --- 6. SCREEN TOGGLING ---
@@ -203,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 7. "CARD FACTORY" (Option B) ---
+    // --- 7. CARD FACTORY ---
 
     function createCardElement(card, isHidden = false) {
         const cardEl = document.createElement('div');
@@ -639,7 +653,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dealerScore = calculateHandScore(dealerHand);
         let finalMessage = '';
         let totalWinnings = 0;
-        let totalProfit = 0;
         let totalExpGained = 0;
         playerHands.forEach((hand, index) => {
             const betForThisHand = handBets[index];
@@ -696,9 +709,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         messageEl.innerHTML = finalMessage;
         saveGameState();
+        
+        // --- CHIP WIN ANIMATION FIX ---
         setTimeout(() => {
             const allCards = document.querySelectorAll('#blackjack-screen .card');
             const allChips = document.querySelectorAll('#blackjack-animation-container .flying-chip');
+            const currentScale = getGameScale();
+            const containerRect = blackjackScreen.getBoundingClientRect();
 
             // 1. Fade out cards (Keep existing behavior)
             allCards.forEach(card => {
@@ -710,32 +727,31 @@ document.addEventListener('DOMContentLoaded', () => {
             let targetTop, targetLeft;
 
             if (totalWinnings > 0) {
-                // PLAYER WINS: Chips fly to the Dust Counter (Bottom Left/Center)
-                const dustRect = document.getElementById('blackjack-dust-counter').getBoundingClientRect();
-                targetTop = dustRect.top;
-                targetLeft = dustRect.left + 20; // Aim slightly inside the counter
+                // PLAYER WINS: Fly to Bottom Center (Player Area)
+                // We target the controls area/stack area
+                targetLeft = (blackjackScreen.offsetWidth / 2) - 30; // Center
+                targetTop = blackjackScreen.offsetHeight - 150; // Controls area
             } else {
-                // DEALER WINS: Chips fly to the Dealer (Top Center)
-                targetTop = -100; // Fly off the top of the screen
-                targetLeft = window.innerWidth / 2 - 30; // Center horizontally
+                // DEALER WINS: Fly Up (Dealer Area)
+                targetTop = -200; // Fly off top
+                targetLeft = (blackjackScreen.offsetWidth / 2) - 30; 
             }
 
             // 3. Animate Chips
             allChips.forEach((chip, index) => {
-                // Add a slight delay per chip for a "stream" effect
                 setTimeout(() => {
                     chip.style.transition = 'all 0.6s ease-in';
                     chip.style.top = `${targetTop}px`;
                     chip.style.left = `${targetLeft}px`;
-                    chip.style.opacity = '0.5'; // Fade slightly while moving
-                    chip.style.transform = 'scale(0.5)'; // Shrink while moving
+                    chip.style.opacity = '0'; 
+                    chip.style.transform = 'scale(0.5)';
                 }, index * 50);
             });
 
             // 4. Reset Game after animation finishes
             setTimeout(() => {
                 resetGame();
-            }, 1000); // Increased delay to let chips finish flying
+            }, 1000); 
         }, 2500);
     }
 

@@ -1255,6 +1255,7 @@ img {
     padding: 10px 15px;
     width: 100%;
     box-sizing: border-box;
+    gap: 10px;
 }
 
 .task-icon {
@@ -1285,26 +1286,50 @@ img {
 }
 
 .task-claim-button {
+    width: 70px;
+    height: 30px;
+    min-height: 0;
+    padding: 0;
     font-family: 'Graduate', serif;
-    font-size: 14px;
-    color: #dfc117;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: transparent;
-    border: none;
-    width: 80px;
-    min-height: 45px;
-    cursor: pointer;
-    padding-right: 7px;
-    box-sizing: border-box;
+    font-size: 10px;
+    font-weight: bold;
+    color: #888;
+    text-shadow: none;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: default;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.task-claim-button.task-ready {
+    /* Medieval Gold Gradient */
+    background: linear-gradient(to bottom, #f1c40f, #d35400);
+    border: 1px solid #f39c12;
+    border-bottom: 3px solid #a04000;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    cursor: pointer;
+    
+    /* CHANGED: Removed the 'pulse-ready' animation */
+    animation: none; 
+    
+    /* CHANGED: Subtle, static glow instead of pulsing */
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); 
+}
+
+.task-claim-button.task-ready:active {
+    transform: translateY(2px);
+    border-bottom: 1px solid #a04000;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.3);
 }
 
 .task-claim-button:disabled {
-    filter: grayscale(80%) opacity(0.6);
-    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .task-panel {
@@ -2838,7 +2863,34 @@ img {
 .mat-mythic {
     background: #ff00ff;
     border-color: #fff;
-    animation: pulse-active 1s infinite;
+    animation: prism-glow 3s linear infinite;
+}
+
+@keyframes prism-glow {
+    0% {
+        box-shadow: 0 0 5px 1px rgba(255, 0, 0, 0.6);
+        border-color: #ffcccc;
+    }
+    20% {
+        box-shadow: 0 0 5px 1px rgba(255, 255, 0, 0.6);
+        border-color: #ffffcc;
+    }
+    40% {
+        box-shadow: 0 0 5px 1px rgba(0, 255, 0, 0.6);
+        border-color: #ccffcc;
+    }
+    60% {
+        box-shadow: 0 0 5px 1px rgba(0, 255, 255, 0.6);
+        border-color: #ccffff;
+    }
+    80% {
+        box-shadow: 0 0 5px 1px rgba(138, 43, 226, 0.6);
+        border-color: #e6ccff;
+    }
+    100% {
+        box-shadow: 0 0 5px 1px rgba(255, 0, 0, 0.6);
+        border-color: #ffcccc;
+    }
 }
 
 /* --- SMITHY / BLACKSMITH STYLES --- */
@@ -2984,12 +3036,21 @@ img {
     border-top: 1px solid #555;
     border-bottom: 3px solid #111;
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px;
     display: flex;
-    align-items: center;
-    margin-bottom: 12px;
+    flex-direction: column; 
+    align-items: stretch;
+    gap: 5px;
+    
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.forge-header-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
 }
 
 .forge-item.blackout {
@@ -3061,12 +3122,14 @@ img {
     font-size: 13px;
     color: #ccc;
     display: flex;
-    gap: 15px;
-    margin-top: 6px;
-    padding: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 5px;
+    padding-top: 8px;
     background: none;
     border: none;
     width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); 
 }
 
 .recipe-item {
@@ -3870,22 +3933,19 @@ img {
 .mining-panel {
     width: 95%;
     max-width: 380px;
-    height: auto;
-    max-height: 85vh;
-    min-height: 600px;
+    height: auto; 
+    min-height: auto; 
+    max-height: none; 
     background: linear-gradient(180deg, #26211f 0%, #0f0c0b 100%);
     border: 3px solid #8d6e63;
     border-radius: 20px;
-    box-shadow:
-        0 0 0 3px #1a1a1a,
-        0 0 20px rgba(0, 0, 0, 0.8),
-        inset 0 0 50px rgba(0, 0, 0, 0.9);
-
+    box-shadow: 0 0 0 3px #1a1a1a, 0 0 20px rgba(0, 0, 0, 0.8);
     position: relative;
     display: flex;
     flex-direction: column;
-    animation: fadeInScaleUp 0.3s ease-out forwards;
     padding-bottom: 15px;
+    transform-origin: center center;
+    transition: transform 0.2s ease-out;
 }
 
 .mining-header {
@@ -3924,8 +3984,7 @@ img {
     display: flex;
     flex-direction: column;
     padding: 10px 15px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: visible; 
     justify-content: flex-start;
     gap: 10px;
 }

@@ -185,6 +185,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ${actionBtn}
         `;
         if (!isOwned) {
+            itemDiv.innerHTML = `
+        <div class="forge-header-row">
+            <div class="forge-icon-box"><div class="${iconClass}"></div></div>
+            <div class="forge-details">
+                <span class="forge-name">${item.name}</span>
+                <span class="forge-stats">${statLabel}: ${statValue}</span>
+            </div>
+            ${actionBtn}
+        </div>
+        <div class="recipe-row">
+            ${ingredientsHTML}
+        </div>
+    `;
             const btn = itemDiv.querySelector('.forge-btn');
             if (btn && !btn.disabled) {
                 btn.addEventListener('click', () => {
@@ -192,15 +205,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     else craftItem(item, dustCost, mainMatCount, 'armor');
                 });
             }
+
         } else {
             itemDiv.innerHTML = `
-                <div class="forge-icon-box"><div class="${iconClass}"></div></div>
-                <div class="forge-details">
-                    <span class="forge-name">${item.name}</span>
-                    <span class="forge-stats" style="color:#2ecc71">In Inventory</span>
-                </div>
-                ${actionBtn}
-            `;
+        <div class="forge-header-row">
+            <div class="forge-icon-box"><div class="${iconClass}"></div></div>
+            <div class="forge-details">
+                <span class="forge-name">${item.name}</span>
+                <span class="forge-stats" style="color:#2ecc71">In Inventory</span>
+            </div>
+            ${actionBtn}
+        </div>
+    `;
         }
 
         container.appendChild(itemDiv);

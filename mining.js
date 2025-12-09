@@ -56,12 +56,16 @@ export function getNextCost(itemId) {
     return Math.floor(item.baseCost * Math.pow(mult, level));
 }
 
-export function getItemPPH(itemId) {
+export function calculatePPH(itemId, level) {
     const item = MINING_ITEMS.find(i => i.id === itemId);
     if (!item) return 0;
-    const level = getItemLevel(itemId);
     if (level <= 0) return 0;
-    return Math.floor(item.basePPH * Math.pow(level, 0.9));
+    return Math.floor(item.basePPH * Math.pow(level, 0.95));
+}
+
+export function getItemPPH(itemId) {
+    const level = getItemLevel(itemId);
+    return calculatePPH(itemId, level);
 }
 
 export function getTotalPPH() {
@@ -120,7 +124,7 @@ export function claimSilo() {
     window.gameState.dust += amount;
     const mining = getMiningState();
     mining.lastClaimTime = Date.now();
-    
+
     if (window.saveGameGlobal) window.saveGameGlobal();
     return amount;
 }

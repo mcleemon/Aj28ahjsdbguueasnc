@@ -86,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
     }, { passive: false });
 
+    window.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+    }, { passive: false });
+
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
     const gemShardsCounter = document.getElementById('gem-shards-counter');

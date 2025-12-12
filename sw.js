@@ -2,7 +2,7 @@
 // Version: 1.0.2 (Fixed Chrome Extension Error)
 // Strategy: Stale-While-Revalidate for Core, Cache-First for Assets
 
-const CACHE_NAME = 'reel-rpg-v1.0.2'; // Bumping version to force update
+const CACHE_NAME = 'reel-rpg-v1.0.3'; // Bumping version to force update
 
 // 1. CORE ASSETS
 const CORE_ASSETS = [

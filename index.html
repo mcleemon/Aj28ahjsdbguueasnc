@@ -10,9 +10,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.96">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.25">
-    <link rel="stylesheet" href="reel-game.css?v=1.0.7">
+    <link rel="stylesheet" href="style.css?v=2.13.97">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.26">
+    <link rel="stylesheet" href="reel-game.css?v=1.0.8">
 </head>
 
 <body data-asset-bg-key="background">
@@ -50,7 +50,7 @@
                     </div>
                     <div class="stat">
                         <span class="label">
-                            <img data-asset-key="iconGem" alt="Prism Stone" class="icon-gem">
+                            <img data-asset-key="iconPrismstone" alt="Prism Stone" class="icon-gem">
                             Prism Stone
                         </span>
                         <span id="prism-stone-counter">0</span>
@@ -364,6 +364,7 @@
                 <button id="close-smithy-button" data-asset-bg-key="closeButton"></button>
                 <h2>BLACKSMITH</h2>
             </div>
+
             <div id="smithy-hub" class="smithy-content">
                 <button id="open-forge-btn" class="smithy-big-btn">
                     <span class="btn-icon">⚔️</span>
@@ -386,17 +387,39 @@
                         <span class="btn-desc">Strengthen Gears</span>
                     </div>
                 </button>
+                <button id="open-dismantle-btn" class="smithy-big-btn" style="border-bottom-color: #8e44ad;">
+                    <span class="btn-icon">♻️</span>
+                    <div class="btn-text">
+                        <span class="btn-title" style="color:#d2b4de;">SALVAGE</span>
+                        <span class="btn-desc">Recycle Old Gear</span>
+                    </div>
+                </button>
+
+                <button id="open-transmute-btn" class="smithy-big-btn" style="border-bottom-color: #5b2c6f;">
+                    <span class="btn-icon">⚗️</span>
+                    <div class="btn-text">
+                        <span class="btn-title" style="color:#d2b4de;">TRANSMUTE</span>
+                        <span class="btn-desc">Convert Materials</span>
+                    </div>
+                </button>
             </div>
+
+            <div id="smithy-transmute" class="smithy-content hidden">
+                <div style="width:100%; text-align:center; margin-bottom:10px; color:#aaa; font-size:12px;">
+                    Convert higher tier materials into lower tier ones.<br>
+                    <span style="color:#ffd700;">Chance to get x2 materials! (Daily Limit: 10)</span>
+                </div>
+                <div id="transmute-list" class="forge-list-container"></div>
+            </div>
+
             <div id="smithy-forge" class="smithy-content hidden">
                 <div id="forge-list" class="forge-list-container"></div>
             </div>
-
             <div id="smithy-forge-armor" class="smithy-content hidden">
                 <div id="armor-list" class="forge-list-container"></div>
             </div>
             <div id="smithy-sharpen-select" class="smithy-content hidden">
-                <div id="sharpen-list" class="forge-list-container">
-                </div>
+                <div id="sharpen-list" class="forge-list-container"></div>
             </div>
             <div id="smithy-sharpen" class="smithy-content hidden">
                 <div class="sharpen-container">
@@ -408,7 +431,7 @@
                         <div class="sharpen-stats-row">
                             <span id="sharpen-stat-current">50 DMG</span>
                             <span class="arrow">➜</span>
-                            <span id="sharpen-stat-next" style="color:#00ff00">55 DMG</span>
+                            <span id="sharpen-stat-next" style="color:#ffd700">55 DMG</span>
                         </div>
                     </div>
                     <div class="sharpen-info-box">
@@ -424,10 +447,16 @@
                             </div>
                         </div>
                     </div>
-
                     <button id="do-sharpen-btn" class="smithy-action-btn">SHARPEN</button>
                     <div id="sharpen-msg" class="sharpen-msg"></div>
                 </div>
+            </div>
+
+            <div id="smithy-dismantle" class="smithy-content hidden">
+                <div style="width:100%; text-align:center; margin-bottom:10px; color:#aaa; font-size:12px;">
+                    Select an item to recycle into Dust & Materials.<br>Equipped items are hidden.
+                </div>
+                <div id="dismantle-list" class="forge-list-container"></div>
             </div>
         </div>
     </div>
@@ -470,6 +499,25 @@
                     alt="Achievements">
             </div>
             <span id="close-settings-button" class="close-button" data-asset-bg-key="closeButton"></span>
+        </div>
+    </div>
+    <div id="achievements-modal" class="modal hidden">
+        <div class="achievements-panel">
+            <div class="smithy-header">
+                <button id="close-achievements-button" class="close-button" data-asset-bg-key="closeButton"
+                    style="right: 15px; top: 15px;"></button>
+                <h2>HALL OF RECORDS</h2>
+            </div>
+            <div class="achievement-tabs">
+                <button class="ach-tab active" data-tab="all">ALL</button>
+                <button class="ach-tab" data-tab="combat">COMBAT</button>
+                <button class="ach-tab" data-tab="economy">WEALTH</button>
+                <button class="ach-tab" data-tab="luck">LUCK</button>
+            </div>
+            <div class="smithy-content" style="padding: 0 10px;">
+                <div id="achievement-list" class="achievement-list">
+                </div>
+            </div>
         </div>
     </div>
     <div id="offline-progress-modal" class="modal hidden">
@@ -1075,22 +1123,33 @@
             </div>
         </div>
     </div>
+    <div id="craft-confirmation-modal" class="modal hidden" style="z-index: 200;">
+        <div class="confirmation-panel">
+            <h3>CONFIRMATION</h3>
+            <p id="confirmation-text">Craft this item?</p>
+            <div class="confirmation-buttons">
+                <button id="confirm-craft-yes" class="confirm-btn btn-yes">YES</button>
+                <button id="confirm-craft-no" class="confirm-btn btn-no">NO</button>
+            </div>
+        </div>
+    </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.96" type="module"></script>
-    <script src="assets.js?v=1.0.11" type="module"></script>
+    <script src="script.js?v=2.13.97" type="module"></script>
+    <script src="assets.js?v=1.0.12" type="module"></script>
     <script src="loader.js?v=1.0.6" type="module"></script>
     <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="hero.js?v=1.1.7" type="module"></script>
-    <script src="dungeon.js?v=1.1.7" type="module"></script>
-    <script src="smithy.js?v=1.0.5" type="module"></script>
+    <script src="hero.js?v=1.1.8" type="module"></script>
+    <script src="dungeon.js?v=1.1.8" type="module"></script>
+    <script src="smithy.js?v=1.0.6" type="module"></script>
     <script src="shop.js?v=1.0.14" type="module"></script>
-    <script src="tasks.js?v=1.0.10" type="module"></script>
-    <script src="heroMenu.js?v=2.0.5" type="module"></script>
-    <script src="blackjack.js?v=1.1.22" type="module"></script>
+    <script src="tasks.js?v=1.0.11" type="module"></script>
+    <script src="achievements.js?v=1.0.1" type="module"></script>
+    <script src="heroMenu.js?v=2.0.6" type="module"></script>
+    <script src="blackjack.js?v=1.1.23" type="module"></script>
     <script src="mimic.js?v=1.0.4" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>
-    <script src="reel-game.js?v=1.0.8" type="module"></script>
+    <script src="reel-game.js?v=1.0.9" type="module"></script>
 </body>
 
 </html>

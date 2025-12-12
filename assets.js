@@ -39,6 +39,7 @@ export const GAME_ASSETS = {
     iconCrystalDust2: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust2.png?raw=true',
     iconCrystalDust3: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust3.png?raw=true',
     iconGem: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/gem.png?raw=true',
+    iconPrismstone: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/prismstone.png?raw=true',
     iconBattery: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true',
     iconGeode: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/geode.png?raw=true',
     iconLevelUp: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/levelupicon.png?raw=true',
@@ -145,4 +146,59 @@ export const GAME_ASSETS = {
     miningItem6: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/battery.png?raw=true', // Power Cell
     miningItem7: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningdrill.png?raw=true', // Drill
     miningItem8: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/miningnexus.png?raw=true', // Nexus
+
+    // --- MATERIALS ---
+    matWood: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1matwood.png?raw=true',
+    matCopper: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2matcopper.png?raw=true',
+    matIron: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3matiron.png?raw=true',
+    matSteel: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4matsteel.png?raw=true',
+    matSilver: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5matsilver.png?raw=true',
+    matGold: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6matgold.png?raw=true',
+    matObsidian: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7matobsidian.png?raw=true',
+    matPlatinum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8matplatinum.png?raw=true',
+    matMithril: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9matmithril.png?raw=true',
+    matOrichalcum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10matorichalcum.png?raw=true',
+    matAdamantite: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/11matadamantite.png?raw=true',
+    matRune: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/12matrune.png?raw=true',
+    matDragon: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/13matdragonscale.png?raw=true',
+    matVoid: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/14matvoid.png?raw=true',
+    matCelestial: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/15matcelestial.png?raw=true',
+
+    /// --- ARMORS ---
+    armorShirt: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/0armorshirt.png?raw=true',
+    armorWood: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1armorwood.png?raw=true',
+    armorCopper: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2armorcopper.png?raw=true',
+    armorIron: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3armoriron.png?raw=true',
+    armorSteel: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4armorsteel.png?raw=true',
+    armorSilver: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5armorsilver.png?raw=true',
+    armorGold: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6armorgold.png?raw=true',
+    armorObsidian: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7armorobsidian.png?raw=true',
+    armorPlatinum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8armorplatinum.png?raw=true',
+    armorMithril: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9armormithril.png?raw=true',
+    armorOrichalcum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10armororichalcum.png?raw=true',
+    armorAdamantite: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/11armoradamantite.png?raw=true',
+    armorRune: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/12armorrune.png?raw=true',
+    armorDragon: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/13armordragon.png?raw=true',
+    armorVoid: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/14armorvoid.png?raw=true',
+    armorCelestial: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/15armorcelestial.png?raw=true',
+
+    /// --- SWORDS ---
+    swordRusty: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/0swordrusty.png?raw=true',
+    swordWood: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/1swordwood.png?raw=true',
+    swordCopper: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/2swordcopper.png?raw=true',
+    swordIron: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/3swordiron.png?raw=true',
+    swordSteel: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/4swordsteel.png?raw=true',
+    swordSilver: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/5swordsilver.png?raw=true',
+    swordGold: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/6swordgold.png?raw=true',
+    swordObsidian: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/7swordobsidian.png?raw=true',
+    swordPlatinum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/8swordplatinum.png?raw=true',
+    swordMithril: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/9swordmithril.png?raw=true',
+    swordOrichalcum: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/10swordorichalcum.png?raw=true',
+    swordAdamantite: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/11swordadamantite.png?raw=true',
+    swordRune: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/12swordrune.png?raw=true,',
+    swordDragon: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/13sworddragon.png?raw=true',
+    swordVoid: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/14swordvoid.png?raw=true',
+    swordCelestial: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/15swordcelestial.png?raw=true',
+
+
 };

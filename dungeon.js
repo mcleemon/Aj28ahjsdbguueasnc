@@ -67,15 +67,25 @@ export function calculateRewards() {
     if (gap >= 50) dustPenaltyMult = 0.1;
     else if (gap >= 30) dustPenaltyMult = 0.4;
     let lootDrop = null;
+    // ... inside calculateRewards ...
     const allowLoot = !isBoss || isFirstKill;
     if (allowLoot) {
+        // SECURITY: Use a pseudo-random seed based on floor and total kills
+        // This makes "save scumming" harder because the result is deterministic.
+        // If they reload, 'floor' and 'totalKills' are the same, so the result is the same.
+        const seed = (floor * 1337) + (window.gameState?.stats?.totalKills || 0);
+        const pseudoRand = Math.abs(Math.sin(seed)); // Returns a deterministic 0-1 value
+
         let chance = 0.40;
         if (floor > 300) chance = 0.30;
         if (floor > 600) chance = 0.20;
         if (floor > 900) chance = 0.10;
         if (floor > 1200) chance = 0.05;
+
         const finalDropChance = isBoss ? 1.0 : chance;
-        if (Math.random() <= finalDropChance) {
+
+        // Use pseudoRand instead of Math.random()
+        if (pseudoRand <= finalDropChance) {
             for (let i = MATERIAL_TIERS.length - 1; i >= 0; i--) {
                 if (floor >= MATERIAL_TIERS[i].dropFloor) {
                     lootDrop = {

@@ -1,59 +1,159 @@
-// smithy.js - v1.7.0
-// Fixes "renderSharpenSelection is not defined"
-// Implements Vertical Economy (Composite Recipes + High Cost Upgrades)
+// smithy.js - v2.8.0
+// Features: Forge, Armor, Sharpen (Fixed Animation & Alignment), Salvage, Transmute
 
-import { HERO_STATE, recalculateHeroStats } from './hero.js';
+import { HERO_STATE, recalculateHeroStats, generateUID } from './hero.js';
 import { GAME_ASSETS } from './assets.js';
 import { WEAPON_DB, ARMOR_DB, MATERIAL_TIERS } from './items.js';
+import { incrementStat } from './achievements.js';
 
-// --- COST CONFIGURATION (Crypto Economy) ---
+// --- CONFIGURATION ---
 const TIER_COSTS = {
-    1: 250,          // Wood
-    2: 50000,        // Copper
-    3: 150000,       // Iron
-    4: 300000,       // Steel
-    5: 500000,       // Silver
-    6: 750000,       // Gold
-    7: 1200000,      // Obsidian
-    8: 2000000,      // Platinum
-    9: 3500000,      // Mithril
-    10: 5000000,     // Orichalcum
-    11: 10000000,    // Adamantite
-    12: 20000000,    // Rune
-    13: 35000000,    // Dragon
-    14: 75000000,    // Void
-    15: 150000000    // Celestial
+    1: 250, 2: 50000, 3: 150000, 4: 300000, 5: 500000,
+    6: 750000, 7: 1200000, 8: 2000000, 9: 3500000, 10: 5000000,
+    11: 10000000, 12: 20000000, 13: 35000000, 14: 75000000, 15: 150000000
 };
 
+// Transmute Logic: Base Ratio 1
+const TRANSMUTE_RECIPES = [
+    { from: 'copper_ore', to: 'wood_scraps', ratio: 1, cost: 10000 },
+    { from: 'iron_ore', to: 'copper_ore', ratio: 1, cost: 10000 },
+    { from: 'steel', to: 'iron_ore', ratio: 1, cost: 10000 },
+    { from: 'silver_ore', to: 'steel', ratio: 1, cost: 25000 },
+    { from: 'gold_ore', to: 'silver_ore', ratio: 1, cost: 25000 },
+    { from: 'obsidian_shard', to: 'gold_ore', ratio: 1, cost: 50000 },
+    { from: 'platinum_ore', to: 'obsidian_shard', ratio: 1, cost: 50000 },
+    { from: 'mithril_ore', to: 'platinum_ore', ratio: 1, cost: 75000 },
+    { from: 'orichalcum_ore', to: 'mithril_ore', ratio: 1, cost: 75000 },
+    { from: 'adamantite_ore', to: 'orichalcum_ore', ratio: 1, cost: 100000 },
+    { from: 'rune_essence', to: 'adamantite_ore', ratio: 1, cost: 100000 },
+    { from: 'dragon_scale', to: 'rune_essence', ratio: 1, cost: 150000 },
+    { from: 'void_dust', to: 'dragon_scale', ratio: 1, cost: 200000 },
+    { from: 'celestial_shard', to: 'void_dust', ratio: 1, cost: 250000 }
+];
+
+const MAX_DAILY_TRANSMUTES = 10;
+
+// --- HELPERS ---
 function getForgeCost(tier) {
     if (tier === 0) return 0;
     return TIER_COSTS[tier] || (tier * 10000000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function getDailyTransmuteKey() {
+    const d = new Date();
+    return `transmute_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 
-    // DOM Elements
+function getTransmuteState() {
+    const key = getDailyTransmuteKey();
+    if (!window.gameState.dailyTransmute) window.gameState.dailyTransmute = {};
+    if (window.gameState.dailyTransmute.dateKey !== key) {
+        window.gameState.dailyTransmute = { dateKey: key, counts: {} };
+    }
+    return window.gameState.dailyTransmute;
+}
+
+function getWeaponDamage(baseDmg, level) {
+    return Math.floor(baseDmg * (1 + (level * 0.5)));
+}
+
+function getArmorDefense(baseDef, level) {
+    return Math.floor(baseDef * (1 + (level * 0.5)));
+}
+
+function getItemIconUrl(iconKey) {
+    return GAME_ASSETS[iconKey] || GAME_ASSETS.iconCrystalDust;
+}
+
+function getMatIconUrl(matId) {
+    const mat = MATERIAL_TIERS.find(m => m.id === matId);
+    if (mat && mat.icon && GAME_ASSETS[mat.icon]) {
+        return GAME_ASSETS[mat.icon];
+    }
+    return GAME_ASSETS.iconCrystalDust;
+}
+
+function getMatClass(matId) {
+    if (!matId) return 'mat-iron';
+    if (matId.includes('wood')) return 'mat-wood';
+    if (matId.includes('copper')) return 'mat-copper';
+    if (matId.includes('silver')) return 'mat-silver';
+    if (matId.includes('gold')) return 'mat-gold';
+    if (matId.includes('obsidian')) return 'mat-obsidian';
+    if (matId.includes('dragon') || matId.includes('void') || matId.includes('celestial')) return 'mat-mythic';
+    return 'mat-iron';
+}
+
+function getSalvageValue(item, level) {
+    if (item.tier === 0) return { dust: 0, materials: [] };
+    const baseCost = item.dustCost !== undefined ? item.dustCost : getForgeCost(item.tier);
+    let totalUpgradeCost = 0;
+    for (let i = 0; i < level; i++) {
+        totalUpgradeCost += Math.floor(baseCost * (1 + (i * 0.2)));
+    }
+    const dustRefund = Math.floor((baseCost * 0.25) + (totalUpgradeCost * 0.5));
+    const materials = [];
+    if (item.matReq) {
+        const baseMatCount = item.matCost || 50;
+        const amount = Math.floor(baseMatCount * 0.25);
+        if (amount > 0) materials.push({ id: item.matReq, count: amount });
+    }
+    if (item.extraMats) {
+        item.extraMats.forEach(mat => {
+            const amount = Math.floor(mat.count * 0.25);
+            if (amount > 0) materials.push({ id: mat.id, count: amount });
+        });
+    }
+    return { dust: dustRefund, materials: materials };
+}
+
+// --- ANIMATION HELPER ---
+function spawnSmithySparks(container) {
+    for (let i = 0; i < 8; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'smithy-spark';
+        const tx = (Math.random() - 0.5) * 150;
+        const ty = (Math.random() - 0.5) * 150;
+        spark.style.setProperty('--tx', `${tx}px`);
+        spark.style.setProperty('--ty', `${ty}px`);
+        spark.style.left = '50%';
+        spark.style.top = '50%';
+        spark.style.animation = `spark-fly 0.6s ease-out forwards`;
+        container.appendChild(spark);
+    }
+    // Cleanup sparks
+    setTimeout(() => {
+        const sparks = container.querySelectorAll('.smithy-spark');
+        sparks.forEach(s => s.remove());
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM ELEMENTS
     const craftButton = document.getElementById('craft-button');
     const smithyModal = document.getElementById('smithy-modal');
     const closeSmithyButton = document.getElementById('close-smithy-button');
 
-    // Views
     const hubView = document.getElementById('smithy-hub');
     const forgeView = document.getElementById('smithy-forge');
     const armorView = document.getElementById('smithy-forge-armor');
     const sharpenSelectView = document.getElementById('smithy-sharpen-select');
     const sharpenView = document.getElementById('smithy-sharpen');
+    const dismantleView = document.getElementById('smithy-dismantle');
+    const transmuteView = document.getElementById('smithy-transmute');
 
-    // Buttons & Lists
     const openForgeBtn = document.getElementById('open-forge-btn');
     const openArmorBtn = document.getElementById('open-armor-btn');
     const openSharpenBtn = document.getElementById('open-sharpen-btn');
+    const openDismantleBtn = document.getElementById('open-dismantle-btn');
+    const openTransmuteBtn = document.getElementById('open-transmute-btn');
 
     const forgeList = document.getElementById('forge-list');
     const armorList = document.getElementById('armor-list');
     const sharpenList = document.getElementById('sharpen-list');
+    const dismantleList = document.getElementById('dismantle-list');
+    const transmuteList = document.getElementById('transmute-list');
 
-    // Sharpen UI Elements
     const sharpenName = document.getElementById('sharpen-item-name');
     const sharpenStatCurrent = document.getElementById('sharpen-stat-current');
     const sharpenStatNext = document.getElementById('sharpen-stat-next');
@@ -65,274 +165,311 @@ document.addEventListener('DOMContentLoaded', () => {
     const sharpenMsg = document.getElementById('sharpen-msg');
     const sharpenItemIcon = document.getElementById('sharpen-item-icon');
 
-    let selectedItemForUpgrade = null;
+    const confirmModal = document.getElementById('craft-confirmation-modal');
+    const confirmYesBtn = document.getElementById('confirm-craft-yes');
+    const confirmNoBtn = document.getElementById('confirm-craft-no');
+    const confirmText = document.getElementById('confirmation-text');
 
-    // --- STATE HELPERS ---
+    let selectedInstanceForUpgrade = null;
+    let pendingCraftData = null;
+    let pendingDismantleUid = null;
+    let currentView = 'hub';
 
-    function getItemLevel(itemId) {
-        if (!HERO_STATE.itemLevels) HERO_STATE.itemLevels = {};
-        return HERO_STATE.itemLevels[itemId] || 0;
-    }
+    function switchView(view) {
+        currentView = view;
+        hubView.classList.add('hidden');
+        forgeView.classList.add('hidden');
+        armorView.classList.add('hidden');
+        sharpenSelectView.classList.add('hidden');
+        sharpenView.classList.add('hidden');
+        if (dismantleView) dismantleView.classList.add('hidden');
+        if (transmuteView) transmuteView.classList.add('hidden');
 
-    function getWeaponDamage(baseDmg, level) {
-        // Upgrade Scaling: 50% per level
-        return Math.floor(baseDmg * (1 + (level * 0.5)));
-    }
-
-    function getArmorDefense(baseDef, level) {
-        // Upgrade Scaling: 50% per level
-        return Math.floor(baseDef * (1 + (level * 0.5)));
-    }
-
-    function getMatClass(matId) {
-        if (matId.includes('wood')) return 'mat-wood';
-        if (matId.includes('copper')) return 'mat-copper';
-        if (matId.includes('silver')) return 'mat-silver';
-        if (matId.includes('gold')) return 'mat-gold';
-        if (matId.includes('obsidian')) return 'mat-obsidian';
-        if (matId.includes('dragon') || matId.includes('void') || matId.includes('celestial')) return 'mat-mythic';
-        return 'mat-iron';
-    }
-
-    // --- RENDER FUNCTIONS ---
-
-    function renderForgeList() {
-        forgeList.innerHTML = "";
-        const ownedIds = HERO_STATE.ownedItems;
-        const highestTierOwned = WEAPON_DB.reduce((max, item) => {
-            return ownedIds.includes(item.id) ? Math.max(max, item.tier) : max;
-        }, 0);
-
-        WEAPON_DB.filter(i => i.tier > 0).forEach(item => {
-            renderCraftCard(item, highestTierOwned, forgeList, 'weapon');
-        });
-    }
-
-    function renderArmorList() {
-        armorList.innerHTML = "";
-        const ownedIds = HERO_STATE.ownedItems;
-        const highestTierOwned = ARMOR_DB.reduce((max, item) => {
-            return ownedIds.includes(item.id) ? Math.max(max, item.tier) : max;
-        }, 0);
-
-        ARMOR_DB.filter(i => i.tier > 0).forEach(item => {
-            renderCraftCard(item, highestTierOwned, armorList, 'armor');
-        });
-    }
-
-    function renderCraftCard(item, highestTierOwned, container, type) {
-        const ownedIds = HERO_STATE.ownedItems;
-        const isOwned = ownedIds.includes(item.id);
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'forge-item';
-        const iconClass = type === 'weapon' ? 'weapon-icon' : 'armor-icon';
-        const statLabel = type === 'weapon' ? 'Base DMG' : 'Base DEF';
-        const statValue = type === 'weapon' ? item.damage : item.defense;
-        const mainMatCount = 50;
-        const dustCost = getForgeCost(item.tier);
-        const haveDust = window.gameState.dust >= dustCost;
-        const formattedDust = window.formatNumberGlobal ? window.formatNumberGlobal(dustCost) : dustCost;
-        let canCraft = haveDust;
-        let ingredientsHTML = "";
-        ingredientsHTML += `
-            <span class="recipe-item ${haveDust ? '' : 'missing'}">
-                <img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust">
-                ${formattedDust}
-            </span>`;
-        if (item.matReq) {
-            const qty = (HERO_STATE.inventory[item.matReq] || 0);
-            const haveIt = qty >= mainMatCount;
-            if (!haveIt) canCraft = false;
-
-            let matClass = getMatClass(item.matReq);
-            ingredientsHTML += `
-                <span class="recipe-item ${haveIt ? '' : 'missing'}">
-                    <div class="bag-item-icon ${matClass} icon-small-circle"></div> 
-                    ${mainMatCount}
-                </span>`;
-        }
-
-        if (item.extraMats) {
-            item.extraMats.forEach(mat => {
-                const qty = (HERO_STATE.inventory[mat.id] || 0);
-                const haveIt = qty >= mat.count;
-                if (!haveIt) canCraft = false;
-                let matClass = getMatClass(mat.id);
-                const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
-                ingredientsHTML += `
-                    <span class="recipe-item ${haveIt ? '' : 'missing'}">
-                        <div class="bag-item-icon ${matClass} icon-small-circle"></div> 
-                        ${displayCount}
-                    </span>`;
-            });
-        }
-
-        let actionBtn = "";
-        if (isOwned) {
-            actionBtn = `<button class="forge-btn" disabled>OWNED</button>`;
+        if (view === 'hub') {
+            hubView.classList.remove('hidden');
+            closeSmithyButton.style.backgroundImage = `url(${GAME_ASSETS.closeButton})`;
         } else {
-            actionBtn = `<button class="forge-btn" ${canCraft ? '' : 'disabled'}>CRAFT</button>`;
+            closeSmithyButton.style.backgroundImage = `url(${GAME_ASSETS.backButton})`;
+            if (view === 'forge') forgeView.classList.remove('hidden');
+            if (view === 'armor') armorView.classList.remove('hidden');
+            if (view === 'sharpenSelect') sharpenSelectView.classList.remove('hidden');
+            if (view === 'sharpen') sharpenView.classList.remove('hidden');
+            if (view === 'dismantle') dismantleView.classList.remove('hidden');
+            if (view === 'transmute') transmuteView.classList.remove('hidden');
         }
-        itemDiv.innerHTML = `
-            <div class="forge-icon-box"><div class="${iconClass}"></div></div>
-            <div class="forge-details">
-                <span class="forge-name">${item.name}</span>
-                <span class="forge-stats">${statLabel}: ${statValue}</span>
-                <div class="recipe-row" style="flex-wrap: wrap;">
-                    ${ingredientsHTML}
-                </div>
-            </div>
-            ${actionBtn}
-        `;
-        if (!isOwned) {
-            itemDiv.innerHTML = `
-        <div class="forge-header-row">
-            <div class="forge-icon-box"><div class="${iconClass}"></div></div>
-            <div class="forge-details">
-                <span class="forge-name">${item.name}</span>
-                <span class="forge-stats">${statLabel}: ${statValue}</span>
-            </div>
-            ${actionBtn}
-        </div>
-        <div class="recipe-row">
-            ${ingredientsHTML}
-        </div>
-    `;
-            const btn = itemDiv.querySelector('.forge-btn');
-            if (btn && !btn.disabled) {
-                btn.addEventListener('click', () => {
-                    if (type === 'weapon') craftItem(item, dustCost, mainMatCount, 'weapon');
-                    else craftItem(item, dustCost, mainMatCount, 'armor');
+    }
+
+    function renderCraftList(container, db, type) {
+        container.innerHTML = "";
+        const craftableItems = db.filter(i => i.tier > 0);
+        craftableItems.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'forge-item';
+            
+            const imgUrl = getItemIconUrl(item.icon);
+            
+            const statLabel = type === 'weapon' ? 'Base DMG' : 'Base DEF';
+            const statValue = type === 'weapon' ? item.damage : item.defense;
+            const dustCost = item.dustCost !== undefined ? item.dustCost : getForgeCost(item.tier);
+            const mainMatCount = item.matCost !== undefined ? item.matCost : 50;
+            const haveDust = window.gameState.dust >= dustCost;
+            let canCraft = haveDust;
+            let ingredientsHTML = `<span class="recipe-item ${haveDust ? '' : 'missing'}"><img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust"> ${window.formatNumberGlobal(dustCost)}</span>`;
+            
+            if (item.matReq) {
+                const qty = (HERO_STATE.inventory[item.matReq] || 0);
+                if (qty < mainMatCount) canCraft = false;
+                const matImg = getMatIconUrl(item.matReq);
+                ingredientsHTML += `<span class="recipe-item ${qty >= mainMatCount ? '' : 'missing'}"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> ${mainMatCount}</span>`;
+            }
+            if (item.extraMats) {
+                item.extraMats.forEach(mat => {
+                    const qty = (HERO_STATE.inventory[mat.id] || 0);
+                    if (qty < mat.count) canCraft = false;
+                    const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
+                    const matImg = getMatIconUrl(mat.id);
+                    ingredientsHTML += `<span class="recipe-item ${qty >= mat.count ? '' : 'missing'}"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> ${displayCount}</span>`;
                 });
             }
-
-        } else {
+            
             itemDiv.innerHTML = `
-        <div class="forge-header-row">
-            <div class="forge-icon-box"><div class="${iconClass}"></div></div>
-            <div class="forge-details">
-                <span class="forge-name">${item.name}</span>
-                <span class="forge-stats" style="color:#2ecc71">In Inventory</span>
-            </div>
-            ${actionBtn}
-        </div>
-    `;
-        }
-
-        container.appendChild(itemDiv);
+                <div class="forge-header-row">
+                    <div class="forge-icon-box" style="background-image: url('${imgUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; border: 2px solid #444;"></div>
+                    <div class="forge-details"><span class="forge-name">${item.name}</span><span class="forge-stats">${statLabel}: ${statValue}</span></div>
+                    <button class="forge-btn" ${canCraft ? '' : 'disabled'}>CRAFT</button>
+                </div>
+                <div class="recipe-row">${ingredientsHTML}</div>
+            `;
+            itemDiv.querySelector('.forge-btn').addEventListener('click', () => {
+                if (!canCraft) return;
+                pendingCraftData = { item, dustCost, mainMatCount, type };
+                pendingDismantleUid = null;
+                if (confirmText) confirmText.innerText = `Craft ${item.name}?`;
+                if (confirmModal) confirmModal.classList.remove('hidden');
+            });
+            container.appendChild(itemDiv);
+        });
     }
 
-    function craftItem(item, dustCost, mainMatCount, type) {
+    function executeCraft(item, dustCost, mainMatCount) {
         if (window.gameState.dust < dustCost) return;
-        if (item.matReq) {
-            const currentQty = HERO_STATE.inventory[item.matReq] || 0;
-            if (currentQty < mainMatCount) return;
-        }
-        if (item.extraMats) {
-            for (const mat of item.extraMats) {
-                const currentQty = HERO_STATE.inventory[mat.id] || 0;
-                if (currentQty < mat.count) return;
-            }
-        }
-        if (item.matReq) {
-            HERO_STATE.inventory[item.matReq] -= mainMatCount;
-        }
-        if (item.extraMats) {
-            item.extraMats.forEach(mat => {
-                HERO_STATE.inventory[mat.id] -= mat.count;
-            });
-        }
-        HERO_STATE.ownedItems.push(item.id);
-        if (!HERO_STATE.itemLevels) HERO_STATE.itemLevels = {};
-        HERO_STATE.itemLevels[item.id] = 0;
+        window.gameState.dust -= dustCost;
+        if (item.matReq) HERO_STATE.inventory[item.matReq] -= mainMatCount;
+        if (item.extraMats) item.extraMats.forEach(mat => HERO_STATE.inventory[mat.id] -= mat.count);
+        incrementStat('totalCrafts', 1);
+        HERO_STATE.gearInventory.push({ uid: generateUID(), id: item.id, level: 0 });
         if (window.saveGameGlobal) window.saveGameGlobal();
-        if (type === 'weapon') {
-            HERO_STATE.equipment.mainHand = item.id;
-            recalculateHeroStats();
-            renderForgeList();
-        } else {
-            HERO_STATE.equipment.body = item.id;
-            recalculateHeroStats();
-            renderArmorList();
-        }
         if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        if (currentView === 'forge') renderCraftList(forgeList, WEAPON_DB, 'weapon');
+        if (currentView === 'armor') renderCraftList(armorList, ARMOR_DB, 'armor');
         if (window.refreshGameUI) window.refreshGameUI();
     }
 
-    // --- SHARPEN UI ---
+    function renderTransmuteList() {
+        if (!transmuteList) return;
+        transmuteList.innerHTML = "";
+        const dailyState = getTransmuteState();
+
+        TRANSMUTE_RECIPES.forEach(recipe => {
+            const fromItem = MATERIAL_TIERS.find(m => m.id === recipe.from);
+            const toItem = MATERIAL_TIERS.find(m => m.id === recipe.to);
+            if (!fromItem || !toItem) return;
+
+            const fromImg = getItemIconUrl(fromItem.icon);
+            const toImg = getItemIconUrl(toItem.icon);
+
+            const myQty = HERO_STATE.inventory[recipe.from] || 0;
+            const currentUses = dailyState.counts[recipe.from] || 0;
+            const remaining = MAX_DAILY_TRANSMUTES - currentUses;
+
+            const canAfford = myQty >= 1 && window.gameState.dust >= recipe.cost;
+            const isLimitReached = remaining <= 0;
+            const btnDisabled = !canAfford || isLimitReached;
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'forge-item';
+
+            let limitText = isLimitReached
+                ? `<span style="color:#e74c3c">Max Daily Limit</span>`
+                : `<span style="color:#aaa">Daily: ${remaining} left</span>`;
+
+            itemDiv.innerHTML = `
+                <div class="forge-details" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; width:100%;">
+                    <div style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom: 2px;">
+                            <div class="bag-item-icon" style="background-image: url('${fromImg}'); background-size: contain; background-repeat: no-repeat; background-position: center; border: none; width: 30px; height: 30px;"></div>
+                            <span style="font-size:12px; color:#aaa;">➜</span>
+                            <div class="bag-item-icon" style="background-image: url('${toImg}'); background-size: contain; background-repeat: no-repeat; background-position: center; border: none; width: 30px; height: 30px;"></div>
+                        </div>
+                        <span class="forge-name" style="font-size:13px; margin:0;">${fromItem.name} ➜ ${toItem.name}</span>
+                        <div style="font-size:10px;">
+                            <span style="color:${myQty > 0 ? '#aaa' : '#e74c3c'}">Have: ${window.formatNumberGlobal(myQty)}</span>
+                            <span style="color:#555; margin: 0 4px;">|</span>
+                            ${limitText}
+                        </div>
+                    </div>
+                    <button class="forge-btn" style="min-width:80px; height:36px; font-size:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 0; margin-left: auto;" ${btnDisabled ? 'disabled' : ''}>
+                        <span>CONVERT</span>
+                        <div style="display:flex; align-items:center; gap:3px; margin-top:1px;">
+                            <img src="${GAME_ASSETS.iconCrystalDust}" style="width:9px; height:9px;">
+                            <span style="color:${window.gameState.dust < recipe.cost ? '#e74c3c' : '#87CEEB'}; font-size:9px;">${window.formatNumberGlobal(recipe.cost)}</span>
+                        </div>
+                    </button>
+                </div>
+            `;
+
+            itemDiv.querySelector('button').onclick = () => {
+                const liveState = getTransmuteState();
+                const liveUses = liveState.counts[recipe.from] || 0;
+
+                if (HERO_STATE.inventory[recipe.from] >= 1 && window.gameState.dust >= recipe.cost && liveUses < MAX_DAILY_TRANSMUTES) {
+                    window.gameState.dust -= recipe.cost;
+                    HERO_STATE.inventory[recipe.from]--;
+
+                    const roll = Math.random();
+                    const amount = roll < 0.65 ? 1 : 2;
+
+                    if (!HERO_STATE.inventory[recipe.to]) HERO_STATE.inventory[recipe.to] = 0;
+                    HERO_STATE.inventory[recipe.to] += amount;
+
+                    if (!liveState.counts[recipe.from]) liveState.counts[recipe.from] = 0;
+                    liveState.counts[recipe.from]++;
+
+                    if (window.saveGameGlobal) window.saveGameGlobal();
+                    renderTransmuteList();
+                    if (window.refreshGameUI) window.refreshGameUI();
+
+                    if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            };
+
+            transmuteList.appendChild(itemDiv);
+        });
+    }
+
+    function renderDismantleList() {
+        dismantleList.innerHTML = "";
+        const salvageableItems = HERO_STATE.gearInventory.filter(instance => {
+            const isEquipped = (instance.uid === HERO_STATE.equipment.mainHand || instance.uid === HERO_STATE.equipment.body);
+            return !isEquipped;
+        });
+        if (salvageableItems.length === 0) {
+            dismantleList.innerHTML = "<div style='color:#777; margin-top:20px; text-align:center;'>No salvageable items found.<br>Unequip items first.</div>";
+            return;
+        }
+        salvageableItems.sort((a, b) => a.level - b.level);
+        salvageableItems.forEach(instance => {
+            const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
+            if (!dbItem) return;
+            
+            const imgUrl = getItemIconUrl(dbItem.icon);
+            
+            const refund = getSalvageValue(dbItem, instance.level);
+            let matsHTML = '';
+            refund.materials.forEach(mat => {
+                const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
+                const matImg = getMatIconUrl(mat.id);
+                matsHTML += `<span class="recipe-item" style="color:#ffd700;"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> +${displayCount}</span>`;
+            });
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'forge-item';
+            const levelText = instance.level > 0 ? `<span style="color:#2ecc71; font-weight:bold;">(+${instance.level})</span>` : '';
+            itemDiv.innerHTML = `
+            <div class="forge-header-row">
+                <div class="forge-icon-box" style="background-image: url('${imgUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center;"></div>
+                <div class="forge-details" style="text-align:left;"><span class="forge-name">${dbItem.name} ${levelText}</span></div>
+                <button class="forge-btn" style="background:#c0392b; border-color:#e74c3c; border-bottom-color:#922b21;">SCRAP</button>
+            </div>
+            <div class="recipe-row" style="margin-top:8px; padding-top:8px; border-top:1px solid #444;"><span style="font-size:10px; color:#aaa; margin-right:5px;">GET:</span><span class="recipe-item" style="color:#87CEEB;"><img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust"> +${window.formatNumberGlobal(refund.dust)}</span>${matsHTML}</div>`;
+            itemDiv.querySelector('button').addEventListener('click', () => {
+                pendingDismantleUid = instance.uid;
+                pendingCraftData = null;
+                if (confirmText) {
+                    let matListText = refund.materials.map(m => `+${window.formatNumberGlobal(m.count)} ${m.id.replace('_', ' ')}`).join('<br>');
+                    confirmText.innerHTML = `Salvage <b>${dbItem.name}</b>?<br><br><span style="color:#00ffff">+${window.formatNumberGlobal(refund.dust)} Dust</span><br><span style="color:#ffd700">${matListText}</span>`;
+                }
+                if (confirmModal) confirmModal.classList.remove('hidden');
+            });
+            dismantleList.appendChild(itemDiv);
+        });
+    }
+
+    function executeDismantle(uid) {
+        const index = HERO_STATE.gearInventory.findIndex(i => i.uid === uid);
+        if (index === -1) return;
+        const instance = HERO_STATE.gearInventory[index];
+        const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
+        const refund = getSalvageValue(dbItem, instance.level);
+        window.gameState.dust += refund.dust;
+        refund.materials.forEach(mat => {
+            if (!HERO_STATE.inventory[mat.id]) HERO_STATE.inventory[mat.id] = 0;
+            HERO_STATE.inventory[mat.id] += mat.count;
+        });
+        HERO_STATE.gearInventory.splice(index, 1);
+        if (window.saveGameGlobal) window.saveGameGlobal();
+        if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        renderDismantleList();
+        if (window.refreshGameUI) window.refreshGameUI();
+    }
 
     function renderSharpenSelection() {
         sharpenList.innerHTML = "";
-        const ownedIds = HERO_STATE.ownedItems;
-        const allItems = [...WEAPON_DB, ...ARMOR_DB];
-        const myItems = allItems.filter(i => ownedIds.includes(i.id) && i.tier > 0);
-
-        myItems.forEach(item => {
-            const isWeapon = WEAPON_DB.some(w => w.id === item.id);
+        const upgradeableItems = HERO_STATE.gearInventory.map(instance => {
+            const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
+            return { instance, dbItem };
+        }).filter(obj => obj.dbItem && obj.dbItem.tier > 0);
+        upgradeableItems.sort((a, b) => b.instance.level - a.instance.level);
+        if (upgradeableItems.length === 0) {
+            sharpenList.innerHTML = "<div style='color:#777; margin-top:20px; text-align:center;'>No items to upgrade.</div>";
+            return;
+        }
+        upgradeableItems.forEach(({ instance, dbItem }) => {
             const itemDiv = document.createElement('div');
-            itemDiv.className = 'forge-item';
-            const iconClass = isWeapon ? 'weapon-icon' : 'armor-icon';
-            const level = getItemLevel(item.id);
-
-            let statDisplay = "";
-            if (isWeapon) {
-                const dmg = getWeaponDamage(item.damage, level);
-                statDisplay = `DMG: ${dmg} <span style="color:#2ecc71">(+${level})</span>`;
-            } else {
-                const def = getArmorDefense(item.defense, level);
-                statDisplay = `DEF: ${def} <span style="color:#2ecc71">(+${level})</span>`;
-            }
+            const isEquipped = (instance.uid === HERO_STATE.equipment.mainHand || instance.uid === HERO_STATE.equipment.body);
+            itemDiv.className = `forge-item ${isEquipped ? 'equipped' : ''}`;
+            const levelText = instance.level > 0 ? `<span style="color:#2ecc71;">(+${instance.level})</span>` : '';
+            
+            const imgUrl = getItemIconUrl(dbItem.icon);
 
             itemDiv.innerHTML = `
-                <div class="forge-icon-box"><div class="${iconClass}"></div></div>
-                <div class="forge-details">
-                    <span class="forge-name">${item.name}</span>
-                    <span class="forge-stats">${statDisplay}</span>
+                <div class="forge-icon-box" style="margin: 0 auto 10px auto; background-image: url('${imgUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; border: 2px solid #444;">
                 </div>
-                <button class="forge-btn" style="background: #e67e22; border-color:#d35400; border-bottom-color:#a04000;">SELECT</button>
+                <div class="forge-details" style="text-align:center;">
+                    <span class="forge-name" style="font-size:14px;">${dbItem.name} ${levelText}</span>
+                </div>
+                <button class="forge-btn" style="background:#e67e22; border-color:#d35400; border-bottom-color:#a04000; width:100%;">SELECT</button>
             `;
 
             itemDiv.querySelector('button').addEventListener('click', () => {
-                selectedItemForUpgrade = item;
+                selectedInstanceForUpgrade = instance;
                 switchView('sharpen');
-                if (window.saveGameGlobal) window.saveGameGlobal();
-                updateSharpenUI();
+                updateSharpenUI(instance, dbItem);
             });
-
             sharpenList.appendChild(itemDiv);
         });
     }
 
-    function updateSharpenUI() {
-        if (!selectedItemForUpgrade) return;
-        const item = selectedItemForUpgrade;
-        const level = getItemLevel(item.id);
-        const isWeapon = WEAPON_DB.some(w => w.id === item.id);
-
-        sharpenName.innerHTML = `${item.name}`;
+    function updateSharpenUI(instance, dbItem) {
+        if (!instance || !dbItem) return;
+        const level = instance.level;
+        const isWeapon = WEAPON_DB.some(w => w.id === dbItem.id);
+        sharpenName.innerHTML = `${dbItem.name} <span style="color:#2ecc71">+${level}</span>`;
         sharpenStatCurrent.innerText = `+${level}`;
         sharpenStatNext.innerText = `+${level + 1}`;
-        sharpenItemIcon.className = isWeapon ? 'weapon-icon' : 'armor-icon';
+        
+        const imgUrl = getItemIconUrl(dbItem.icon);
+        sharpenItemIcon.style.backgroundImage = `url('${imgUrl}')`;
+        sharpenItemIcon.style.backgroundSize = "contain";
+        sharpenItemIcon.style.backgroundRepeat = "no-repeat";
+        sharpenItemIcon.style.backgroundPosition = "center";
+        
+        // FIX: Force margin to 0 to align center, and ensure class uses existing CSS for size
+        sharpenItemIcon.className = 'forge-icon-box';
+        sharpenItemIcon.style.margin = '0'; 
 
-        let currentStat = 0;
-        let nextStat = 0;
-        let label = "";
-
-        if (isWeapon) {
-            currentStat = getWeaponDamage(item.damage, level);
-            nextStat = getWeaponDamage(item.damage, level + 1);
-            label = "DAMAGE";
-        } else {
-            currentStat = getArmorDefense(item.defense, level);
-            nextStat = getArmorDefense(item.defense, level + 1);
-            label = "DEFENSE";
-        }
-
-        sharpenChance.innerHTML = `${label}: <span style="color:#fff">${currentStat}</span> ➜ <span style="color:#2ecc71">${nextStat}</span>`;
-        sharpenChance.style.fontSize = "14px";
-        sharpenChance.style.color = "#aaa";
-
-        // --- SUCCESS RATES ---
+        let currentStat = isWeapon ? getWeaponDamage(dbItem.damage, level) : getArmorDefense(dbItem.defense, level);
+        let nextStat = isWeapon ? getWeaponDamage(dbItem.damage, level + 1) : getArmorDefense(dbItem.defense, level + 1);
+        sharpenChance.innerHTML = `${isWeapon ? "DAMAGE" : "DEFENSE"}: <span style="color:#fff">${currentStat}</span> ➜ <span style="color:#2ecc71">${nextStat}</span>`;
         let chance = 100;
         if (level === 4) chance = 80;
         if (level === 5) chance = 70;
@@ -340,91 +477,80 @@ document.addEventListener('DOMContentLoaded', () => {
         if (level === 7) chance = 20;
         if (level === 8) chance = 5;
         if (level === 9) chance = 1;
-
-        // --- UPGRADE COST ---
-        const baseForgeCost = getForgeCost(item.tier);
+        const baseForgeCost = getForgeCost(dbItem.tier);
         const dust = Math.floor(baseForgeCost * (1 + (level * 0.2)));
-        let mats = 2;
-        if (level >= 3) mats = 4;
-        if (level >= 6) mats = 6;
-        if (level >= 9) mats = 10;
-        sharpenCostDust.innerText = window.formatNumberGlobal ? window.formatNumberGlobal(dust) : dust;
+        let mats = level >= 9 ? 10 : level >= 6 ? 6 : level >= 3 ? 4 : 2;
+        sharpenCostDust.innerText = window.formatNumberGlobal(dust);
         sharpenCostMat.innerText = mats;
-        let matClass = 'mat-iron';
-        if (item.matReq) {
-            matClass = getMatClass(item.matReq);
+        
+        if (dbItem.matReq) {
+            const matImg = getMatIconUrl(dbItem.matReq);
+            sharpenMatIcon.style.backgroundImage = `url('${matImg}')`;
+            sharpenMatIcon.style.backgroundSize = "contain";
+            sharpenMatIcon.style.backgroundRepeat = "no-repeat";
+            sharpenMatIcon.style.backgroundPosition = "center";
+            sharpenMatIcon.className = "bag-item-icon icon-small-circle";
         }
-        sharpenMatIcon.className = `bag-item-icon ${matClass} icon-small-circle`;
-        const haveDust = window.gameState.dust >= dust;
-        const haveMats = (HERO_STATE.inventory[item.matReq] || 0) >= mats;
-        doSharpenBtn.disabled = false;
-        doSharpenBtn.onclick = null;
-        if (level >= 10) {
-            doSharpenBtn.disabled = true;
-            doSharpenBtn.innerText = "MAX LEVEL";
-        } else if (!haveDust || !haveMats) {
-            doSharpenBtn.disabled = true;
-            doSharpenBtn.innerText = "NOT ENOUGH";
-        } else {
-            doSharpenBtn.disabled = false;
-            doSharpenBtn.innerText = `SHARPEN (${chance}%)`;
-            doSharpenBtn.onclick = () => performSharpen(chance, dust, mats, item.matReq, item.id, isWeapon);
+
+        const canAfford = window.gameState.dust >= dust && (HERO_STATE.inventory[dbItem.matReq] || 0) >= mats;
+        doSharpenBtn.disabled = level >= 10 || !canAfford;
+        doSharpenBtn.innerText = level >= 10 ? "MAX LEVEL" : (!canAfford ? "NOT ENOUGH" : `SHARPEN (${chance}%)`);
+        
+        // Remove old listeners to prevent stacking
+        const newBtn = doSharpenBtn.cloneNode(true);
+        doSharpenBtn.parentNode.replaceChild(newBtn, doSharpenBtn);
+        // Re-assign global for next use
+        const freshBtn = document.getElementById('do-sharpen-btn');
+        
+        if (!freshBtn.disabled) {
+            freshBtn.onclick = () => performSharpen(chance, dust, mats, dbItem.matReq, instance);
         }
     }
 
-    function performSharpen(chance, dustCost, matCost, matId, itemId, isWeapon) {
-        // --- 1. SECURITY CHECKS & DEDUCTIONS (Immediate) ---
-        const currentLevel = (HERO_STATE.itemLevels && HERO_STATE.itemLevels[itemId]) || 0;
-        if (currentLevel >= 10) return;
+    function performSharpen(chance, dustCost, matCost, matId, instance) {
+        if (instance.level >= 10) return;
 
-        // Disable button immediately to prevent double clicks
-        doSharpenBtn.disabled = true;
-        doSharpenBtn.innerText = "FORGING...";
-        sharpenMsg.innerText = "";
-
+        // Deduct resources
         window.gameState.dust -= dustCost;
         HERO_STATE.inventory[matId] -= matCost;
+        
+        // Lock Button
+        const btn = document.getElementById('do-sharpen-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "FORGING...";
+        }
+        if(sharpenMsg) sharpenMsg.innerText = "";
 
-        // --- 2. CALCULATE OUTCOME (Immediate) ---
+        // Determine Success
         const roll = Math.random() * 100;
         const success = roll < chance;
 
-        // Save immediately so no "reload cheat" works
         if (window.saveGameGlobal) window.saveGameGlobal();
 
-        // --- 3. ANIMATION SEQUENCE ---
+        // Animation
         const container = document.querySelector('.sharpen-icon-frame');
-
-        // A. Create Hammer
         const hammer = document.createElement('div');
         hammer.className = 'smithy-hammer';
         hammer.innerText = '🔨';
         container.appendChild(hammer);
-
-        // B. Start Swing
+        
         requestAnimationFrame(() => hammer.classList.add('striking'));
 
-        // C. IMPACT (at 420ms - matches 60% of 0.7s animation)
+        // Impact Effect (420ms)
         setTimeout(() => {
-            spawnSmithySparks(document.querySelector('.sharpen-icon-frame'));
+            spawnSmithySparks(container);
             container.classList.add('shake-vertical');
-
-            // Heavy Haptic
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-            }
-
-            // Remove shake class quickly
+            if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
             setTimeout(() => container.classList.remove('shake-vertical'), 200);
         }, 420);
 
-        // D. REVEAL RESULT (at 700ms - after hammer finishes)
+        // Result (700ms)
         setTimeout(() => {
-            hammer.remove(); // Clean up hammer
-
+            hammer.remove();
             if (success) {
-                HERO_STATE.itemLevels[itemId] = (HERO_STATE.itemLevels[itemId] || 0) + 1;
-                recalculateHeroStats();
+                instance.level++;
+                recalculateHeroStats(); 
                 sharpenMsg.innerText = "SUCCESS!";
                 sharpenMsg.className = "sharpen-msg msg-success";
                 if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
@@ -434,103 +560,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
             }
 
-            // Refresh UI
-            updateSharpenUI();
+            const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
+            updateSharpenUI(instance, dbItem);
+            
             if (window.refreshGameUI) window.refreshGameUI();
-
-            // Clear message after delay
             setTimeout(() => sharpenMsg.innerText = "", 2000);
-
         }, 700);
     }
 
-    function spawnSmithySparks(container) {
-        const rect = container.getBoundingClientRect();
-        // Spawn sparks in the center of the container (where the icon is)
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2; // Adjust if needed
-
-        for (let i = 0; i < 20; i++) {
-            const spark = document.createElement('div');
-            spark.className = 'smithy-spark';
-            spark.style.left = '50%';
-            spark.style.top = '40%'; // Hit the item icon area
-
-            // Random explosion direction
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = 50 + Math.random() * 100;
-            const tx = Math.cos(angle) * velocity;
-            const ty = Math.sin(angle) * velocity;
-
-            spark.style.setProperty('--tx', `${tx}px`);
-            spark.style.setProperty('--ty', `${ty}px`);
-
-            spark.style.animation = `spark-fly 0.6s ease-out forwards`;
-
-            container.appendChild(spark);
-            setTimeout(() => spark.remove(), 600);
-        }
-    }
-
-    // --- NAVIGATION ---
-
-    let currentView = 'hub';
-
-    craftButton.addEventListener('click', () => {
-        window.openModalGlobal('smithy-modal');
-        switchView('hub');
-    });
-
+    craftButton.addEventListener('click', () => { window.openModalGlobal('smithy-modal'); switchView('hub'); });
     closeSmithyButton.addEventListener('click', () => {
         if (currentView === 'hub') {
             smithyModal.classList.add('closing');
-            setTimeout(() => {
-                smithyModal.classList.add('hidden');
-                smithyModal.classList.remove('closing');
-            }, 300);
+            setTimeout(() => { smithyModal.classList.add('hidden'); smithyModal.classList.remove('closing'); }, 300);
+        } else if (currentView === 'sharpen') {
+            switchView('sharpenSelect');
         } else {
-            if (currentView === 'sharpen') {
-                renderSharpenSelection();
-                switchView('sharpenSelect');
-            } else {
-                switchView('hub');
-            }
+            switchView('hub');
         }
     });
-
-    openForgeBtn.addEventListener('click', () => {
-        renderForgeList();
-        switchView('forge');
-    });
-
-    openArmorBtn.addEventListener('click', () => {
-        renderArmorList();
-        switchView('armor');
-    });
-
-    openSharpenBtn.addEventListener('click', () => {
-        renderSharpenSelection();
-        switchView('sharpenSelect');
-    });
-
-    function switchView(view) {
-        currentView = view;
-        hubView.classList.add('hidden');
-        forgeView.classList.add('hidden');
-        armorView.classList.add('hidden');
-        sharpenSelectView.classList.add('hidden');
-        sharpenView.classList.add('hidden');
-
-        if (view === 'hub') {
-            hubView.classList.remove('hidden');
-            closeSmithyButton.style.backgroundImage = `url(${GAME_ASSETS.closeButton})`;
-        }
-        else {
-            closeSmithyButton.style.backgroundImage = `url(${GAME_ASSETS.backButton})`;
-            if (view === 'forge') forgeView.classList.remove('hidden');
-            if (view === 'armor') armorView.classList.remove('hidden');
-            if (view === 'sharpenSelect') sharpenSelectView.classList.remove('hidden');
-            if (view === 'sharpen') sharpenView.classList.remove('hidden');
-        }
+    if (confirmYesBtn) {
+        confirmYesBtn.addEventListener('click', () => {
+            if (pendingCraftData) executeCraft(pendingCraftData.item, pendingCraftData.dustCost, pendingCraftData.mainMatCount);
+            else if (pendingDismantleUid) executeDismantle(pendingDismantleUid);
+            confirmModal.classList.add('hidden');
+        });
+        confirmNoBtn.addEventListener('click', () => confirmModal.classList.add('hidden'));
     }
+    openForgeBtn.addEventListener('click', () => { renderCraftList(forgeList, WEAPON_DB, 'weapon'); switchView('forge'); });
+    openArmorBtn.addEventListener('click', () => { renderCraftList(armorList, ARMOR_DB, 'armor'); switchView('armor'); });
+    openSharpenBtn.addEventListener('click', () => { renderSharpenSelection(); switchView('sharpenSelect'); });
+    if (openDismantleBtn) openDismantleBtn.addEventListener('click', () => { renderDismantleList(); switchView('dismantle'); });
+    if (openTransmuteBtn) openTransmuteBtn.addEventListener('click', () => { renderTransmuteList(); switchView('transmute'); });
 });

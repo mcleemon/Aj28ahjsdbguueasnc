@@ -11,7 +11,7 @@ const SHOP_ITEMS = {
         {
             id: "bundle_small",
             title: "Small Bundle",
-            img: GAME_ASSETS.iconCrystalDust, 
+            img: GAME_ASSETS.iconCrystalDust,
             description: "10,000 Dust",
             price: 1.99,
             currency: "stars"

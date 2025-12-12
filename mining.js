@@ -3,13 +3,14 @@
 // Target Economy: ~76 Billion Dust to Max, ~5M PPH Max
 
 import { GAME_ASSETS } from './assets.js';
+import { incrementStat } from './achievements.js';
 
 // --- CONFIGURATION (Balanced Economy Table) ---
 export const MINING_ITEMS = [
     // LEFT SIDE (Labor - Lower Cost Scaling)
-    { id: 1, name: "Pickaxe", baseCost: 1000, basePPH: 50, costMult: 1.16, icon: 'miningItem1' },
-    { id: 2, name: "Helmet", baseCost: 25000, basePPH: 200, costMult: 1.16, icon: 'miningItem2', reqId: 1 },
-    { id: 3, name: "Worker", baseCost: 120000, basePPH: 600, costMult: 1.15, icon: 'miningItem3', reqId: 2 },
+    { id: 1, name: "Pickaxe", baseCost: 1000, basePPH: 150, costMult: 1.12, icon: 'miningItem1' },
+    { id: 2, name: "Helmet", baseCost: 25000, basePPH: 400, costMult: 1.13, icon: 'miningItem2', reqId: 1 },
+    { id: 3, name: "Worker", baseCost: 120000, basePPH: 850, costMult: 1.14, icon: 'miningItem3', reqId: 2 },
     { id: 4, name: "Dynamite Crate", baseCost: 500000, basePPH: 2000, costMult: 1.15, icon: 'miningItem4', reqId: 3 },
 
     // RIGHT SIDE (Tech - Higher Cost Scaling)
@@ -112,6 +113,7 @@ export function buyMiningUpgrade(itemId) {
         const mining = getMiningState();
         if (!mining.upgrades[itemId]) mining.upgrades[itemId] = 0;
         mining.upgrades[itemId]++;
+        incrementStat('totalMiningUpgrades', 1);
         if (window.saveGameGlobal) window.saveGameGlobal();
         return true;
     }
@@ -139,6 +141,7 @@ export function buySiloUpgrade() {
     if (window.gameState.dust >= upgradeData.cost) {
         window.gameState.dust -= upgradeData.cost;
         mining.siloLevel++;
+        incrementStat('totalMiningUpgrades', 1);
         if (window.saveGameGlobal) window.saveGameGlobal();
         return true;
     }

@@ -517,7 +517,7 @@ button:active {
     width: 20px;
     height: 20px;
     vertical-align: middle;
-    margin-right: -2px;
+    margin-right: 2px;
 }
 
 #offline-dust-amount {
@@ -1307,19 +1307,14 @@ img {
 }
 
 .task-claim-button.task-ready {
-    /* Medieval Gold Gradient */
     background: linear-gradient(to bottom, #f1c40f, #d35400);
     border: 1px solid #f39c12;
     border-bottom: 3px solid #a04000;
     color: #fff;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
     cursor: pointer;
-    
-    /* CHANGED: Removed the 'pulse-ready' animation */
-    animation: none; 
-    
-    /* CHANGED: Subtle, static glow instead of pulsing */
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); 
+    animation: none;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
 
 .task-claim-button.task-ready:active {
@@ -2871,22 +2866,27 @@ img {
         box-shadow: 0 0 5px 1px rgba(255, 0, 0, 0.6);
         border-color: #ffcccc;
     }
+
     20% {
         box-shadow: 0 0 5px 1px rgba(255, 255, 0, 0.6);
         border-color: #ffffcc;
     }
+
     40% {
         box-shadow: 0 0 5px 1px rgba(0, 255, 0, 0.6);
         border-color: #ccffcc;
     }
+
     60% {
         box-shadow: 0 0 5px 1px rgba(0, 255, 255, 0.6);
         border-color: #ccffff;
     }
+
     80% {
         box-shadow: 0 0 5px 1px rgba(138, 43, 226, 0.6);
         border-color: #e6ccff;
     }
+
     100% {
         box-shadow: 0 0 5px 1px rgba(255, 0, 0, 0.6);
         border-color: #ffcccc;
@@ -3038,10 +3038,10 @@ img {
     border-radius: 8px;
     padding: 10px;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: stretch;
     gap: 5px;
-    
+
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
@@ -3129,7 +3129,7 @@ img {
     background: none;
     border: none;
     width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .recipe-item {
@@ -3933,9 +3933,9 @@ img {
 .mining-panel {
     width: 95%;
     max-width: 380px;
-    height: auto; 
-    min-height: auto; 
-    max-height: none; 
+    height: auto;
+    min-height: auto;
+    max-height: none;
     background: linear-gradient(180deg, #26211f 0%, #0f0c0b 100%);
     border: 3px solid #8d6e63;
     border-radius: 20px;
@@ -3984,7 +3984,7 @@ img {
     display: flex;
     flex-direction: column;
     padding: 10px 15px;
-    overflow: visible; 
+    overflow: visible;
     justify-content: flex-start;
     gap: 10px;
 }
@@ -4924,4 +4924,227 @@ img {
 .mining-center-silo.selected .mining-icon-frame {
     border-color: #ffd700;
     box-shadow: 0 0 20px #ffb74d, inset 0 0 10px #ffb74d;
+}
+
+#achievements-modal {
+    z-index: 200;
+}
+
+.achievement-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.ach-tab {
+    background: #333;
+    border: 1px solid #555;
+    color: #aaa;
+    font-family: 'Graduate', serif;
+    font-size: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.ach-tab.active {
+    background: linear-gradient(to bottom, #f39c12, #d35400);
+    color: white;
+    border-color: #e67e22;
+    text-shadow: 1px 1px 0 #000;
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
+}
+
+.achievement-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 20px;
+}
+
+/* --- THE SLIM RIBBON --- */
+.ach-ribbon {
+    position: relative;
+    width: 100%;
+    height: 55px;
+    background: linear-gradient(90deg, #222 0%, #1a1a1a 100%);
+    border: 1px solid #444;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.ach-ribbon.completed {
+    border-color: #ffd700;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
+}
+
+.ach-ribbon.claimed {
+    opacity: 0.6;
+    border-color: #2ecc71;
+}
+
+.ach-progress-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #FFD700;
+    z-index: 1;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 5px #FFD700;
+}
+
+.ach-icon {
+    font-size: 24px;
+    margin-right: 15px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.8));
+    z-index: 2;
+}
+
+.ach-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+}
+
+.ach-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.ach-desc {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.ach-btn {
+    z-index: 2;
+    font-family: 'Graduate', serif;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: default;
+    background: #333;
+    color: #555;
+    min-width: 60px;
+}
+
+.ach-btn.claimable {
+    background: linear-gradient(to bottom, #2ecc71, #27ae60);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0 8px #2ecc71;
+    animation: pulse-active 1s infinite;
+}
+
+.ach-btn.done {
+    background: transparent;
+    color: #2ecc71;
+    font-weight: bold;
+    border: 1px solid #2ecc71;
+}
+
+.achievements-panel {
+    width: 95%;
+    max-width: 400px;
+    height: 700px;
+    max-height: 90vh;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 2px solid #444;
+    border-top: 4px solid #ffd700;
+    border-bottom: 4px solid #ffd700;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInScaleUp 0.3s ease-out forwards;
+}
+
+.achievements-panel .smithy-header h2 {
+    color: #fff;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+/* --- CONFIRMATION MODAL --- */
+.confirmation-panel {
+    width: 280px;
+    background: linear-gradient(180deg, #2a2a2e 0%, #1a1a1a 100%);
+    border: 2px solid #aaa;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    animation: fadeInScaleUp 0.2s ease-out forwards;
+}
+
+.confirmation-panel h3 {
+    font-family: 'Lilita One', cursive;
+    color: #ffd700;
+    margin: 0;
+    font-size: 24px;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.confirmation-panel p {
+    font-family: 'Nunito', sans-serif;
+    color: #ccc;
+    font-size: 14px;
+    margin: 0;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.confirm-btn {
+    width: 80px;
+    height: 40px;
+    font-family: 'Graduate', serif;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    color: white;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+}
+
+.confirm-btn:active {
+    transform: scale(0.95);
+}
+
+.btn-yes {
+    background: linear-gradient(to bottom, #27ae60, #1e8449);
+    border-bottom: 3px solid #145a32;
+}
+
+.btn-no {
+    background: linear-gradient(to bottom, #c0392b, #922b21);
+    border-bottom: 3px solid #641e16;
 }

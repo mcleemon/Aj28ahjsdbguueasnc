@@ -1,6 +1,7 @@
 // blackjack.js
 // v1.1.23 (Fixed Win Target & Bet Animation)
 import { GAME_ASSETS } from './assets.js';
+import { incrementStat } from './achievements.js';
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. GET ALL ELEMENTS ---
@@ -325,7 +326,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startGame() {
+        if (currentBet <= 0 || isNaN(currentBet)) {
+            console.error("Invalid Bet");
+            return;
+        }
+        if (gameState.dust < currentBet) {
+            tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
         gameState.dust -= currentBet;
+        incrementStat('totalMinigamesPlayed', 1);
         saveGameState();
         syncDustCounters();
         buildDeck();

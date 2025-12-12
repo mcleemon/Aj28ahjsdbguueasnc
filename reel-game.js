@@ -2,6 +2,7 @@
 
 import { GAME_ASSETS } from './assets.js';
 import { audioManager } from './audioManager.js';
+import { incrementStat } from './achievements.js';
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE & FUNCTIONS ---
@@ -57,14 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const EXP_FOR_WIN = 10;
     const REEL_REWARD_MILESTONES = [500000, 4500000, 20000000, 50000000, 75000000];
     const REEL_REWARD_PRIZES = [
-        { type: 'gem', amount: 15 },
-        { type: 'gem', amount: 50 },
-        { type: 'gem', amount: 85 },
-        { type: 'gem', amount: 100 },
-        { type: 'gem', amount: 250 }
+        { type: 'gem', amount: 5 },   // Was 15
+        { type: 'gem', amount: 15 },  // Was 50
+        { type: 'gem', amount: 40 },  // Was 85
+        { type: 'gem', amount: 80 },  // Was 100
+        { type: 'gem', amount: 110 }  // Was 250
     ];
 
-    const REEL_REWARD_TEXT = ["15 Gems", "50 Gems", "85 Gems", "100 Gems", "250 Gems"];
+    const REEL_REWARD_TEXT = ["5 Gems", "15 Gems", "40 Gems", "80 Gems", "110 Gems"];
     const REEL_REWARD_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
     // Payout array [2x, 3x, 4x, 5x] multipliers
@@ -1048,6 +1049,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.reelTickets -= 1;
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + 100000;
         } else {
+            if (currentTotalBet <= 0 || isNaN(currentTotalBet)) {
+                return;
+            }
             if (gameState.dust < currentTotalBet) {
                 tg.HapticFeedback.notificationOccurred('error');
                 return;
@@ -1056,6 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.reelRewardProgress = (gameState.reelRewardProgress || 0) + currentTotalBet;
         }
         isSpinning = true;
+        incrementStat('totalReelSpins', 1);
         audioManager.playSound('spin');
         clearBetTimers();
         if (!isAutoSpinning) {
@@ -1137,6 +1142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await wait(100);
         const { totalWinnings, winningPaylines, freeSpinsToAward } = checkWins(stopResults);
         if (totalWinnings > 0) {
+            incrementStat('totalReelWinnings', totalWinnings);
             const multiplier = totalWinnings / currentTotalBet;
 
             if (multiplier >= 5) {

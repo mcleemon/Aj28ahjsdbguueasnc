@@ -1,6 +1,7 @@
 // mimic.js
 // v1.0.4
 import { GAME_ASSETS } from './assets.js';
+import { incrementStat } from './achievements.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.dust -= cost;
         gameState.mimicFeedsToday++;
         gameState.mimicFeedProgress++;
+        incrementStat('totalMimicFeeds', 1);
         mimicImage.classList.remove('monster-wobble');
         void mimicImage.offsetWidth;
         mimicImage.classList.add('monster-wobble');

@@ -3,6 +3,7 @@ import { HERO_STATE, grantHeroExp, getHeroData, loadHeroData, recalculateHeroSta
 import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonData, loadDungeonData, refreshMonsterVisuals, calculateStatsForFloor } from './dungeon.js';
 import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
 import { getMiningState, getItemLevel, getNextCost, getItemPPH, calculatePPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, MINING_ITEMS, SILO_LEVELS } from './mining.js';
+import { incrementStat } from './achievements.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
@@ -171,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlayerTurn = true;
     let combatSpeedMultiplier = 1.0;
     const BASE_COMBAT_RATE = 1000;
-
     let modalStack = [];
 
     // --- GAME STATE ---
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'dust', amount: 20000 },
         { type: 'dust', amount: 25000 },
         { type: 'dust', amount: 30000 },
-        { type: 'gem_shard', amount: 1, label: '1 Gem Shard' }, // Milestone Day 7
+        { type: 'gem_shard', amount: 10, label: '10 Gem Shards' },
 
         // Week 2
         { type: 'dust', amount: 35000 },
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'dust', amount: 50000 },
         { type: 'dust', amount: 55000 },
         { type: 'dust', amount: 60000 },
-        { type: 'gem_shard', amount: 2, label: '2 Gem Shards' }, // Milestone Day 14
+        { type: 'gem_shard', amount: 25, label: '25 Gem Shards' },
 
         // Week 3
         { type: 'dust', amount: 65000 },
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'dust', amount: 80000 },
         { type: 'dust', amount: 85000 },
         { type: 'dust', amount: 90000 },
-        { type: 'gem_shard', amount: 3, label: '3 Gem Shards' }, // Milestone Day 21
+        { type: 'gem_shard', amount: 50, label: '50 Gem Shards' },
 
         // Week 4
         { type: 'dust', amount: 95000 },
@@ -252,38 +252,145 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: 'dust', amount: 150000 },
         { type: 'dust', amount: 300000 },
         { type: 'dust', amount: 500000 },
-        { type: 'gem_shard', amount: 5, label: '5 Gem Shards' }, // BIG Milestone Day 28
+        { type: 'gem_shard', amount: 100, label: '100 Gem Shards' },
     ];
 
     let particleSpawnInterval = null;
-    const CHECKSUM_SALT = "reel_rpg_secure_salt_v1";
+    const CHECKSUM_SALT = "v9#zLp!2&Xq@9mK$5nB*7wR#4sY^8tF@1";
 
     // --- HELPER FUNCTIONS ---
+
+    function createOfflineOverlay() {
+        if (document.getElementById('offline-lock-overlay')) return document.getElementById('offline-lock-overlay');
+
+        const overlay = document.createElement('div');
+        overlay.id = 'offline-lock-overlay';
+
+        // Styles to block EVERYTHING
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95); z-index: 99999;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            color: #fff; font-family: Arial, sans-serif; text-align: center;
+        `;
+
+        overlay.innerHTML = `
+            <div style="font-size: 50px; margin-bottom: 20px;">📡</div>
+            <h2 style="color: #ff5555; margin-bottom: 10px;">CONNECTION LOST</h2>
+            <p style="color: #ccc; max-width: 80%;">
+                This game requires an active internet connection for security verification.
+            </p>
+            <div class="loader" style="margin-top: 20px; border: 4px solid #333; border-top: 4px solid #fff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;"></div>
+            <style>
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            </style>
+        `;
+
+        document.body.appendChild(overlay);
+        return overlay;
+    }
+
+    const offlineOverlay = createOfflineOverlay();
+    let isOffline = false;
+
+    function handleConnectionChange() {
+        // 1. Check browser status
+        const browserOnline = navigator.onLine;
+
+        if (!browserOnline) {
+            goOffline("No Internet Connection");
+        } else {
+            // 2. Double check with a real ping
+            checkRealConnection();
+        }
+    }
+
+    async function checkRealConnection() {
+        try {
+            // Updated: Ping your own index path on GitHub
+            // Method 'HEAD' means "Just check headers, don't download the whole page" (Fast)
+            const response = await fetch('./?' + Date.now(), {
+                method: 'HEAD',
+                cache: 'no-store'
+            });
+
+            // If the fetch didn't crash, we are online!
+            goOnline();
+        } catch (e) {
+            // If the fetch failed (network error), we are offline.
+            goOffline("Server Unreachable");
+        }
+    }
+
+    function goOffline(reason) {
+        if (isOffline) return;
+        isOffline = true;
+        console.log(`[Network] Going Offline: ${reason}`);
+
+        // Show the blocker
+        if (offlineOverlay) offlineOverlay.style.display = 'flex';
+
+        // PAUSE THE GAME LOOPS
+        if (combatLoopId) {
+            cancelAnimationFrame(combatLoopId);
+            combatLoopId = null;
+        }
+    }
+
+    function goOnline() {
+        if (!isOffline) return;
+        isOffline = false;
+        console.log(`[Network] Back Online`);
+
+        // Hide the blocker
+        if (offlineOverlay) offlineOverlay.style.display = 'none';
+
+        // RESUME THE GAME
+        if (combatMode) {
+            startCombatLoop();
+        }
+
+        // Force a save immediately to sync state
+        saveGame();
+    }
+
+    // Listeners
+    window.addEventListener('online', handleConnectionChange);
+    window.addEventListener('offline', handleConnectionChange);
+
+    // Check immediately on load
+    handleConnectionChange();
+
+    // Heartbeat: Check every 10 seconds
+    setInterval(handleConnectionChange, 10000);
+
+    const cyrb53 = function (str, seed = 0) {
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0, ch; i < str.length; i++) {
+            ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+    };
 
     function fitMiningToScreen() {
         const panel = document.querySelector('.mining-panel');
         if (!panel) return;
-
-        // 1. Reset scale first to get accurate "natural" measurements
         panel.style.transform = 'scale(1)';
-
-        // 2. Measure sizes
         const screenHeight = window.innerHeight;
         const panelHeight = panel.offsetHeight;
-        const padding = 40; // Safety margin (20px top + 20px bottom)
-
-        // 3. Calculate Scale
-        // If panel + padding is taller than screen, shrink it!
+        const padding = 40;
         if (panelHeight + padding > screenHeight) {
             const scale = screenHeight / (panelHeight + padding);
             panel.style.transform = `scale(${scale})`;
         } else {
-            // Otherwise, keep it full size
             panel.style.transform = 'scale(1)';
         }
     }
 
-    // Also ensure it resizes if the player rotates their phone
     window.addEventListener('resize', () => {
         if (!document.getElementById('mining-modal').classList.contains('hidden')) {
             fitMiningToScreen();
@@ -422,16 +529,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateChecksum(state) {
-        const dataToHash = {
-            dust: Math.floor(state.dust),
-            gs: state.gemShards,
-            bjl: state.blackjack_level,
-            bjx: state.blackjack_exp,
-            hl: state.hero ? state.hero.level : 1,
-            df: state.dungeon ? state.dungeon.floor : 1
-        };
-        const stringToHash = JSON.stringify(dataToHash) + CHECKSUM_SALT;
-        return btoa(stringToHash);
+        // Select Critical Data Only to prevent lag
+        const criticalData = [
+            Math.floor(state.dust || 0),
+            Math.floor(state.gemShards || 0),
+            state.globalLevel || 1,
+            state.blackjack_level || 0,
+            state.mimicStage || 1,
+            // Deep properties need safety checks
+            (state.hero ? state.hero.level : 1),
+            (state.dungeon ? state.dungeon.floor : 1),
+            // Add Inventory counts (prevents item injection)
+            (state.hero && state.hero.gearInventory ? state.hero.gearInventory.length : 0)
+        ];
+
+        // Convert to a stable string with a separator
+        const dataString = criticalData.join('|');
+
+        // Hash it with Salt
+        const hash1 = cyrb53(dataString, 12345);
+        const hash2 = cyrb53(dataString + CHECKSUM_SALT, 67890);
+
+        return `${hash1.toString(16)}-${hash2.toString(16)}`;
     }
 
     function formatTime(totalSeconds) {
@@ -723,9 +842,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function spawnIconTextAtElement(elementId, htmlContent, color, duration = 1500, moveUp = true) {
+        // --- 1. NEW CHECK: Stop text if Minigames are open ---
+        const reelScreen = document.getElementById('reel-game-screen');
+        const blackjackScreen = document.getElementById('blackjack-screen');
+
+        // If Reel Screen exists and is NOT hidden, stop here.
+        if (reelScreen && !reelScreen.classList.contains('hidden')) return;
+
+        // If Blackjack Screen exists and is NOT hidden, stop here.
+        if (blackjackScreen && !blackjackScreen.classList.contains('hidden')) return;
+        // -----------------------------------------------------
+
         const target = document.getElementById(elementId);
         if (!target) return;
+
         const rect = target.getBoundingClientRect();
+
+        // Safety check: If the target is hidden (width/height is 0), don't spawn
+        if (rect.width === 0 || rect.height === 0) return;
+
         const el = document.createElement('div');
         el.innerHTML = htmlContent;
         el.style.position = 'fixed';
@@ -733,7 +868,10 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.top = `${rect.top + rect.height / 2}px`;
         el.style.transform = 'translate(-50%, -20%) scale(0.5)';
         el.style.opacity = '0';
-        el.style.zIndex = '2000';
+
+        // Layering (Behind modals, above game UI)
+        el.style.zIndex = '95';
+
         el.style.pointerEvents = 'none';
         el.style.color = color;
         el.style.fontFamily = "'Lilita One', cursive";
@@ -829,6 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function performHeroAttack() {
         if (DUNGEON_STATE.currentHP <= 0) return;
         chargeLimitGauge();
+        if (isPlayerTurn) incrementStat('totalClicks', 1);
         const baseDmg = HERO_STATE.baseAttack;
         const monsterDef = DUNGEON_STATE.defense || 0;
         const actualDamage = Math.max(0, baseDmg - monsterDef);
@@ -893,6 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleMonsterDeath() {
+        const previousCombatMode = combatMode;
         monsterImage.classList.remove('monster-die');
         void monsterImage.offsetWidth;
         monsterImage.classList.add('monster-die');
@@ -900,6 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
             HERO_STATE.energy -= 1;
             grantGlobalExp(1);
         }
+
         if (HERO_STATE.energy <= 0) {
             HERO_STATE.energy = 0;
             if (combatMode) {
@@ -912,6 +1053,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentFloor = DUNGEON_STATE.floor;
         const isBoss = (currentFloor % 10 === 0);
         const rewards = calculateRewards();
+        incrementStat('totalKills', 1);
+        incrementStat('totalDustEarned', rewards.dustReward);
+        if (isBoss) incrementStat('totalBossKills', 1);
         gameState.dust += rewards.dustReward;
         grantHeroExp(rewards.xpReward);
         spawnIconTextAtElement(
@@ -983,7 +1127,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!bossVictoryModal.classList.contains('hidden')) {
                     bossVictoryModal.classList.add('hidden');
 
-                    if (combatMode === 'push') {
+                    // FIX: Use 'previousCombatMode' instead of 'combatMode'
+                    if (previousCombatMode === 'push') {
                         nextFloor();
                     } else {
                         spawnNewMonster();
@@ -1029,7 +1174,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     false
                 );
             }
-            if (combatMode === 'push') {
+
+            if (previousCombatMode === 'push') {
                 nextFloor();
             } else {
                 spawnNewMonster();
@@ -1139,23 +1285,154 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SECURITY: ADVANCED SANITY CHECKS ---
+    // --- SECURITY: THE "UNIVERSAL AUDIT" SYSTEM ---
+    // CONFIGURATION: Adjust these numbers if you change game balance
+    const SECURITY_LIMITS = {
+        dust: {
+            base_buffer: 500000000,       // 500M Free allowance (Shop/Codes/Gifts)
+            per_global_level: 20000000,   // Max dust possible per hero level
+            per_monster_kill: 100000,     // Max dust per kill (High tier buffer)
+            per_casino_level: 100000000,  // Wealth per casino level (Blackjack/Slots)
+            per_task: 10000000,           // Max dust per completed task
+            per_minigame_play: 200000     // Max dust per minigame play
+        },
+        gems: {
+            base_buffer: 250000,           // 50k Gems Free allowance
+            per_global_level: 5000,       // Gems earned leveling up
+            per_mimic_stage: 200,         // Gems per mimic stage
+            per_achievement: 50,          // Gems per achievement
+            per_task: 100,                // Gems per task
+            per_boss_kill: 50             // Gems per boss kill
+        }
+    };
+
+    function validateSaveData(data) {
+        if (!data) return true; // New player is safe
+
+        let isSus = false;
+        const violations = [];
+
+        // --- 1. SYSTEM INTEGRITY CHECKS ---
+        if ((data.dust || 0) < 0 || (data.gemShards || 0) < 0) {
+            violations.push("Negative Currency");
+            isSus = true;
+        }
+        if (!Number.isFinite(data.dust) || !Number.isFinite(data.gemShards)) {
+            violations.push("Infinite/NaN Currency");
+            isSus = true;
+        }
+
+        // --- 2. PREPARE DATA ---
+        const stats = data.stats || {};
+        const heroLevel = data.globalLevel || 1;
+        const casinoLevels = (data.blackjack_level || 0) + (data.slot_level || 0);
+        const taskCount = data.claimedTasks ? data.claimedTasks.length : 0;
+        const achCount = data.claimedAchievements ? data.claimedAchievements.length : 0;
+
+        // --- 3. AUDIT CRYSTAL DUST (The Wealth Check) ---
+        let maxDust = SECURITY_LIMITS.dust.base_buffer;
+        maxDust += heroLevel * SECURITY_LIMITS.dust.per_global_level;
+        maxDust += (stats.totalKills || 0) * SECURITY_LIMITS.dust.per_monster_kill;
+        maxDust += casinoLevels * SECURITY_LIMITS.dust.per_casino_level;
+        maxDust += taskCount * SECURITY_LIMITS.dust.per_task;
+        maxDust += (stats.totalMinigamesPlayed || 0) * SECURITY_LIMITS.dust.per_minigame_play;
+        maxDust += (stats.totalMiningUpgrades || 0) * 50000000;
+        maxDust += (stats.totalCrafts || 0) * 10000000;
+        maxDust += (stats.totalReelWinnings || 0) * 1.5;
+        maxDust += (stats.totalDustPurchased || 0);
+
+        if ((data.dust || 0) > (maxDust * 3)) {
+            violations.push(`Extreme Wealth Audit Failed: Has ${formatNumberGlobal(data.dust)} (Limit: ${formatNumberGlobal(maxDust)})`);
+            isSus = true;
+        }
+
+        // --- 4. AUDIT GEM SHARDS (The Airdrop Check) ---
+        let maxGems = SECURITY_LIMITS.gems.base_buffer;
+        maxGems += heroLevel * SECURITY_LIMITS.gems.per_global_level;
+        maxGems += (data.mimicStage || 1) * SECURITY_LIMITS.gems.per_mimic_stage;
+        maxGems += achCount * SECURITY_LIMITS.gems.per_achievement;
+        maxGems += taskCount * SECURITY_LIMITS.gems.per_task;
+        maxGems += (stats.totalBossKills || 0) * SECURITY_LIMITS.gems.per_boss_kill;
+        maxGems += (stats.totalGemsPurchased || 0);
+
+        if ((data.gemShards || 0) > (maxGems * 3)) {
+            violations.push(`Extreme Gem Audit Failed: Has ${data.gemShards} (Limit: ${maxGems})`);
+            isSus = true;
+        }
+
+        // --- 5. THE PUNISHMENT BLOCK (Scare & Snitch) ---
+        if (isSus) {
+            console.warn("⚠️ SECURITY ALERT: Save File Flagged ⚠️");
+            console.table(violations);
+
+            // A. THE SCARE: Show the Cheat Modal visually
+            setTimeout(() => {
+                const cheatModal = document.getElementById('cheat-modal');
+                if (cheatModal) {
+                    const msg = cheatModal.querySelector('p');
+                    // Scary but vague message
+                    if (msg) msg.innerHTML = "Abnormal game data detected.<br>Your account has been flagged for review.";
+                    cheatModal.classList.remove('hidden');
+                }
+            }, 2000); // Wait 2 seconds so game loads first, then popup appears
+
+            // B. THE SNITCH: Send report (if you have the function)
+            if (typeof reportCheater === 'function') {
+                reportCheater(data, violations);
+            }
+
+            // Return TRUE so they can keep playing (and we can track them)
+            // Return FALSE if you want to ban them immediately
+            return true;
+        }
+
+        return true; // Save File is Clean
+    }
+
+    function reportCheater(data, violations) {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const report = {
+            id: user ? user.id : "Anonymous",
+            name: user ? user.username : "Unknown",
+            violations: violations,
+            dust: data.dust,
+            gems: data.gemShards,
+            time: new Date().toISOString()
+        };
+
+        // Log to console for now (Screen capture proof)
+        console.error("CHEAT REPORT GENERATED:", JSON.stringify(report, null, 2));
+    }
+
     function loadGame(onLoadComplete) {
         const tryLoadingState = (savedJSON) => {
             try {
                 if (!savedJSON) return false;
                 const savedState = JSON.parse(savedJSON);
+
+                // 1. CHECKSUM CHECK (Existing)
                 if (!savedState || !savedState.checksum) {
                     console.warn("Save file is missing critical data.");
                     return false;
                 }
                 const expectedChecksum = generateChecksum(savedState);
-                if (savedState.checksum === expectedChecksum) {
-                    gameState = Object.assign(gameState, savedState);
-                    gameState.isFrenzyMode = false;
-                    return true;
+                if (savedState.checksum !== expectedChecksum) {
+                    console.warn("Checksum mismatch. Save file is invalid.");
+                    return false;
                 }
-                console.warn("Checksum mismatch. Save file is invalid.");
-                return false;
+
+                // 2. NEW: SANITY CHECK (The Logic Gate)
+                if (!validateSaveData(savedState)) {
+                    console.error("Sanity Check Failed! Save file contains impossible values.");
+                    // Action: You can either reset the save OR load a backup
+                    // For now, let's treat it as corrupt -> return false to trigger new game/backup
+                    return false;
+                }
+
+                gameState = Object.assign(gameState, savedState);
+                gameState.isFrenzyMode = false;
+                return true;
             } catch (e) {
                 console.error("Failed to parse or validate save file, it's corrupt:", e);
                 return false;
@@ -1189,7 +1466,33 @@ document.addEventListener('DOMContentLoaded', () => {
             DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
             if (!isNew) {
                 const now = Date.now();
-                const timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+                // SECURITY: Cap offline time to 24 hours (86400 seconds)
+                // This prevents "Year 2030" time-travel cheats from giving infinite resources.
+                let timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
+
+                if (timePassedInSeconds < -60) {
+                    // Player clock is in the past (or save is from future)
+                    console.error("Future timestamp detected! Resetting offline time.");
+                    timePassedInSeconds = 0;
+
+                    // Optional: You could flag them as a cheater here if you want
+                    // violations.push("Time Travel Detected"); 
+                    // isSus = true;
+                }
+
+                // 1. Negative Time Check (User set clock BACKWARDS)
+                if (timePassedInSeconds < 0) {
+                    console.warn("Time Travel Detected (Negative Delta). Resetting timestamp.");
+                    timePassedInSeconds = 0;
+                }
+
+                // 2. Maximum Cap (24 Hours)
+                const MAX_OFFLINE_SECONDS = 24 * 60 * 60;
+                if (timePassedInSeconds > MAX_OFFLINE_SECONDS) {
+                    console.log(`Capping offline time from ${timePassedInSeconds} to ${MAX_OFFLINE_SECONDS}`);
+                    timePassedInSeconds = MAX_OFFLINE_SECONDS;
+                }
+
                 const energyRegenAmount = Math.floor(timePassedInSeconds / 60);
                 if (energyRegenAmount > 0) {
                     HERO_STATE.energy = Math.min(HERO_STATE.energy + energyRegenAmount, HERO_STATE.maxEnergy);
@@ -1432,60 +1735,101 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateBag() {
         bagGrid.className = 'bag-list-wrapper';
         bagGrid.innerHTML = "";
-        const ownedIds = HERO_STATE.ownedItems || [];
+
+        // --- 1. PREPARE MATERIALS ---
         const inventory = HERO_STATE.inventory || {};
+        const myMaterials = [];
+        MATERIAL_TIERS.forEach(tier => {
+            const qty = inventory[tier.id];
+            if (qty > 0) {
+                myMaterials.push({ ...tier, qty: qty });
+            }
+        });
+
+        // --- 2. PREPARE & GROUP GEAR ---
+        const groupedGear = {};
+
+        HERO_STATE.gearInventory.forEach(instance => {
+            const groupKey = `${instance.id}_${instance.level}`;
+            if (!groupedGear[groupKey]) {
+                groupedGear[groupKey] = {
+                    id: instance.id,
+                    level: instance.level,
+                    count: 0,
+                    instance: instance
+                };
+            }
+            groupedGear[groupKey].count++;
+        });
+
+        const gearArray = Object.values(groupedGear);
+        const myWeapons = gearArray.filter(g => WEAPON_DB.some(w => w.id === g.id));
+        const myArmor = gearArray.filter(g => ARMOR_DB.some(a => a.id === g.id));
+
+        const getTier = (id, db) => { const i = db.find(x => x.id === id); return i ? i.tier : 0; };
+        myWeapons.sort((a, b) => getTier(b.id, WEAPON_DB) - getTier(a.id, WEAPON_DB));
+        myArmor.sort((a, b) => getTier(b.id, ARMOR_DB) - getTier(a.id, ARMOR_DB));
+
+        // --- RENDER FUNCTION ---
         function renderSection(title, items, type) {
             if (items.length === 0) return;
             const titleEl = document.createElement('div');
             titleEl.className = 'bag-section-title';
             titleEl.innerText = title;
             bagGrid.appendChild(titleEl);
+
             const gridEl = document.createElement('div');
             gridEl.className = 'bag-section-grid';
-            items.forEach(item => {
+
+            items.forEach(group => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'bag-item';
-                let iconHTML = '';
-                let countHTML = '';
-                let clickName = item.name;
-                let iconClass = 'weapon-icon';
-                if (type === 'armor') iconClass = 'armor-icon';
-                const hasCustomIcon = item.icon && GAME_ASSETS[item.icon];
-                if (type === 'material') {
-                    if (hasCustomIcon) {
-                        iconClass = 'bag-item-icon';
-                    } else {
-                        let colorClass = 'mat-iron';
-                        const nameLower = item.name.toLowerCase();
-                        if (nameLower.includes('wood')) colorClass = 'mat-wood';
-                        else if (nameLower.includes('copper')) colorClass = 'mat-copper';
-                        else if (nameLower.includes('silver')) colorClass = 'mat-silver';
-                        else if (nameLower.includes('gold')) colorClass = 'mat-gold';
-                        else if (nameLower.includes('obsidian')) colorClass = 'mat-obsidian';
-                        else if (nameLower.includes('dragon') || nameLower.includes('void')) colorClass = 'mat-mythic';
 
-                        iconClass = `bag-item-icon ${colorClass}`;
-                    }
+                // Lookup Info
+                let dbItem;
+                if (type === 'weapon') dbItem = WEAPON_DB.find(x => x.id === group.id);
+                else if (type === 'armor') dbItem = ARMOR_DB.find(x => x.id === group.id);
+                else dbItem = group; 
+
+                const itemName = dbItem ? dbItem.name : "Unknown";
+                
+                // --- VISUAL FIX: MATCH SMITHY SIZING ---
+                // We force the specific style string here to ensure it "contains" correctly
+                let iconUrl = GAME_ASSETS.iconCrystalDust; // Fallback
+                if (dbItem.icon && GAME_ASSETS[dbItem.icon]) {
+                    iconUrl = GAME_ASSETS[dbItem.icon];
                 }
-                let styleAttr = '';
-                if (item.icon && GAME_ASSETS[item.icon]) {
-                    styleAttr = `style="background-image: url('${GAME_ASSETS[item.icon]}');"`;
+
+                // Explicit styling to match Smithy (54px, contain, center)
+                const iconStyle = `
+                    width: 54px; 
+                    height: 54px; 
+                    background-image: url('${iconUrl}'); 
+                    background-size: contain; 
+                    background-repeat: no-repeat; 
+                    background-position: center;
+                    margin-bottom: 2px;
+                `;
+
+                const iconHTML = `<div class="bag-item-icon" style="${iconStyle}"></div>`;
+
+                // Labels & Counts
+                let countHTML = '';
+                let levelHTML = '';
+
+                if (type === 'material') {
+                    countHTML = `<span class="bag-item-count">${formatNumber(group.qty)}</span>`;
                 } else {
-                    if (type === 'weapon') styleAttr = 'style="transform:scale(0.7)"';
-                    else if (type === 'armor') styleAttr = 'style="transform:scale(0.8)"';
+                    if (group.level > 0) levelHTML = `<span style="color:#2ecc71; font-size:10px; font-weight:bold; position:absolute; top:4px; left:4px; text-shadow:1px 1px 0 #000;">+${group.level}</span>`;
+                    if (group.count > 1) countHTML = `<span class="bag-item-count">x${group.count}</span>`;
                 }
-                iconHTML = `<div class="${iconClass}" ${styleAttr} title="${item.name}"></div>`;
-                if (type === 'weapon' || type === 'armor') {
-                    const lvl = (HERO_STATE.itemLevels && HERO_STATE.itemLevels[item.id]) || 0;
-                    if (lvl > 0) countHTML = `<span class="bag-item-count" style="color:#2ecc71">+${lvl}</span>`;
-                } else {
-                    countHTML = `<span class="bag-item-count">${formatNumber(item.qty)}</span>`;
-                }
-                itemDiv.innerHTML = `${iconHTML}<span class="bag-item-name">${item.name}</span>${countHTML}`;
+
+                itemDiv.innerHTML = `${levelHTML}${iconHTML}<span class="bag-item-name">${itemName}</span>${countHTML}`;
+
                 itemDiv.addEventListener('click', () => {
                     const nameDisplay = document.createElement('div');
                     nameDisplay.className = 'click-effect';
-                    nameDisplay.innerText = clickName;
+                    nameDisplay.innerText = itemName;
                     nameDisplay.style.fontSize = "12px";
                     nameDisplay.style.width = "100%";
                     nameDisplay.style.textAlign = "center";
@@ -1494,23 +1838,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemDiv.appendChild(nameDisplay);
                     setTimeout(() => nameDisplay.remove(), 1000);
                 });
+
                 gridEl.appendChild(itemDiv);
             });
             bagGrid.appendChild(gridEl);
         }
-        const myWeapons = WEAPON_DB.filter(w => ownedIds.includes(w.id));
-        const myArmor = ARMOR_DB.filter(a => ownedIds.includes(a.id));
-        const myMaterials = [];
-        MATERIAL_TIERS.forEach(tier => {
-            const qty = inventory[tier.id];
-            if (qty > 0) {
-                myMaterials.push({ ...tier, qty: qty });
-            }
-        });
+
         if (myWeapons.length === 0 && myArmor.length === 0 && myMaterials.length === 0) {
             bagGrid.innerHTML = '<div class="bag-empty-message">Your bag is empty.<br>Defeat monsters to find loot!</div>';
             return;
         }
+
         renderSection("WEAPONS", myWeapons, 'weapon');
         renderSection("ARMOR", myArmor, 'armor');
         renderSection("MATERIALS", myMaterials, 'material');
@@ -1845,6 +2183,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!e.key) return;
             const key = e.key.toLowerCase();
             switch (key) {
+                // --- WOOD CHEAT ---
+                case 'w':
+                    if (!HERO_STATE.inventory['wood_scraps']) HERO_STATE.inventory['wood_scraps'] = 0;
+                    HERO_STATE.inventory['wood_scraps'] += 1000;
+                    console.log('[DEV] +1000 Wood Scraps');
+                    spawnFloatingText("+1000 Wood", "#8B4513", 50, 50);
+                    updateUI();
+                    break;
+
+                // --- COPPER CHEAT ---
+                case 'i': // 'i' for Iron/Ingot/Item (since 'c' is crystal dust)
+                    if (!HERO_STATE.inventory['copper_ore']) HERO_STATE.inventory['copper_ore'] = 0;
+                    HERO_STATE.inventory['copper_ore'] += 1000;
+                    console.log('[DEV] +1000 Copper Ore');
+                    spawnFloatingText("+1000 Copper", "#b87333", 60, 50);
+                    updateUI();
+                    break;
+
                 // --- TEST 1: EARLY GAME (Floor 99) ---
                 case '1':
                     console.log('[DEV] Jumping to Early Game (Floor 99)...');

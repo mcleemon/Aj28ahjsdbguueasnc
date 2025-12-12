@@ -5,6 +5,10 @@
     --checked-in-color: #3e8e41;
 }
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
     background-color: var(--tg-theme-bg-color);
     background-size: cover;
@@ -20,14 +24,17 @@ body {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 button,
 button:focus,
 button:active {
-    -webkit-tap-highlight-color: transparent;
     outline: none;
     box-shadow: none;
+    touch-action: manipulation;
 }
 
 .game-container {
@@ -105,7 +112,6 @@ button:active {
     background-color: transparent;
     border: none;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
     transition: transform 0.1s ease;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
 }
@@ -158,7 +164,7 @@ button:active {
     cursor: pointer;
     transition: transform 0.1s ease;
     position: relative;
-    -webkit-tap-highlight-color: transparent;
+
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center bottom;
@@ -388,7 +394,7 @@ button:active {
     right: 20px;
     font-size: 24px;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .next-level-preview {
@@ -593,6 +599,23 @@ button:active {
     font-size: 0;
 }
 
+#close-achievements-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+}
+
 .treasure-box img {
     width: 100%;
     height: auto;
@@ -771,6 +794,10 @@ img {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
 }
 
 .levelup-title {
@@ -807,10 +834,6 @@ img {
 #login-reward-text {
     display: block;
     font-size: 20px;
-}
-
-img {
-    -webkit-tap-highlight-color: transparent;
 }
 
 /* --- SCROLL MENU & NAVIGATION --- */
@@ -954,7 +977,7 @@ img {
     cursor: pointer;
     padding: 0;
     font-size: 0;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .shop-content {
@@ -1180,7 +1203,7 @@ img {
     cursor: pointer;
     padding: 0;
     font-size: 0;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .shop-footer .card-buy-button {
@@ -1236,7 +1259,7 @@ img {
     cursor: pointer;
     padding: 0;
     font-size: 0;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .task-list {
@@ -1659,7 +1682,7 @@ img {
     cursor: pointer;
     padding: 0;
     font-size: 0;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 #mimic-content {
@@ -4049,7 +4072,7 @@ img {
     position: relative;
     cursor: pointer;
     transition: transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
+
     overflow: visible;
 }
 
@@ -4149,7 +4172,7 @@ img {
     display: flex;
     flex-direction: column;
     align-items: center;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 #mining-silo-image {
@@ -5050,8 +5073,7 @@ img {
     background: linear-gradient(to bottom, #2ecc71, #27ae60);
     color: white;
     cursor: pointer;
-    box-shadow: 0 0 8px #2ecc71;
-    animation: pulse-active 1s infinite;
+    border: 1px solid #2ecc71;
 }
 
 .ach-btn.done {

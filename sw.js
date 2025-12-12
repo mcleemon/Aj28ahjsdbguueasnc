@@ -1,11 +1,10 @@
 // sw.js - Service Worker
-// Version: 1.0.0
+// Version: 1.0.2 (Fixed Chrome Extension Error)
 // Strategy: Stale-While-Revalidate for Core, Cache-First for Assets
 
-const CACHE_NAME = 'reel-rpg-v1';
+const CACHE_NAME = 'reel-rpg-v1.0.2'; // Bumping version to force update
 
-// 1. CORE ASSETS (Download these immediately on install)
-// These are the skeleton of your game.
+// 1. CORE ASSETS
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -30,26 +29,23 @@ const CORE_ASSETS = [
     './mining.js'
 ];
 
-// --- INSTALL EVENT (Runs once when new SW is detected) ---
+// --- INSTALL EVENT ---
 self.addEventListener('install', (event) => {
     console.log('[Service Worker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[Service Worker] Caching Core Assets');
             return cache.addAll(CORE_ASSETS);
         })
     );
-    // Force this SW to become active immediately
     self.skipWaiting();
 });
 
-// --- ACTIVATE EVENT (Runs when SW starts up) ---
+// --- ACTIVATE EVENT ---
 self.addEventListener('activate', (event) => {
     console.log('[Service Worker] Activating...');
     event.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(keyList.map((key) => {
-                // Delete old cache versions if name doesn't match current
                 if (key !== CACHE_NAME) {
                     console.log('[Service Worker] Removing old cache:', key);
                     return caches.delete(key);
@@ -57,32 +53,32 @@ self.addEventListener('activate', (event) => {
             }));
         })
     );
-    // Claim control of all open clients immediately
     return self.clients.claim();
 });
 
-// --- FETCH EVENT (Intersects every network request) ---
+// --- FETCH EVENT ---
 self.addEventListener('fetch', (event) => {
+    // FIX 1: Ignore non-GET requests (POST, HEAD, etc.)
+    if (event.request.method !== 'GET') return;
+
     const requestUrl = new URL(event.request.url);
 
+    // FIX 2: Ignore non-HTTP requests (Chrome Extensions, file://, data:, etc.)
+    if (!requestUrl.protocol.startsWith('http')) return;
+
     // STRATEGY A: Cache First for Game Assets (Images/Audio)
-    // If it's a GitHub raw image or sound file, we want to save it forever.
     if (requestUrl.hostname.includes('github.com') || requestUrl.pathname.match(/\.(png|jpg|jpeg|svg|mp3|wav)$/)) {
         event.respondWith(
             caches.match(event.request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    return cachedResponse; // Return from cache
+                    return cachedResponse;
                 }
-                // If not in cache, fetch it from network and save it
                 return fetch(event.request).then((networkResponse) => {
-                    // Check if valid response
                     if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' && networkResponse.type !== 'cors') {
                         return networkResponse;
                     }
                     
-                    // Clone response (streams can only be consumed once)
                     const responseToCache = networkResponse.clone();
-
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseToCache);
                     });
@@ -95,11 +91,9 @@ self.addEventListener('fetch', (event) => {
     }
 
     // STRATEGY B: Stale-While-Revalidate for Core Files (HTML/JS/CSS)
-    // Serve cached version instantly, but check network for updates in background.
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             const fetchPromise = fetch(event.request).then((networkResponse) => {
-                // Update the cache with the new version
                 if (networkResponse && networkResponse.status === 200) {
                     const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -108,10 +102,9 @@ self.addEventListener('fetch', (event) => {
                 }
                 return networkResponse;
             }).catch(() => {
-                // Network failed? That's fine, we hopefully returned cachedResponse.
+                // Network failed? That's fine, return cached response if present.
             });
 
-            // Return cached response immediately if available, otherwise wait for network
             return cachedResponse || fetchPromise;
         })
     );

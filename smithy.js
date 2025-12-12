@@ -205,9 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
         craftableItems.forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'forge-item';
-            
+
             const imgUrl = getItemIconUrl(item.icon);
-            
+
             const statLabel = type === 'weapon' ? 'Base DMG' : 'Base DEF';
             const statValue = type === 'weapon' ? item.damage : item.defense;
             const dustCost = item.dustCost !== undefined ? item.dustCost : getForgeCost(item.tier);
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const haveDust = window.gameState.dust >= dustCost;
             let canCraft = haveDust;
             let ingredientsHTML = `<span class="recipe-item ${haveDust ? '' : 'missing'}"><img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust"> ${window.formatNumberGlobal(dustCost)}</span>`;
-            
+
             if (item.matReq) {
                 const qty = (HERO_STATE.inventory[item.matReq] || 0);
                 if (qty < mainMatCount) canCraft = false;
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ingredientsHTML += `<span class="recipe-item ${qty >= mat.count ? '' : 'missing'}"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> ${displayCount}</span>`;
                 });
             }
-            
+
             itemDiv.innerHTML = `
                 <div class="forge-header-row">
                     <div class="forge-icon-box" style="background-image: url('${imgUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; border: 2px solid #444;"></div>
@@ -263,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentView === 'forge') renderCraftList(forgeList, WEAPON_DB, 'weapon');
         if (currentView === 'armor') renderCraftList(armorList, ARMOR_DB, 'armor');
         if (window.refreshGameUI) window.refreshGameUI();
+        showCraftFeedback(item);
     }
 
     function renderTransmuteList() {
@@ -361,9 +362,9 @@ document.addEventListener('DOMContentLoaded', () => {
         salvageableItems.forEach(instance => {
             const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
             if (!dbItem) return;
-            
+
             const imgUrl = getItemIconUrl(dbItem.icon);
-            
+
             const refund = getSalvageValue(dbItem, instance.level);
             let matsHTML = '';
             refund.materials.forEach(mat => {
@@ -428,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isEquipped = (instance.uid === HERO_STATE.equipment.mainHand || instance.uid === HERO_STATE.equipment.body);
             itemDiv.className = `forge-item ${isEquipped ? 'equipped' : ''}`;
             const levelText = instance.level > 0 ? `<span style="color:#2ecc71;">(+${instance.level})</span>` : '';
-            
+
             const imgUrl = getItemIconUrl(dbItem.icon);
 
             itemDiv.innerHTML = `
@@ -456,16 +457,16 @@ document.addEventListener('DOMContentLoaded', () => {
         sharpenName.innerHTML = `${dbItem.name} <span style="color:#2ecc71">+${level}</span>`;
         sharpenStatCurrent.innerText = `+${level}`;
         sharpenStatNext.innerText = `+${level + 1}`;
-        
+
         const imgUrl = getItemIconUrl(dbItem.icon);
         sharpenItemIcon.style.backgroundImage = `url('${imgUrl}')`;
         sharpenItemIcon.style.backgroundSize = "contain";
         sharpenItemIcon.style.backgroundRepeat = "no-repeat";
         sharpenItemIcon.style.backgroundPosition = "center";
-        
+
         // FIX: Force margin to 0 to align center, and ensure class uses existing CSS for size
         sharpenItemIcon.className = 'forge-icon-box';
-        sharpenItemIcon.style.margin = '0'; 
+        sharpenItemIcon.style.margin = '0';
 
         let currentStat = isWeapon ? getWeaponDamage(dbItem.damage, level) : getArmorDefense(dbItem.defense, level);
         let nextStat = isWeapon ? getWeaponDamage(dbItem.damage, level + 1) : getArmorDefense(dbItem.defense, level + 1);
@@ -482,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let mats = level >= 9 ? 10 : level >= 6 ? 6 : level >= 3 ? 4 : 2;
         sharpenCostDust.innerText = window.formatNumberGlobal(dust);
         sharpenCostMat.innerText = mats;
-        
+
         if (dbItem.matReq) {
             const matImg = getMatIconUrl(dbItem.matReq);
             sharpenMatIcon.style.backgroundImage = `url('${matImg}')`;
@@ -495,15 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const canAfford = window.gameState.dust >= dust && (HERO_STATE.inventory[dbItem.matReq] || 0) >= mats;
         doSharpenBtn.disabled = level >= 10 || !canAfford;
         doSharpenBtn.innerText = level >= 10 ? "MAX LEVEL" : (!canAfford ? "NOT ENOUGH" : `SHARPEN (${chance}%)`);
-        
-        // Remove old listeners to prevent stacking
-        const newBtn = doSharpenBtn.cloneNode(true);
-        doSharpenBtn.parentNode.replaceChild(newBtn, doSharpenBtn);
-        // Re-assign global for next use
-        const freshBtn = document.getElementById('do-sharpen-btn');
-        
-        if (!freshBtn.disabled) {
-            freshBtn.onclick = () => performSharpen(chance, dust, mats, dbItem.matReq, instance);
+
+        doSharpenBtn.onclick = null; // Clear just to be safe
+
+        if (!doSharpenBtn.disabled) {
+            doSharpenBtn.onclick = () => performSharpen(chance, dust, mats, dbItem.matReq, instance);
         }
     }
 
@@ -513,14 +510,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Deduct resources
         window.gameState.dust -= dustCost;
         HERO_STATE.inventory[matId] -= matCost;
-        
+
         // Lock Button
         const btn = document.getElementById('do-sharpen-btn');
         if (btn) {
             btn.disabled = true;
             btn.innerText = "FORGING...";
         }
-        if(sharpenMsg) sharpenMsg.innerText = "";
+        if (sharpenMsg) sharpenMsg.innerText = "";
 
         // Determine Success
         const roll = Math.random() * 100;
@@ -534,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hammer.className = 'smithy-hammer';
         hammer.innerText = '🔨';
         container.appendChild(hammer);
-        
+
         requestAnimationFrame(() => hammer.classList.add('striking'));
 
         // Impact Effect (420ms)
@@ -548,24 +545,187 @@ document.addEventListener('DOMContentLoaded', () => {
         // Result (700ms)
         setTimeout(() => {
             hammer.remove();
+            const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
+
             if (success) {
                 instance.level++;
-                recalculateHeroStats(); 
+                recalculateHeroStats();
                 sharpenMsg.innerText = "SUCCESS!";
                 sharpenMsg.className = "sharpen-msg msg-success";
                 if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                showCraftFeedback(dbItem, instance.level);
+
             } else {
                 sharpenMsg.innerText = "FAILED...";
                 sharpenMsg.className = "sharpen-msg msg-fail";
                 if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
             }
 
-            const dbItem = WEAPON_DB.find(w => w.id === instance.id) || ARMOR_DB.find(a => a.id === instance.id);
-            updateSharpenUI(instance, dbItem);
-            
+            if (window.saveGameGlobal) window.saveGameGlobal();
             if (window.refreshGameUI) window.refreshGameUI();
+            updateSharpenUI(instance, dbItem);
             setTimeout(() => sharpenMsg.innerText = "", 2000);
         }, 700);
+    }
+
+    // --- CRAFTING & UPGRADE FEEDBACK VISUALS (Epic Version) ---
+    function showCraftFeedback(item, level = null) {
+        // 1. Inject Styles (Updated with 'Tap to Continue' styling)
+        if (!document.getElementById('craft-feedback-style')) {
+            const style = document.createElement('style');
+            style.id = 'craft-feedback-style';
+            style.innerHTML = `
+            .craft-overlay {
+                position: fixed;
+                top: 0; left: 0;
+                width: 100vw; height: 100vh;
+                background-color: rgba(0, 0, 0, 0.85);
+                z-index: 2000;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.5s ease-out;
+                backdrop-filter: blur(4px);
+                cursor: pointer; /* Show pointer to indicate clickable */
+            }
+            .craft-overlay.show {
+                opacity: 1;
+            }
+            .craft-overlay.fade-out {
+                opacity: 0;
+            }
+            
+            .craft-sunburst {
+                position: absolute;
+                top: 50%; left: 50%;
+                width: 500px; height: 500px;
+                background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+                transform: translate(-50%, -50%);
+                z-index: -1;
+                animation: sunburst-spin 10s linear infinite;
+                pointer-events: none;
+            }
+            
+            .craft-img-glow {
+                width: 120px; height: 120px;
+                background-size: contain; background-repeat: no-repeat; background-position: center;
+                filter: drop-shadow(0 0 20px #ffd700);
+                margin-bottom: 20px;
+                transform: scale(0.5);
+                transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .craft-overlay.show .craft-img-glow {
+                transform: scale(1.2);
+            }
+
+            .craft-text-success {
+                font-family: 'Lilita One', cursive;
+                font-size: 42px;
+                color: #2ecc71;
+                text-shadow: 0 0 10px #00ff00, 2px 2px 0 #000;
+                letter-spacing: 2px;
+                margin-bottom: 5px;
+                transform: translateY(20px);
+                transition: transform 0.5s ease-out;
+            }
+            .craft-overlay.show .craft-text-success {
+                transform: translateY(0);
+            }
+
+            .craft-text-name {
+                font-family: 'Graduate', serif;
+                font-size: 20px;
+                color: #fff;
+                text-shadow: 1px 1px 2px #000;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 5px 15px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .craft-tap-hint {
+                position: absolute;
+                bottom: 10%;
+                font-family: 'Nunito', sans-serif;
+                font-size: 12px;
+                color: #888;
+                animation: pulse-text 2s infinite;
+                pointer-events: none;
+            }
+
+            @keyframes sunburst-spin {
+                from { transform: translate(-50%, -50%) rotate(0deg); }
+                to { transform: translate(-50%, -50%) rotate(360deg); }
+            }
+            @keyframes pulse-text {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 1; }
+            }
+        `;
+            document.head.appendChild(style);
+        }
+
+        // 2. Create Elements
+        const overlay = document.createElement('div');
+        overlay.className = 'craft-overlay';
+
+        const sunburst = document.createElement('div');
+        sunburst.className = 'craft-sunburst';
+
+        const img = document.createElement('div');
+        img.className = 'craft-img-glow';
+        img.style.backgroundImage = `url('${getItemIconUrl(item.icon)}')`;
+
+        const successText = document.createElement('div');
+        successText.className = 'craft-text-success';
+        successText.innerText = "SUCCESS!";
+
+        const nameText = document.createElement('div');
+        nameText.className = 'craft-text-name';
+
+        if (level !== null && level !== undefined) {
+            nameText.innerHTML = `${item.name} <span style="color:#2ecc71">+${level}</span>`;
+        } else {
+            nameText.innerText = item.name;
+        }
+
+        const hintText = document.createElement('div');
+        hintText.className = 'craft-tap-hint';
+        hintText.innerText = "- Tap anywhere to continue -";
+
+        overlay.appendChild(sunburst);
+        overlay.appendChild(img);
+        overlay.appendChild(successText);
+        overlay.appendChild(nameText);
+        overlay.appendChild(hintText);
+        document.body.appendChild(overlay);
+
+        // 3. Reveal Animation
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.classList.add('show');
+            });
+        });
+
+        // 4. Click to Dismiss Logic
+        const dismiss = () => {
+            // Prevent double-clicking causing errors
+            if (overlay.classList.contains('fade-out')) return;
+
+            overlay.classList.remove('show');
+            overlay.classList.add('fade-out');
+
+            // Wait for CSS transition (0.5s) then remove
+            setTimeout(() => {
+                overlay.remove();
+            }, 500);
+        };
+
+        // Add listeners to the entire overlay
+        overlay.addEventListener('click', dismiss);
+        overlay.addEventListener('touchstart', dismiss, { passive: true });
     }
 
     craftButton.addEventListener('click', () => { window.openModalGlobal('smithy-modal'); switchView('hub'); });

@@ -1,6 +1,10 @@
 /* reel-game.css - v1.0.6 */
 /* Styles for the 5-Reel Game */
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 #reel-game-screen {
     position: absolute;
     top: 0;
@@ -236,7 +240,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .bet-adjust-button:active {
@@ -574,7 +578,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .max-bet-button {
@@ -589,7 +593,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .max-bet-button:active {
@@ -641,7 +645,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
-    -webkit-tap-highlight-color: transparent;
+
 }
 
 .bet-increment-button.active {

@@ -1,11 +1,13 @@
-// mining.js - v1.1.0
-// Features: Balanced Economy (Variable Multipliers), Level 50 Cap
-// Target Economy: ~76 Billion Dust to Max, ~5M PPH Max
+// mining.js - v1.2.0
+// Features: Balanced Economy, Level 50 Cap, Cooldown Logic
+// Fixes: "Instant Full Silo" on first purchase
 
 import { GAME_ASSETS } from './assets.js';
 import { incrementStat } from './achievements.js';
 
-// --- CONFIGURATION (Balanced Economy Table) ---
+// --- CONFIGURATION ---
+export const CLAIM_COOLDOWN_MS = 60 * 60 * 1000; // 1 Hour
+
 export const MINING_ITEMS = [
     // LEFT SIDE (Labor - Lower Cost Scaling)
     { id: 1, name: "Pickaxe", baseCost: 1000, basePPH: 150, costMult: 1.12, icon: 'miningItem1' },
@@ -35,7 +37,7 @@ export function getMiningState() {
         window.gameState.mining = {
             siloLevel: 1,
             lastClaimTime: Date.now(),
-            upgrades: {} // Format: { 1: 5, 2: 0 } (ItemId: Level)
+            upgrades: {} 
         };
     }
     return window.gameState.mining;
@@ -102,11 +104,24 @@ export function getMinedAmount() {
     return Math.min(rawGenerated, cap);
 }
 
+// --- COOLDOWN HELPER ---
+export function getClaimCooldown() {
+    const mining = getMiningState();
+    const now = Date.now();
+    const elapsed = now - mining.lastClaimTime;
+    const remaining = CLAIM_COOLDOWN_MS - elapsed;
+    return remaining > 0 ? remaining : 0;
+}
+
 // --- ACTIONS ---
 
 export function buyMiningUpgrade(itemId) {
     const level = getItemLevel(itemId);
     if (level >= 50) return false;
+    
+    // FIX: Check PPH before upgrade
+    const oldPPH = getTotalPPH();
+    
     const cost = getNextCost(itemId);
     if (window.gameState.dust >= cost) {
         window.gameState.dust -= cost;
@@ -114,6 +129,14 @@ export function buyMiningUpgrade(itemId) {
         if (!mining.upgrades[itemId]) mining.upgrades[itemId] = 0;
         mining.upgrades[itemId]++;
         incrementStat('totalMiningUpgrades', 1);
+        
+        // FIX: If this is the FIRST time we have production, RESET the clock.
+        // This prevents the "Day 1 -> Day 3" instant fill bug.
+        if (oldPPH === 0 && getTotalPPH() > 0) {
+            console.log("First Mining Upgrade Purchased: Resetting Claim Timer.");
+            mining.lastClaimTime = Date.now();
+        }
+        
         if (window.saveGameGlobal) window.saveGameGlobal();
         return true;
     }
@@ -121,8 +144,14 @@ export function buyMiningUpgrade(itemId) {
 }
 
 export function claimSilo() {
+    // FIX: Enforce 1 Hour Cooldown
+    if (getClaimCooldown() > 0) {
+        return -1; // Code -1 means "Cooldown Active"
+    }
+
     const amount = getMinedAmount();
     if (amount <= 0) return 0;
+    
     window.gameState.dust += amount;
     const mining = getMiningState();
     mining.lastClaimTime = Date.now();

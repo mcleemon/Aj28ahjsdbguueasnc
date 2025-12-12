@@ -1,6 +1,10 @@
 /* blackjack.css */
 /* v1.0.24 */
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 #blackjack-screen {
     width: 100%;
     height: 100%;
@@ -230,7 +234,6 @@
     display: block;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .chip-button:active {

@@ -2,7 +2,7 @@ import { GAME_ASSETS } from './assets.js';
 import { HERO_STATE, grantHeroExp, getHeroData, loadHeroData, recalculateHeroStats } from './hero.js';
 import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonData, loadDungeonData, refreshMonsterVisuals, calculateStatsForFloor } from './dungeon.js';
 import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
-import { getMiningState, getItemLevel, getNextCost, getItemPPH, calculatePPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, MINING_ITEMS, SILO_LEVELS } from './mining.js';
+import { getMiningState, getItemLevel, getNextCost, getItemPPH, calculatePPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, getClaimCooldown, MINING_ITEMS, SILO_LEVELS } from './mining.js';
 import { incrementStat } from './achievements.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -81,6 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
         console.warn("Telegram API setup warning:", e);
     }
+
+    window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    }, { passive: false });
 
     // --- DOM ELEMENTS ---
     const dustCounter = document.getElementById('dust-counter');
@@ -689,12 +693,34 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             placeholder.style.display = 'block';
         }
-        if (currentMined > 0) {
+        
+        const cooldownMs = getClaimCooldown();
+
+        if (cooldownMs > 0) {
+            // CASE 1: COOLDOWN ACTIVE (Real-time Timer)
+            const totalSeconds = Math.ceil(cooldownMs / 1000);
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            const timeString = `${m}:${s.toString().padStart(2, '0')}`; // Format: 59:05
+
+            btnClaimSilo.disabled = true;
+            btnClaimSilo.querySelector('span').innerText = timeString;
+            btnClaimSilo.style.filter = "grayscale(100%)";
+            btnClaimSilo.style.opacity = "0.7";
+        }
+        else if (currentMined > 0) {
+            // CASE 2: READY TO CLAIM
             btnClaimSilo.disabled = false;
             btnClaimSilo.querySelector('span').innerText = "CLAIM";
-        } else {
+            btnClaimSilo.style.filter = "none";
+            btnClaimSilo.style.opacity = "1";
+        }
+        else {
+            // CASE 3: EMPTY
             btnClaimSilo.disabled = true;
             btnClaimSilo.querySelector('span').innerText = "EMPTY";
+            btnClaimSilo.style.filter = "grayscale(100%)";
+            btnClaimSilo.style.opacity = "0.7";
         }
     }
 
@@ -1440,22 +1466,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const applyLoadedState = (isNew) => {
-            if (gameState.hero) {
-                loadHeroData(gameState.hero);
-                if (!HERO_STATE.equipment) {
-                    HERO_STATE.equipment = { mainHand: 'rusty_sword', body: 'tattered_shirt' };
-                }
-                if (!HERO_STATE.equipmentLevels) {
-                    HERO_STATE.equipmentLevels = { mainHand: 0, body: 0 };
-                }
-                if (!HERO_STATE.inventory) {
-                    HERO_STATE.inventory = {};
-                }
-                if (!HERO_STATE.ownedItems) {
-                    HERO_STATE.ownedItems = ['rusty_sword', 'tattered_shirt'];
-                }
-                console.log("Hero Data Loaded:", HERO_STATE);
-            }
+            // FIX: Always call loadHeroData, defaulting to empty object if null
+            // This triggers the "Fresh Start" logic in hero.js
+            loadHeroData(gameState.hero || {});
+
             if (gameState.dungeon) {
                 loadDungeonData(gameState.dungeon);
                 refreshMonsterVisuals();
@@ -1464,29 +1478,21 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.inDungeon = false;
             HERO_STATE.limitGauge = 0;
             DUNGEON_STATE.currentHP = DUNGEON_STATE.maxHP;
+
             if (!isNew) {
                 const now = Date.now();
-                // SECURITY: Cap offline time to 24 hours (86400 seconds)
-                // This prevents "Year 2030" time-travel cheats from giving infinite resources.
                 let timePassedInSeconds = Math.floor((now - gameState.lastSavedTimestamp) / 1000);
 
                 if (timePassedInSeconds < -60) {
-                    // Player clock is in the past (or save is from future)
                     console.error("Future timestamp detected! Resetting offline time.");
                     timePassedInSeconds = 0;
-
-                    // Optional: You could flag them as a cheater here if you want
-                    // violations.push("Time Travel Detected"); 
-                    // isSus = true;
                 }
 
-                // 1. Negative Time Check (User set clock BACKWARDS)
                 if (timePassedInSeconds < 0) {
-                    console.warn("Time Travel Detected (Negative Delta). Resetting timestamp.");
+                    console.warn("Time Travel Detected. Resetting timestamp.");
                     timePassedInSeconds = 0;
                 }
 
-                // 2. Maximum Cap (24 Hours)
                 const MAX_OFFLINE_SECONDS = 24 * 60 * 60;
                 if (timePassedInSeconds > MAX_OFFLINE_SECONDS) {
                     console.log(`Capping offline time from ${timePassedInSeconds} to ${MAX_OFFLINE_SECONDS}`);
@@ -1789,10 +1795,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 let dbItem;
                 if (type === 'weapon') dbItem = WEAPON_DB.find(x => x.id === group.id);
                 else if (type === 'armor') dbItem = ARMOR_DB.find(x => x.id === group.id);
-                else dbItem = group; 
+                else dbItem = group;
 
                 const itemName = dbItem ? dbItem.name : "Unknown";
-                
+
                 // --- VISUAL FIX: MATCH SMITHY SIZING ---
                 // We force the specific style string here to ensure it "contains" correctly
                 let iconUrl = GAME_ASSETS.iconCrystalDust; // Fallback
@@ -2008,9 +2014,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnClaimSilo) {
         btnClaimSilo.addEventListener('click', (e) => {
             e.stopPropagation();
-            const amount = claimSilo();
-            if (amount > 0) {
-                spawnFloatingText(`+${formatNumber(amount)} DUST`, "#ffd700", 50, 50);
+
+            // Try to claim
+            const result = claimSilo();
+
+            if (result === -1) {
+                // RESULT -1: Cooldown is active
+                const cooldownMs = getClaimCooldown();
+                const minutesLeft = Math.ceil(cooldownMs / 60000);
+
+                // Show Error Feedback
+                if (window.Telegram) tg.HapticFeedback.notificationOccurred('error');
+                spawnFloatingText(`Wait ${minutesLeft}m`, "#ff5555", 50, 50); // Red Text
+
+                // Force UI update to show the countdown on button immediately
+                updateMiningUI();
+            }
+            else if (result > 0) {
+                // RESULT > 0: Success
+                spawnFloatingText(`+${formatNumber(result)} DUST`, "#ffd700", 50, 50);
                 updateUI();
                 updateMiningUI();
                 if (window.Telegram) tg.HapticFeedback.notificationOccurred('success');
@@ -2113,7 +2135,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
+            // Player minimized the game: Save & Sleep
+            console.log("[System] Game Hidden - Pausing Engine...");
             saveGame();
+
+            // Stop the heavy combat loop to save battery
+            if (combatLoopId) {
+                cancelAnimationFrame(combatLoopId);
+                combatLoopId = null;
+            }
+        } else {
+            // Player returned: Wake Up
+            console.log("[System] Game Visible - Resuming...");
+
+            // Refresh the UI to catch up on any timers (like Mining)
+            if (window.refreshGameUI) window.refreshGameUI();
+
+            // Resume combat ONLY if we were actually fighting
+            if (combatMode && !combatLoopId) {
+                startCombatLoop();
+            }
         }
     });
 
@@ -2185,10 +2226,10 @@ document.addEventListener('DOMContentLoaded', () => {
             switch (key) {
                 // --- WOOD CHEAT ---
                 case 'w':
-                    if (!HERO_STATE.inventory['wood_scraps']) HERO_STATE.inventory['wood_scraps'] = 0;
-                    HERO_STATE.inventory['wood_scraps'] += 1000;
-                    console.log('[DEV] +1000 Wood Scraps');
-                    spawnFloatingText("+1000 Wood", "#8B4513", 50, 50);
+                    if (!HERO_STATE.inventory['gold_ore']) HERO_STATE.inventory['gold_ore'] = 0;
+                    HERO_STATE.inventory['gold_ore'] += 1000;
+                    console.log('[DEV] +1000 Gold Ore');
+                    spawnFloatingText("+1000 Gold Ore", "#ffd900ff", 50, 50);
                     updateUI();
                     break;
 
@@ -2490,7 +2531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/* // --- SERVICE WORKER REGISTRATION (UNCOMMENT TO ENABLE PWA/OFFLINE) ---
+// --- SERVICE WORKER REGISTRATION (UNCOMMENT TO ENABLE PWA/OFFLINE) ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -2502,4 +2543,3 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-*/

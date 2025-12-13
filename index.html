@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="reel-game.css?v=1.0.9">
 </head>
 
-<body data-asset-bg-key="background">
+<body data-asset-bg-key="background" oncontextmenu="return false;" ondragstart="return false;">
     <div id="game-wrapper">
         <div class="game-container">
             <div class="header-container">
@@ -126,15 +126,17 @@
                 <div class="scroll-menu-container">
                     <div class="scroll-menu" id="main-scroll-menu">
                         <img id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"
-                            alt="Mining">
-                        <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
+                            alt="Mining" draggable="false">
+                        <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic"
+                            draggable="false">
                         <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"
-                            alt="Fishing">
+                            alt="Fishing" draggable="false">
                         <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
-                            alt="Blackjack">
-                        <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
+                            alt="Blackjack" draggable="false">
+                        <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot"
+                            draggable="false">
                         <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
-                            alt="Roulette">
+                            alt="Roulette" draggable="false">
                     </div>
                 </div>
                 <button id="scroll-arrow-right" class="scroll-arrow-btn">&gt;</button>

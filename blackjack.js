@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getGameScale() {
         if (!gameWrapper) return 1;
         const rect = gameWrapper.getBoundingClientRect();
-        if (gameWrapper.offsetWidth === 0) return 1; 
+        if (gameWrapper.offsetWidth === 0) return 1;
         return rect.width / gameWrapper.offsetWidth;
     }
 
@@ -162,16 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const stackRect = document.getElementById('bet-stack-area').getBoundingClientRect();
         const containerRect = blackjackScreen.getBoundingClientRect();
 
-        // 2. Create the chip
-        const flyingChip = document.createElement('img');
-        flyingChip.src = chipButton.src;
+        // 2. Create the chip (CHANGED TO DIV)
+        const flyingChip = document.createElement('div');
         flyingChip.className = 'flying-chip';
 
-        // 3. Calculate Start Position (Relative to Blackjack Screen)
-        // Divide by scale to convert "Screen Pixels" back to "Game Pixels"
+        // FIX: Extract background image from the clicked button instead of .src
+        // We assume the clicked button has the style set via CSS or inline style
+        const computedStyle = window.getComputedStyle(chipButton);
+        flyingChip.style.backgroundImage = computedStyle.backgroundImage;
+        flyingChip.style.backgroundSize = 'contain';
+        flyingChip.style.backgroundRepeat = 'no-repeat';
+        flyingChip.style.backgroundPosition = 'center';
+
+        // 3. Calculate Start Position
         const startX = (startRect.left - containerRect.left) / currentScale + (startRect.width / currentScale - 60) / 2;
         const startY = (startRect.top - containerRect.top) / currentScale + (startRect.height / currentScale - 60) / 2;
-        
+
         flyingChip.style.left = `${startX}px`;
         flyingChip.style.top = `${startY}px`;
 
@@ -184,12 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (animationContainer) {
             animationContainer.appendChild(flyingChip);
         }
-        
+
         // 6. Animate
-        // Force reflow to ensure start position is rendered
         void flyingChip.offsetWidth;
 
-        // Calculate deltas
         const moveX = endX - startX;
         const moveY = endY - startY;
         const randomRot = (Math.random() - 0.5) * 360;
@@ -719,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         messageEl.innerHTML = finalMessage;
         saveGameState();
-        
+
         // --- CHIP WIN ANIMATION FIX ---
         setTimeout(() => {
             const allCards = document.querySelectorAll('#blackjack-screen .card');
@@ -744,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // DEALER WINS: Fly Up (Dealer Area)
                 targetTop = -200; // Fly off top
-                targetLeft = (blackjackScreen.offsetWidth / 2) - 30; 
+                targetLeft = (blackjackScreen.offsetWidth / 2) - 30;
             }
 
             // 3. Animate Chips
@@ -753,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chip.style.transition = 'all 0.6s ease-in';
                     chip.style.top = `${targetTop}px`;
                     chip.style.left = `${targetLeft}px`;
-                    chip.style.opacity = '0'; 
+                    chip.style.opacity = '0';
                     chip.style.transform = 'scale(0.5)';
                 }, index * 50);
             });
@@ -761,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Reset Game after animation finishes
             setTimeout(() => {
                 resetGame();
-            }, 1000); 
+            }, 1000);
         }, 2500);
     }
 

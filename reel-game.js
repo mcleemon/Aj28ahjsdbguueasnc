@@ -891,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-        return `<img src="${iconUrl}" class="reel-game-win-icon" alt="Dust"> ${numberString}`;
+        return `<div class="reel-game-win-icon bg-icon" style="background-image: url('${iconUrl}'); display:inline-block; vertical-align:middle;"></div> ${numberString}`;
     }
 
     function animateWinCounter(element, targetAmount, duration = 1500) {

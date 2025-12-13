@@ -1,5 +1,5 @@
 // loader.js
-// v1.0.6
+// v1.0.7 (Smart Asset Loading for DIVs)
 
 // 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';
@@ -7,7 +7,6 @@ import { GAME_ASSETS } from './assets.js';
 // 2. Preload all assets from the map
 function preloadAssets() {
     const imageUrls = Object.values(GAME_ASSETS);
-    // console.log(`[Loader] Preloading ${imageUrls.length} assets...`);
     imageUrls.forEach(url => {
         const img = new Image();
         img.src = url;
@@ -16,19 +15,24 @@ function preloadAssets() {
 
 // 3. This function runs when the HTML content is ready
 function populateAssets() {
-    // console.log("[Loader] Populating assets...");
-    // Find all <img> tags with [data-asset-key]
-    const imgElements = document.querySelectorAll('[data-asset-key]');
-    imgElements.forEach(el => {
+    // A. Handle standard [data-asset-key] elements
+    // This now works for BOTH <img> tags and <div> tags
+    const assetElements = document.querySelectorAll('[data-asset-key]');
+    assetElements.forEach(el => {
         const key = el.dataset.assetKey;
         if (GAME_ASSETS[key]) {
-            el.src = GAME_ASSETS[key];
+            if (el.tagName === 'IMG') {
+                el.src = GAME_ASSETS[key];
+            } else {
+                // If it's a DIV, use background-image
+                el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
+            }
         } else {
-            console.warn(`[Loader] <img> asset key not found: ${key}`);
+            console.warn(`[Loader] Asset key not found: ${key}`);
         }
     });
 
-    // Find all elements with [data-asset-bg-key] for backgrounds
+    // B. Handle specific [data-asset-bg-key] elements (Always Background)
     const bgElements = document.querySelectorAll('[data-asset-bg-key]');
     bgElements.forEach(el => {
         const key = el.dataset.assetBgKey;

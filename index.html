@@ -10,9 +10,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.99">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.27">
-    <link rel="stylesheet" href="reel-game.css?v=1.0.9">
+    <link rel="stylesheet" href="style.css?v=2.13.100">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.28">
+    <link rel="stylesheet" href="reel-game.css?v=1.0.10">
 </head>
 
 <body data-asset-bg-key="background" oncontextmenu="return false;" ondragstart="return false;">
@@ -36,21 +36,21 @@
                 <div class="stats-container">
                     <div class="stat">
                         <span class="label">
-                            <img data-asset-key="iconCrystalDust" alt="Crystal Dust" class="icon-crystaldust">
+                            <div data-asset-key="iconCrystalDust" class="icon-crystaldust bg-icon"></div>
                             Crystal Dust
                         </span>
                         <span id="dust-counter">0</span>
                     </div>
                     <div class="stat">
                         <span class="label">
-                            <img data-asset-key="iconGem" alt="Gem Shard" class="icon-gem">
+                            <div data-asset-key="iconGem" class="icon-gem bg-icon"></div>
                             Gem Shards
                         </span>
                         <span id="gem-shards-counter">0</span>
                     </div>
                     <div class="stat">
                         <span class="label">
-                            <img data-asset-key="iconPrismstone" alt="Prism Stone" class="icon-gem">
+                            <div data-asset-key="iconPrismstone" class="icon-gem bg-icon"></div>
                             Prism Stone
                         </span>
                         <span id="prism-stone-counter">0</span>
@@ -125,18 +125,12 @@
                 <button id="scroll-arrow-left" class="scroll-arrow-btn">&lt;</button>
                 <div class="scroll-menu-container">
                     <div class="scroll-menu" id="main-scroll-menu">
-                        <img id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"
-                            alt="Mining" draggable="false">
-                        <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic"
-                            draggable="false">
-                        <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"
-                            alt="Fishing" draggable="false">
-                        <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
-                            alt="Blackjack" draggable="false">
-                        <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot"
-                            draggable="false">
-                        <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
-                            alt="Roulette" draggable="false">
+                        <div id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"></div>
+                        <div id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic"></div>
+                        <div id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"></div>
+                        <div id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"></div>
+                        <div id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot"></div>
+                        <div id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"></div>
                     </div>
                 </div>
                 <button id="scroll-arrow-right" class="scroll-arrow-btn">&gt;</button>
@@ -152,7 +146,8 @@
             <div id="blackjack-animation-container"></div>
             <div id="blackjack-status-bar">
                 <div id="blackjack-dust-counter">
-                    <img data-asset-key="iconCrystalDust" alt="Dust">
+                    <div data-asset-key="iconCrystalDust" class="bg-icon"
+                        style="width:28px; height:28px; margin-right:6px;"></div>
                     <span id="blackjack-dust-amount">0</span>
                 </div>
                 <div id="blackjack-level-container">
@@ -181,12 +176,12 @@
                 <div id="blackjack-controls" class="blackjack-controls">
                     <div id="bet-stack-area"></div>
                     <div id="chip-betting-row">
-                        <img class="chip-button" data-bet="10000" data-asset-key="chip10k">
-                        <img class="chip-button" data-bet="50000" data-asset-key="chip50k">
-                        <img class="chip-button" data-bet="250000" data-asset-key="chip250k">
-                        <img class="chip-button" data-bet="500000" data-asset-key="chip500k">
-                        <img class="chip-button" data-bet="1000000" data-asset-key="chip1m">
-                        <img class="chip-button" data-bet="5000000" data-asset-key="chip5m">
+                        <div class="chip-button" data-bet="10000" data-asset-key="chip10k"></div>
+                        <div class="chip-button" data-bet="50000" data-asset-key="chip50k"></div>
+                        <div class="chip-button" data-bet="250000" data-asset-key="chip250k"></div>
+                        <div class="chip-button" data-bet="500000" data-asset-key="chip500k"></div>
+                        <div class="chip-button" data-bet="1000000" data-asset-key="chip1m"></div>
+                        <div class="chip-button" data-bet="5000000" data-asset-key="chip5m"></div>
                     </div>
                     <div id="action-button-row">
                         <div id="insurance-row" class="hidden">
@@ -208,11 +203,13 @@
             <div id="reel-game-status-bar">
                 <div class="reel-game-counters-left">
                     <div id="reel-game-dust-counter">
-                        <img data-asset-key="iconCrystalDust" alt="Dust">
+                        <div data-asset-key="iconCrystalDust" class="bg-icon"
+                            style="width:28px; height:28px; margin-right:6px;"></div>
                         <span id="reel-game-dust-amount">0</span>
                     </div>
                     <div id="reel-game-ticket-counter">
-                        <img data-asset-key="reelTicket" alt="Ticket">
+                        <div data-asset-key="reelTicket" class="bg-icon"
+                            style="width:35px; height:20px; margin-right:5px;"></div>
                         <span id="reel-game-ticket-amount">0</span>
                     </div>
                 </div>
@@ -275,48 +272,57 @@
                             <div id="reel-reward-progress-bar" class="reel-reward-progress-bar"></div>
                             <div class="reel-reward-track">
                                 <div class="reel-reward-milestone" id="reel-milestone-0">
-                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <div class="reel-reward-treasure bg-icon" data-asset-key="treasureBox"></div>
                                     <button class="reel-reward-claim-button" data-milestone="0" disabled>15
                                         Gems</button>
-                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <div class="reel-reward-star bg-icon" data-asset-key="iconStar"></div>
                                     <span class="reel-reward-cost">
-                                        500K <img data-asset-key="iconCrystalDust" alt="Dust">
+                                        500K <div class="icon-crystaldust bg-icon" data-asset-key="iconCrystalDust"
+                                            style="display:inline-block; vertical-align:middle;"></div>
                                     </span>
                                 </div>
+
                                 <div class="reel-reward-milestone" id="reel-milestone-1">
-                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <div class="reel-reward-treasure bg-icon" data-asset-key="treasureBox"></div>
                                     <button class="reel-reward-claim-button" data-milestone="1" disabled>50
                                         Gems</button>
-                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <div class="reel-reward-star bg-icon" data-asset-key="iconStar"></div>
                                     <span class="reel-reward-cost">
-                                        4.5M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                        4.5M <div class="icon-crystaldust bg-icon" data-asset-key="iconCrystalDust"
+                                            style="display:inline-block; vertical-align:middle;"></div>
                                     </span>
                                 </div>
+
                                 <div class="reel-reward-milestone" id="reel-milestone-2">
-                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <div class="reel-reward-treasure bg-icon" data-asset-key="treasureBox"></div>
                                     <button class="reel-reward-claim-button" data-milestone="2" disabled>85
                                         Gems</button>
-                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <div class="reel-reward-star bg-icon" data-asset-key="iconStar"></div>
                                     <span class="reel-reward-cost">
-                                        20M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                        20M <div class="icon-crystaldust bg-icon" data-asset-key="iconCrystalDust"
+                                            style="display:inline-block; vertical-align:middle;"></div>
                                     </span>
                                 </div>
+
                                 <div class="reel-reward-milestone" id="reel-milestone-3">
-                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <div class="reel-reward-treasure bg-icon" data-asset-key="treasureBox"></div>
                                     <button class="reel-reward-claim-button" data-milestone="3" disabled>100
                                         Gems</button>
-                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <div class="reel-reward-star bg-icon" data-asset-key="iconStar"></div>
                                     <span class="reel-reward-cost">
-                                        50M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                        50M <div class="icon-crystaldust bg-icon" data-asset-key="iconCrystalDust"
+                                            style="display:inline-block; vertical-align:middle;"></div>
                                     </span>
                                 </div>
+
                                 <div class="reel-reward-milestone" id="reel-milestone-4">
-                                    <img data-asset-key="treasureBox" alt="Treasure" class="reel-reward-treasure">
+                                    <div class="reel-reward-treasure bg-icon" data-asset-key="treasureBox"></div>
                                     <button class="reel-reward-claim-button" data-milestone="4" disabled>250
                                         Gems</button>
-                                    <img data-asset-key="iconStar" alt="Star" class="reel-reward-star">
+                                    <div class="reel-reward-star bg-icon" data-asset-key="iconStar"></div>
                                     <span class="reel-reward-cost">
-                                        75M <img data-asset-key="iconCrystalDust" alt="Dust">
+                                        75M <div class="icon-crystaldust bg-icon" data-asset-key="iconCrystalDust"
+                                            style="display:inline-block; vertical-align:middle;"></div>
                                     </span>
                                 </div>
                             </div>
@@ -440,7 +446,7 @@
                         <div class="chance-row"><span id="sharpen-chance"></span></div>
                         <div class="cost-row">
                             <div class="cost-item">
-                                <img data-asset-key="iconCrystalDust" class="icon-small">
+                                <div data-asset-key="iconCrystalDust" class="icon-small bg-icon"></div>
                                 <span id="sharpen-cost-dust">100</span>
                             </div>
                             <div class="cost-item">
@@ -464,9 +470,9 @@
     </div>
     <div id="login-reward-modal" class="modal hidden">
         <div class="modal-content">
-            <img id="login-frame-img" data-asset-key="welcomeFrame" alt="Login Reward Frame">
+            <div id="login-frame-img" class="bg-icon" data-asset-key="welcomeFrame"></div>
             <div class="modal-text-content">
-                <img id="daily-login-title" data-asset-key="titleDailyLogin" alt="Daily Login!">
+                <div id="daily-login-title" class="bg-icon" data-asset-key="titleDailyLogin"></div>
                 <span id="login-streak-text"></span>
                 <span id="login-reward-text"></span>
             </div>
@@ -476,7 +482,7 @@
         <div class="modal-content" data-asset-bg-key="calendarFrame">
             <span id="close-calendar-button" class="close-button" data-asset-bg-key="closeButton"></span>
             <div class="modal-inner">
-                <img id="calendar-title-img" data-asset-key="titleDailyStreak" alt="Daily Streak">
+                <div id="calendar-title-img" class="bg-icon" data-asset-key="titleDailyStreak"></div>
                 <p id="calendar-streak-count">0 Days</p>
                 <div id="calendar-next-reward">
                     <span id="next-reward-label">Next Reward</span>
@@ -495,10 +501,10 @@
     <div id="settings-modal" class="modal hidden">
         <div class="settings-modal-content" data-asset-bg-key="welcomeFrame">
             <div class="modal-inner">
-                <img id="wallet-connect-button" class="settings-img-button" data-asset-key="settingsConnectWallet"
-                    alt="Connect Wallet">
-                <img id="achievement-button" class="settings-img-button" data-asset-key="settingsAchievement"
-                    alt="Achievements">
+                <div id="wallet-connect-button" class="settings-img-button bg-icon"
+                    data-asset-key="settingsConnectWallet"></div>
+                <div id="achievement-button" class="settings-img-button bg-icon" data-asset-key="settingsAchievement">
+                </div>
             </div>
             <span id="close-settings-button" class="close-button" data-asset-bg-key="closeButton"></span>
         </div>
@@ -524,9 +530,9 @@
     </div>
     <div id="offline-progress-modal" class="modal hidden">
         <div class="modal-content">
-            <img id="welcome-frame-img" data-asset-key="welcomeFrame" alt="Welcome Back Frame">
+            <div id="welcome-frame-img" class="bg-icon" data-asset-key="welcomeFrame"></div>
             <div class="modal-text-content">
-                <img id="welcome-back-title" data-asset-key="titleWelcomeBack" alt="Welcome Back">
+                <div id="welcome-back-title" class="bg-icon" data-asset-key="titleWelcomeBack"></div>
             </div>
         </div>
     </div>
@@ -554,7 +560,7 @@
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle1"></div>
                         </div>
                         <div class="card-title">200K</div>
                         <div class="card-bonus">30% BONUS</div>
@@ -562,7 +568,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle1"></div>
                         </div>
                         <div class="card-title">1.2M</div>
                         <div class="card-bonus">55% BONUS</div>
@@ -570,7 +576,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle2"></div>
                         </div>
                         <div class="card-title">2.8M</div>
                         <div class="card-bonus">70% BONUS</div>
@@ -578,7 +584,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle2"></div>
                         </div>
                         <div class="card-title">7.4M</div>
                         <div class="card-bonus">100% BONUS</div>
@@ -586,7 +592,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle2"></div>
                         </div>
                         <div class="card-title">22M</div>
                         <div class="card-bonus">150% BONUS</div>
@@ -594,7 +600,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="bundle3" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="bundle3"></div>
                         </div>
                         <div class="card-title">48M</div>
                         <div class="card-bonus">200% BONUS</div>
@@ -605,7 +611,7 @@
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust"></div>
                         </div>
                         <div class="card-title">200K</div>
                         <div class="card-bonus">20% BONUS</div>
@@ -613,7 +619,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust"></div>
                         </div>
                         <div class="card-title">1.2M</div>
                         <div class="card-bonus">35% BONUS</div>
@@ -621,7 +627,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust2"></div>
                         </div>
                         <div class="card-title">3.8M</div>
                         <div class="card-bonus">50% BONUS</div>
@@ -629,7 +635,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust2"></div>
                         </div>
                         <div class="card-title">15M</div>
                         <div class="card-bonus">70% BONUS</div>
@@ -637,7 +643,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust2"></div>
                         </div>
                         <div class="card-title">75M</div>
                         <div class="card-bonus">100% BONUS</div>
@@ -645,7 +651,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="iconCrystalDust3" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="iconCrystalDust3"></div>
                         </div>
                         <div class="card-title">200M</div>
                         <div class="card-bonus">150% BONUS</div>
@@ -656,7 +662,7 @@
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket"></div>
                         </div>
                         <div class="card-title">5</div>
                         <div class="card-bonus">+2 BONUS</div>
@@ -664,7 +670,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket"></div>
                         </div>
                         <div class="card-title">30</div>
                         <div class="card-bonus">+10 BONUS</div>
@@ -672,7 +678,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket1"></div>
                         </div>
                         <div class="card-title">75</div>
                         <div class="card-bonus">+15 BONUS</div>
@@ -680,7 +686,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket1"></div>
                         </div>
                         <div class="card-title">180</div>
                         <div class="card-bonus">+20 BONUS</div>
@@ -688,7 +694,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket1"></div>
                         </div>
                         <div class="card-title">520</div>
                         <div class="card-bonus">+35 BONUS</div>
@@ -696,7 +702,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="reelTicket2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="reelTicket2"></div>
                         </div>
                         <div class="card-title">1250</div>
                         <div class="card-bonus">+70 BONUS</div>
@@ -707,7 +713,7 @@
                 <div class="shop-item-grid">
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait"></div>
                         </div>
                         <div class="card-title">100K</div>
                         <div class="card-bonus">30% BONUS</div>
@@ -715,7 +721,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait1"></div>
                         </div>
                         <div class="card-title">600K</div>
                         <div class="card-bonus">55% BONUS</div>
@@ -723,7 +729,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait1" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait1"></div>
                         </div>
                         <div class="card-title">1.4M</div>
                         <div class="card-bonus">70% BONUS</div>
@@ -731,7 +737,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait2"></div>
                         </div>
                         <div class="card-title">3.7M</div>
                         <div class="card-bonus">100% BONUS</div>
@@ -739,7 +745,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait2" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait2"></div>
                         </div>
                         <div class="card-title">11M</div>
                         <div class="card-bonus">150% BONUS</div>
@@ -747,7 +753,7 @@
                     </div>
                     <div class="shop-item-card" data-asset-bg-key="shopItemFrame">
                         <div class="card-image-container">
-                            <img data-asset-key="fishBait3" alt="Bundle">
+                            <div class="bg-icon" data-asset-key="fishBait3"></div>
                         </div>
                         <div class="card-title">24M</div>
                         <div class="card-bonus">200% BONUS</div>
@@ -925,8 +931,9 @@
                 <span id="mimic-stage-text">Mimic Stage: 1</span>
                 <span id="mimic-stage-info-text">Reward Increases Each Stage!</span>
                 <div id="mimic-image-wrapper">
-                    <img id="mimic-image" data-asset-key="mimicClose" alt="Mimic">
-                    <img id="mimic-reward-gem" class="hidden" data-asset-key="iconGem" alt="Gem Reward">
+                    <div id="mimic-image" data-asset-key="mimicClose" class="bg-icon"
+                        style="width: 100%; height: 100%;"></div>
+                    <div id="mimic-reward-gem" class="hidden bg-icon" data-asset-key="iconGem"></div>
                 </div>
                 <div id="mimic-progress-container">
                     <div id="mimic-progress-bar-outer">
@@ -978,25 +985,25 @@
                     <div class="mining-column left-col">
                         <div class="mining-slot" data-id="1">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem1">
+                                <div class="bg-icon" data-asset-key="miningItem1"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="2">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem2">
+                                <div class="bg-icon" data-asset-key="miningItem2"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="3">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem3">
+                                <div class="bg-icon" data-asset-key="miningItem3"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="4">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem4">
+                                <div class="bg-icon" data-asset-key="miningItem4"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
@@ -1004,7 +1011,7 @@
                     <div class="mining-center-silo">
                         <div id="mining-silo-click-area">
                             <div class="mining-icon-frame large-frame">
-                                <img id="mining-silo-image" data-asset-key="mineEntrance">
+                                <div id="mining-silo-image" class="bg-icon" data-asset-key="mineEntrance"></div>
                                 <div class="mining-lvl-badge" id="silo-level-badge">Lv.1</div>
                             </div>
                             <div class="mining-slot-label static-label">Mining Site</div>
@@ -1020,25 +1027,25 @@
                     <div class="mining-column right-col">
                         <div class="mining-slot" data-id="5">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem5">
+                                <div class="bg-icon" data-asset-key="miningItem5"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="6">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem6">
+                                <div class="bg-icon" data-asset-key="miningItem6"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="7">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem7">
+                                <div class="bg-icon" data-asset-key="miningItem7"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
                         <div class="mining-slot" data-id="8">
                             <div class="mining-icon-frame">
-                                <img data-asset-key="miningItem8">
+                                <div class="bg-icon" data-asset-key="miningItem8"></div>
                                 <div class="mining-lvl-badge">Lv.0</div>
                             </div>
                         </div>
@@ -1085,7 +1092,7 @@
             <div class="victory-loot-container">
                 <div class="loot-card">
                     <div class="loot-icon-wrapper">
-                        <img data-asset-key="iconCrystalDust" class="loot-img">
+                        <div data-asset-key="iconCrystalDust" class="loot-img bg-icon"></div>
                     </div>
                     <div class="loot-amount" id="victory-dust-amount">0</div>
                     <div class="loot-label">Crystal Dust</div>
@@ -1099,7 +1106,7 @@
                 </div>
                 <div id="victory-card-gem" class="loot-card hidden">
                     <div class="loot-icon-wrapper" style="border-color: #e74c3c;">
-                        <img data-asset-key="iconGem" class="loot-img">
+                        <div data-asset-key="iconGem" class="loot-img bg-icon"></div>
                     </div>
                     <div class="loot-amount" id="victory-gem-amount" style="color: #e74c3c;">0</div>
                     <div class="loot-label">Gem Shard</div>
@@ -1137,21 +1144,21 @@
     </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.99" type="module"></script>
+    <script src="script.js?v=2.13.100" type="module"></script>
     <script src="assets.js?v=1.0.12" type="module"></script>
-    <script src="loader.js?v=1.0.6" type="module"></script>
-    <script src="scaler.js?v=1.0.3" type="module"></script>
-    <script src="hero.js?v=1.1.9" type="module"></script>
-    <script src="dungeon.js?v=1.1.9" type="module"></script>
-    <script src="smithy.js?v=1.0.7" type="module"></script>
-    <script src="shop.js?v=1.0.14" type="module"></script>
-    <script src="tasks.js?v=1.0.12" type="module"></script>
-    <script src="achievements.js?v=1.0.2" type="module"></script>
-    <script src="heroMenu.js?v=2.0.7" type="module"></script>
-    <script src="blackjack.js?v=1.1.23" type="module"></script>
-    <script src="mimic.js?v=1.0.4" type="module"></script>
+    <script src="loader.js?v=1.0.7" type="module"></script>
+    <script src="scaler.js?v=1.0.4" type="module"></script>
+    <script src="hero.js?v=1.1.10" type="module"></script>
+    <script src="dungeon.js?v=1.1.10" type="module"></script>
+    <script src="smithy.js?v=1.0.8" type="module"></script>
+    <script src="shop.js?v=1.0.15" type="module"></script>
+    <script src="tasks.js?v=1.0.13" type="module"></script>
+    <script src="achievements.js?v=1.0.3" type="module"></script>
+    <script src="heroMenu.js?v=2.0.8" type="module"></script>
+    <script src="blackjack.js?v=1.1.24" type="module"></script>
+    <script src="mimic.js?v=1.0.5" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>
-    <script src="reel-game.js?v=1.0.9" type="module"></script>
+    <script src="reel-game.js?v=1.0.10" type="module"></script>
 </body>
 
 </html>

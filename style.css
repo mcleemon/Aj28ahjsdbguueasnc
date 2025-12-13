@@ -591,6 +591,7 @@ button:active {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    pointer-events: auto !important;
 }
 
 .settings-img-button:active {

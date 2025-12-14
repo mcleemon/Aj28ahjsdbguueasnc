@@ -4,6 +4,7 @@ import { DUNGEON_STATE, hitMonster, calculateRewards, increaseFloor, getDungeonD
 import { MATERIAL_TIERS, WEAPON_DB, ARMOR_DB } from './items.js';
 import { getMiningState, getItemLevel, getNextCost, getItemPPH, calculatePPH, getTotalPPH, isItemUnlocked, getSiloCapacity, getMinedAmount, buyMiningUpgrade, claimSilo, buySiloUpgrade, getClaimCooldown, MINING_ITEMS, SILO_LEVELS } from './mining.js';
 import { incrementStat } from './achievements.js';
+import { initWallet, toggleWalletConnection } from './wallet.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tg = (window.Telegram && window.Telegram.WebApp)
@@ -16,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             BackButton: { show: () => { }, hide: () => { }, onClick: () => { } }
         };
+    if (typeof tg.ready === 'function') {
+        tg.expand();
+        tg.ready();
+    }
     try {
         const gameBackgroundColor = '#1a1a1a';
         if (tg.setHeaderColor) {
@@ -2165,9 +2170,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Initialize Wallet when game starts
+    initWallet();
+
     settingsButton.addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
     });
+
+    // Add Listener for the Wallet Button inside Settings
+    const walletBtn = document.getElementById('wallet-connect-button');
+    if (walletBtn) {
+        // SAFETY FIX: Remove old listeners by cloning the button
+        // This prevents the wallet from opening twice if the script re-runs
+        const newBtn = walletBtn.cloneNode(true);
+        walletBtn.parentNode.replaceChild(newBtn, walletBtn);
+
+        newBtn.addEventListener('click', () => {
+            toggleWalletConnection();
+        });
+    }
 
     const closeSettingsButton = document.getElementById('close-settings-button');
     closeSettingsButton.addEventListener('click', () => {
@@ -2516,10 +2537,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.warn("Error handling daily login:", e);
         }
-
-        if (typeof tg.ready === 'function') {
-            tg.ready();
-        }
         initCheats();
         setInterval(gameLoop, 1000);
         setInterval(saveGameIfDirty, 5000);
@@ -2538,15 +2555,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// --- SERVICE WORKER REGISTRATION (UNCOMMENT TO ENABLE PWA/OFFLINE) ---
+// --- SERVICE WORKER REGISTRATION ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
             .then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                console.log('ServiceWorker registered with scope: ', registration.scope);
+
+                // Check for updates periodically
+                setInterval(() => {
+                    registration.update();
+                }, 60 * 60 * 1000); // Check every hour
+
+                registration.onupdatefound = () => {
+                    const installingWorker = registration.installing;
+                    if (installingWorker == null) {
+                        return;
+                    }
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                console.log('[System] New content is available; please refresh.');
+                                // Optional: Show a toast notification to the user to reload
+                            } else {
+                                console.log('[System] Content is cached for offline use.');
+                            }
+                        }
+                    };
+                };
             })
             .catch(err => {
                 console.log('ServiceWorker registration failed: ', err);
             });
+    });
+
+    // Refresh page when new SW takes control
+    let refreshing;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        window.location.reload();
+        refreshing = true;
     });
 }

@@ -4,18 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Reel RPG</title>
+    <title>FORGE RPG</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.14.0">
+    <link rel="stylesheet" href="style.css?v=2.14.1">
     <link rel="stylesheet" href="blackjack.css?v=1.1.0">
     <link rel="stylesheet" href="reel-game.css?v=1.1.0">
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 
 <body data-asset-bg-key="background">
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">FORGE RPG</div>
+            <div class="loading-text">Loading Assets...</div>
+            <div class="loading-bar-container">
+                <div id="loading-bar-fill"></div>
+            </div>
+            <div id="loading-percent">0%</div>
+        </div>
+    </div>
     <div id="game-wrapper">
         <div class="game-container">
             <div class="header-container">
@@ -1135,9 +1146,9 @@
     </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.14.0" type="module"></script>
+    <script src="script.js?v=2.14.1" type="module"></script>
     <script src="assets.js?v=1.1.0" type="module"></script>
-    <script src="loader.js?v=1.1.0" type="module"></script>
+    <script src="loader.js?v=1.1.1" type="module"></script>
     <script src="scaler.js?v=1.1.0" type="module"></script>
     <script src="hero.js?v=1.2.0" type="module"></script>
     <script src="dungeon.js?v=1.2.0" type="module"></script>

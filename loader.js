@@ -1,45 +1,83 @@
 // loader.js
-// v1.0.6
+// v1.2.0 (Clean Loader - No Ghost Logic)
 
-// 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';
 
-// 2. Preload all assets from the map
-function preloadAssets() {
+function initLoader() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const barFill = document.getElementById('loading-bar-fill');
+    const percentText = document.getElementById('loading-percent');
+    
+    // 1. Get all assets to load
     const imageUrls = Object.values(GAME_ASSETS);
-    // console.log(`[Loader] Preloading ${imageUrls.length} assets...`);
+    const totalAssets = imageUrls.length;
+    let loadedCount = 0;
+
+    function updateProgress() {
+        loadedCount++;
+        const percent = Math.floor((loadedCount / totalAssets) * 100);
+        
+        if (barFill) barFill.style.width = `${percent}%`;
+        if (percentText) percentText.innerText = `${percent}%`;
+
+        if (loadedCount >= totalAssets) {
+            console.log("[Loader] All assets loaded!");
+            finishLoading();
+        }
+    }
+
+    function assetLoaded() {
+        updateProgress();
+    }
+
+    console.log(`[Loader] Starting pre-load of ${totalAssets} assets...`);
+    
+    if (totalAssets === 0) {
+        finishLoading();
+        return;
+    }
+
     imageUrls.forEach(url => {
         const img = new Image();
+        img.onload = assetLoaded;
+        img.onerror = assetLoaded; 
         img.src = url;
     });
 }
 
-// 3. This function runs when the HTML content is ready
+function finishLoading() {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        setTimeout(() => {
+            loadingScreen.classList.add('fade-out');
+            populateAssets();
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }, 300);
+    }
+}
+
+// 3. Populate DOM (Standard)
 function populateAssets() {
-    // console.log("[Loader] Populating assets...");
-    // Find all <img> tags with [data-asset-key]
+    // Images
     const imgElements = document.querySelectorAll('[data-asset-key]');
     imgElements.forEach(el => {
         const key = el.dataset.assetKey;
         if (GAME_ASSETS[key]) {
             el.src = GAME_ASSETS[key];
-        } else {
-            console.warn(`[Loader] <img> asset key not found: ${key}`);
+            // Removed: pointer-events logic
         }
     });
 
-    // Find all elements with [data-asset-bg-key] for backgrounds
+    // Backgrounds (Divs)
     const bgElements = document.querySelectorAll('[data-asset-bg-key]');
     bgElements.forEach(el => {
         const key = el.dataset.assetBgKey;
         if (GAME_ASSETS[key]) {
             el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
-        } else {
-            console.warn(`[Loader] Background asset key not found: ${key}`);
         }
     });
 }
 
-// 4. Run the functions
-preloadAssets();
-document.addEventListener('DOMContentLoaded', populateAssets);
+document.addEventListener('DOMContentLoaded', initLoader);

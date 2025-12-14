@@ -10,8 +10,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.13.101">
-    <link rel="stylesheet" href="blackjack.css?v=1.0.30">
+    <link rel="stylesheet" href="style.css?v=2.13.102">
+    <link rel="stylesheet" href="blackjack.css?v=1.0.31">
     <link rel="stylesheet" href="reel-game.css?v=1.0.11">
 </head>
 
@@ -125,16 +125,12 @@
                 <button id="scroll-arrow-left" class="scroll-arrow-btn">&lt;</button>
                 <div class="scroll-menu-container">
                     <div class="scroll-menu" id="main-scroll-menu">
-                        <img id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"
-                            alt="Mining">
-                        <img id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic" alt="Mimic">
-                        <img id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"
-                            alt="Fishing">
-                        <img id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"
-                            alt="Blackjack">
-                        <img id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot" alt="Slot">
-                        <img id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"
-                            alt="Roulette">
+                        <div id="scroll-mining-button" class="scroll-menu-icon" data-asset-key="mineEntrance"></div>
+                        <div id="scroll-mimic-button" class="scroll-menu-icon" data-asset-key="iconMimic"></div>
+                        <div id="scroll-fishing-button" class="scroll-menu-icon" data-asset-key="iconFishing"></div>
+                        <div id="scroll-blackjack-button" class="scroll-menu-icon" data-asset-key="iconBlackjack"></div>
+                        <div id="scroll-slot-button" class="scroll-menu-icon" data-asset-key="iconSlot"></div>
+                        <div id="scroll-roulette-button" class="scroll-menu-icon" data-asset-key="iconRoulette"></div>
                     </div>
                 </div>
                 <button id="scroll-arrow-right" class="scroll-arrow-btn">&gt;</button>
@@ -179,12 +175,12 @@
                 <div id="blackjack-controls" class="blackjack-controls">
                     <div id="bet-stack-area"></div>
                     <div id="chip-betting-row">
-                        <img class="chip-button" data-bet="10000" data-asset-key="chip10k">
-                        <img class="chip-button" data-bet="50000" data-asset-key="chip50k">
-                        <img class="chip-button" data-bet="250000" data-asset-key="chip250k">
-                        <img class="chip-button" data-bet="500000" data-asset-key="chip500k">
-                        <img class="chip-button" data-bet="1000000" data-asset-key="chip1m">
-                        <img class="chip-button" data-bet="5000000" data-asset-key="chip5m">
+                        <div class="chip-button" data-bet="10000" data-asset-key="chip10k"></div>
+                        <div class="chip-button" data-bet="50000" data-asset-key="chip50k"></div>
+                        <div class="chip-button" data-bet="250000" data-asset-key="chip250k"></div>
+                        <div class="chip-button" data-bet="500000" data-asset-key="chip500k"></div>
+                        <div class="chip-button" data-bet="1000000" data-asset-key="chip1m"></div>
+                        <div class="chip-button" data-bet="5000000" data-asset-key="chip5m"></div>
                     </div>
                     <div id="action-button-row">
                         <div id="insurance-row" class="hidden">
@@ -493,10 +489,9 @@
     <div id="settings-modal" class="modal hidden">
         <div class="settings-modal-content" data-asset-bg-key="welcomeFrame">
             <div class="modal-inner">
-                <img id="wallet-connect-button" class="settings-img-button" data-asset-key="settingsConnectWallet"
-                    alt="Connect Wallet">
-                <img id="achievement-button" class="settings-img-button" data-asset-key="settingsAchievement"
-                    alt="Achievements">
+                <div id="wallet-connect-button" class="settings-img-button" data-asset-key="settingsConnectWallet">
+                </div>
+                <div id="achievement-button" class="settings-img-button" data-asset-key="settingsAchievement"></div>
             </div>
             <span id="close-settings-button" class="close-button" data-asset-bg-key="closeButton"></span>
         </div>
@@ -1135,9 +1130,9 @@
     </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.13.101" type="module"></script>
+    <script src="script.js?v=2.13.102" type="module"></script>
     <script src="assets.js?v=1.0.14" type="module"></script>
-    <script src="loader.js?v=1.0.8" type="module"></script>
+    <script src="loader.js?v=1.0.9" type="module"></script>
     <script src="scaler.js?v=1.0.5" type="module"></script>
     <script src="hero.js?v=1.1.11" type="module"></script>
     <script src="dungeon.js?v=1.1.11" type="module"></script>
@@ -1146,7 +1141,7 @@
     <script src="tasks.js?v=1.0.14" type="module"></script>
     <script src="achievements.js?v=1.0.4" type="module"></script>
     <script src="heroMenu.js?v=2.0.9" type="module"></script>
-    <script src="blackjack.js?v=1.1.25" type="module"></script>
+    <script src="blackjack.js?v=1.1.26" type="module"></script>
     <script src="mimic.js?v=1.0.6" type="module"></script>
     <script src="audioManager.js?v=1.0.0" type="module"></script>
     <script src="reel-game.js?v=1.0.11" type="module"></script>

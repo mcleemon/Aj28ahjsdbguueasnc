@@ -860,10 +860,9 @@
     text-shadow: 0 0 3px black, 0 0 5px #00BFFF;
 }
 
-.reel-reward-cost .icon-crystaldust {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
+.reel-reward-cost img {
+    width: 8px;
+    height: 8px;
     vertical-align: middle;
 }
 

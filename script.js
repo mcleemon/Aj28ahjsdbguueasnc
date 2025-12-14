@@ -84,10 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        return false;
     }, { passive: false });
 
     window.addEventListener('dragstart', (e) => {
         e.preventDefault();
+        return false;
     }, { passive: false });
 
     // --- DOM ELEMENTS ---
@@ -583,8 +586,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MINING SYSTEM LOGIC ---
 
-    // script.js (Partial Update - Search for "updateMiningUI" and replace the block)
-
     function updateMiningUI() {
         if (miningModal.classList.contains('hidden')) return;
         const miningState = getMiningState();
@@ -650,26 +651,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 labelEl.innerText = itemData.name;
                 slot.appendChild(labelEl);
             }
-
-            const imgEl = slot.querySelector('.bg-icon');
-
-            if (imgEl && unlocked) {
-                // Determine which animation this slot SHOULD have
-                let animClass = '';
-                if (id === 1) animClass = 'anim-swing';
-                if (id === 2) animClass = 'anim-bob';
-                if (id === 3) animClass = 'anim-breathe';
-                if (id === 4) animClass = 'anim-pulse-red';
-                if (id === 5) animClass = 'anim-rock';
-                if (id === 6) animClass = 'anim-pulse-glow';
-                if (id === 7) animClass = 'anim-shake';
-                if (id === 8) animClass = 'anim-float-glow';
-
-                // Only add the class if it's missing (prevents stuttering)
-                if (animClass && !imgEl.classList.contains(animClass)) {
-                    // Clear others just in case
-                    imgEl.classList.remove('anim-swing', 'anim-bob', 'anim-breathe', 'anim-pulse-red', 'anim-rock', 'anim-spin', 'anim-shake', 'anim-float-glow', 'anim-pulse-glow');
-                    imgEl.classList.add(animClass);
+            const imgEl = slot.querySelector('img');
+            if (imgEl) {
+                imgEl.classList.remove('anim-swing', 'anim-bob', 'anim-breathe', 'anim-pulse-red', 'anim-rock', 'anim-spin', 'anim-shake', 'anim-float-glow', 'anim-pulse-glow');
+                if (unlocked) {
+                    if (id === 1) imgEl.classList.add('anim-swing');
+                    if (id === 2) imgEl.classList.add('anim-bob');
+                    if (id === 3) imgEl.classList.add('anim-breathe');
+                    if (id === 4) imgEl.classList.add('anim-pulse-red');
+                    if (id === 5) imgEl.classList.add('anim-rock');
+                    if (id === 6) imgEl.classList.add('anim-pulse-glow');
+                    if (id === 7) imgEl.classList.add('anim-shake');
+                    if (id === 8) imgEl.classList.add('anim-float-glow');
                 }
             }
             if (!unlocked) {
@@ -688,7 +681,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ... rest of function remains the same ...
         miningUpgradePanel.classList.remove('hidden');
 
         if (currentMiningSelection) {
@@ -708,14 +700,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             placeholder.style.display = 'block';
         }
-        // ... cooldown logic ...
+
         const cooldownMs = getClaimCooldown();
-        // ... (rest of your cooldown logic is fine) ...
+
         if (cooldownMs > 0) {
+            // CASE 1: COOLDOWN ACTIVE (Real-time Timer)
             const totalSeconds = Math.ceil(cooldownMs / 1000);
             const m = Math.floor(totalSeconds / 60);
             const s = totalSeconds % 60;
-            const timeString = `${m}:${s.toString().padStart(2, '0')}`;
+            const timeString = `${m}:${s.toString().padStart(2, '0')}`; // Format: 59:05
 
             btnClaimSilo.disabled = true;
             btnClaimSilo.querySelector('span').innerText = timeString;
@@ -723,12 +716,14 @@ document.addEventListener('DOMContentLoaded', () => {
             btnClaimSilo.style.opacity = "0.7";
         }
         else if (currentMined > 0) {
+            // CASE 2: READY TO CLAIM
             btnClaimSilo.disabled = false;
             btnClaimSilo.querySelector('span').innerText = "CLAIM";
             btnClaimSilo.style.filter = "none";
             btnClaimSilo.style.opacity = "1";
         }
         else {
+            // CASE 3: EMPTY
             btnClaimSilo.disabled = true;
             btnClaimSilo.querySelector('span').innerText = "EMPTY";
             btnClaimSilo.style.filter = "grayscale(100%)";
@@ -1927,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (rewardInfo.type) {
             case 'dust':
                 gameState.dust += rewardInfo.amount;
-                rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <div style="background-image:url('${GAME_ASSETS.iconCrystalDust}');" class="inline-icon bg-icon"></div>`;
+                rewardText = `<span class="dust-amount-color">${formatNumber(rewardInfo.amount)}</span> <img src="${GAME_ASSETS.iconCrystalDust}" class="inline-icon" alt="Crystal Dust">`;
                 break;
             case 'gem_shard':
                 gameState.gemShards += rewardInfo.amount;
@@ -1935,11 +1930,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
         loginStreakText.innerText = `Streak: ${gameState.loginStreak} Day(s)`;
-        if (loginRewardText) {
-            loginRewardText.innerHTML = rewardText;
-        } else {
-            console.warn("⚠️ ERROR: <span id='login-reward-text'></span> is missing from index.html!");
-        }
+        loginRewardText.innerHTML = rewardText;
         updateUI();
         loginRewardModal.classList.remove('hidden');
         tg.HapticFeedback.notificationOccurred('success');

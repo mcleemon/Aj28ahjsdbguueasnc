@@ -214,14 +214,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainMatCount = item.matCost !== undefined ? item.matCost : 50;
             const haveDust = window.gameState.dust >= dustCost;
             let canCraft = haveDust;
-            let ingredientsHTML = `<span class="recipe-item ${haveDust ? '' : 'missing'}"><div class="icon-small bg-icon" style="background-image: url('${GAME_ASSETS.iconCrystalDust}'); display:inline-block;"></div> ${window.formatNumberGlobal(dustCost)}</span>`;
+            let ingredientsHTML = `<span class="recipe-item ${haveDust ? '' : 'missing'}"><img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust"> ${window.formatNumberGlobal(dustCost)}</span>`;
 
             if (item.matReq) {
                 const qty = (HERO_STATE.inventory[item.matReq] || 0);
                 if (qty < mainMatCount) canCraft = false;
                 const matImg = getMatIconUrl(item.matReq);
-                // --- FIX: Use DIVs for Material Icons ---
-                ingredientsHTML += `<span class="recipe-item ${qty >= mainMatCount ? '' : 'missing'}"><div class="icon-small bg-icon" style="background-image: url('${matImg}'); width:18px; height:18px; display:inline-block;"></div> ${mainMatCount}</span>`;
+                ingredientsHTML += `<span class="recipe-item ${qty >= mainMatCount ? '' : 'missing'}"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> ${mainMatCount}</span>`;
             }
             if (item.extraMats) {
                 item.extraMats.forEach(mat => {
@@ -229,8 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (qty < mat.count) canCraft = false;
                     const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
                     const matImg = getMatIconUrl(mat.id);
-                    // --- FIX: Use DIVs for Extra Material Icons ---
-                    ingredientsHTML += `<span class="recipe-item ${qty >= mat.count ? '' : 'missing'}"><div class="icon-small bg-icon" style="background-image: url('${matImg}'); width:18px; height:18px; display:inline-block;"></div> ${displayCount}</span>`;
+                    ingredientsHTML += `<span class="recipe-item ${qty >= mat.count ? '' : 'missing'}"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> ${displayCount}</span>`;
                 });
             }
 
@@ -314,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="forge-btn" style="min-width:80px; height:36px; font-size:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 0; margin-left: auto;" ${btnDisabled ? 'disabled' : ''}>
                         <span>CONVERT</span>
                         <div style="display:flex; align-items:center; gap:3px; margin-top:1px;">
-<div class="bg-icon" style="background-image: url('${GAME_ASSETS.iconCrystalDust}'); width:9px; height:9px; display:inline-block;"></div>
+                            <img src="${GAME_ASSETS.iconCrystalDust}" style="width:9px; height:9px;">
                             <span style="color:${window.gameState.dust < recipe.cost ? '#e74c3c' : '#87CEEB'}; font-size:9px;">${window.formatNumberGlobal(recipe.cost)}</span>
                         </div>
                     </button>
@@ -372,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             refund.materials.forEach(mat => {
                 const displayCount = mat.count >= 1000 ? (mat.count / 1000) + 'K' : mat.count;
                 const matImg = getMatIconUrl(mat.id);
-                matsHTML += `<span class="recipe-item" style="color:#ffd700;"><div class="icon-small bg-icon" style="background-image: url('${matImg}'); width:18px; height:18px; display:inline-block;"></div> +${displayCount}</span>`;
+                matsHTML += `<span class="recipe-item" style="color:#ffd700;"><img src="${matImg}" class="icon-small" style="width:18px; height:18px; object-fit:contain;"> +${displayCount}</span>`;
             });
             const itemDiv = document.createElement('div');
             itemDiv.className = 'forge-item';
@@ -383,13 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="forge-details" style="text-align:left;"><span class="forge-name">${dbItem.name} ${levelText}</span></div>
                 <button class="forge-btn" style="background:#c0392b; border-color:#e74c3c; border-bottom-color:#922b21;">SCRAP</button>
             </div>
-            <div class="recipe-row" style="margin-top:8px; padding-top:8px; border-top:1px solid #444;">
-                <span style="font-size:10px; color:#aaa; margin-right:5px;">GET:</span>
-                <span class="recipe-item" style="color:#87CEEB;">
-                    <div class="icon-small bg-icon" style="background-image: url('${GAME_ASSETS.iconCrystalDust}'); display:inline-block;"></div> +${window.formatNumberGlobal(refund.dust)}
-                </span>
-                ${matsHTML}
-            </div>`;
+            <div class="recipe-row" style="margin-top:8px; padding-top:8px; border-top:1px solid #444;"><span style="font-size:10px; color:#aaa; margin-right:5px;">GET:</span><span class="recipe-item" style="color:#87CEEB;"><img src="${GAME_ASSETS.iconCrystalDust}" class="icon-small" alt="Dust"> +${window.formatNumberGlobal(refund.dust)}</span>${matsHTML}</div>`;
             itemDiv.querySelector('button').addEventListener('click', () => {
                 pendingDismantleUid = instance.uid;
                 pendingCraftData = null;

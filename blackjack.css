@@ -232,14 +232,11 @@
 .chip-button {
     width: 100%;
     max-width: 60px;
-    height: 60px;
+    height: auto;
     margin: 0 auto;
     display: block;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 .chip-button:active {

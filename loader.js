@@ -1,10 +1,9 @@
 // loader.js
-// v1.0.7 (Smart Asset Loading for DIVs)
+// Features: Asset Loading + Anti-Save Protection (Friend's Fix)
 
-// 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';
 
-// 2. Preload all assets from the map
+// 1. Preload images into memory
 function preloadAssets() {
     const imageUrls = Object.values(GAME_ASSETS);
     imageUrls.forEach(url => {
@@ -13,10 +12,34 @@ function preloadAssets() {
     });
 }
 
-// 3. This function runs when the HTML content is ready
+// 2. Apply Protections (The Fix)
+function hardenElement(el) {
+    // Disable Dragging (Native HTML)
+    el.setAttribute('draggable', 'false');
+    
+    // Disable Context Menu (JS Event)
+    el.oncontextmenu = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    };
+
+    // Disable Drag Start (JS Event)
+    el.ondragstart = function(e) {
+        e.preventDefault();
+        return false;
+    };
+
+    // Force Inline CSS (Overrides anything else)
+    el.style.webkitUserDrag = 'none';
+    el.style.webkitTouchCallout = 'none';
+    el.style.userSelect = 'none';
+    el.style.touchAction = 'manipulation';
+}
+
+// 3. Populate HTML with Assets
 function populateAssets() {
-    // A. Handle standard [data-asset-key] elements
-    // This now works for BOTH <img> tags and <div> tags
+    // Handle standard [data-asset-key] (Images or Divs)
     const assetElements = document.querySelectorAll('[data-asset-key]');
     assetElements.forEach(el => {
         const key = el.dataset.assetKey;
@@ -24,26 +47,28 @@ function populateAssets() {
             if (el.tagName === 'IMG') {
                 el.src = GAME_ASSETS[key];
             } else {
-                // If it's a DIV, use background-image
                 el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
             }
-        } else {
-            console.warn(`[Loader] Asset key not found: ${key}`);
+            hardenElement(el); // <--- APPLY PROTECTION
         }
     });
 
-    // B. Handle specific [data-asset-bg-key] elements (Always Background)
+    // Handle background-only elements
     const bgElements = document.querySelectorAll('[data-asset-bg-key]');
     bgElements.forEach(el => {
         const key = el.dataset.assetBgKey;
         if (GAME_ASSETS[key]) {
             el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
-        } else {
-            console.warn(`[Loader] Background asset key not found: ${key}`);
+            hardenElement(el); // <--- APPLY PROTECTION
         }
+    });
+
+    // Extra Sweep: Protect ANY image tag in the document
+    document.querySelectorAll('img').forEach(img => {
+        hardenElement(img);
     });
 }
 
-// 4. Run the functions
+// Run
 preloadAssets();
 document.addEventListener('DOMContentLoaded', populateAssets);

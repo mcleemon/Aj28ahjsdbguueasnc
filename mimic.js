@@ -105,39 +105,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function playMimicRewardAnimation(gemReward) {
         feedButton.disabled = true;
         resultText.innerText = "The Mimic is waking up...";
-
-        // FIX: Use backgroundImage instead of src
         setTimeout(() => {
-            mimicImage.style.backgroundImage = `url('${GAME_ASSETS.mimicOpen}')`;
-
+            mimicImage.src = GAME_ASSETS.mimicOpen;
             setTimeout(() => {
-                // Preload mouth image logic adapted for Divs
-                const mouthUrl = GAME_ASSETS.mimicMouth;
-                const tempImg = new Image();
-                tempImg.src = mouthUrl;
-
-                tempImg.onload = () => {
-                    mimicImage.style.backgroundImage = `url('${mouthUrl}')`;
+                const mouthImg = new Image();
+                mouthImg.onload = () => {
+                    mimicImage.src = mouthImg.src;
                     mimicRewardGem.classList.remove('hidden');
-
                     setTimeout(() => {
-                        const gemIconHtml = `<div class="inline-icon bg-icon" style="background-image: url('${GAME_ASSETS.iconGem}');"></div>`;
+                        const gemIconHtml = `<img src="${GAME_ASSETS.iconGem}" class="inline-icon" alt="Gem">`;
                         resultText.innerHTML = `It spits out ${gemReward} ${gemIconHtml}`;
                         gameState.gemShards += gemReward;
                         gameState.mimicFeedProgress = 0;
                         gameState.mimicStage++;
                         if (typeof saveGame === 'function') saveGame();
                         if (window.refreshGameUI) window.refreshGameUI();
-
                         setTimeout(() => {
                             mimicRewardGem.classList.add('hidden');
                             setTimeout(() => {
-                                mimicImage.style.backgroundImage = `url('${GAME_ASSETS.mimicClose}')`;
+                                mimicImage.src = GAME_ASSETS.mimicClose;
                                 updateMimicUI();
                             }, 300);
                         }, 2000);
                     }, 300);
                 };
+                mouthImg.src = GAME_ASSETS.mimicMouth;
             }, 1000);
         }, 500);
     }

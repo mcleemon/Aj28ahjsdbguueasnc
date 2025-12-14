@@ -629,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 margin-right: 2px; 
                 flex-shrink: 0;
             ">
-                <div class="task-icon bg-icon" style="width: 48px; height: 48px; background-image: url('${iconSrc}');"></div>
+                <img src="${iconSrc}" class="task-icon" alt="Icon" style="width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));">
             </div>
             <div style="flex-grow: 1; text-align: left; display:flex; flex-direction:column; justify-content:center; overflow:hidden;">
                 <span class="task-title" style="margin-bottom:2px; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${task.title}</span>

@@ -1,48 +1,45 @@
 // loader.js
-// v1.0.8 (Smart Asset Loading + Protection)
+// v1.0.6
 
+// 1. Import the asset map
 import { GAME_ASSETS } from './assets.js';
 
-// 1. Preload assets
+// 2. Preload all assets from the map
 function preloadAssets() {
     const imageUrls = Object.values(GAME_ASSETS);
+    // console.log(`[Loader] Preloading ${imageUrls.length} assets...`);
     imageUrls.forEach(url => {
         const img = new Image();
         img.src = url;
     });
 }
 
-// 2. Main Loading Function
+// 3. This function runs when the HTML content is ready
 function populateAssets() {
-    // Handle standard [data-asset-key] elements
-    const assetElements = document.querySelectorAll('[data-asset-key]');
-    assetElements.forEach(el => {
+    // console.log("[Loader] Populating assets...");
+    // Find all <img> tags with [data-asset-key]
+    const imgElements = document.querySelectorAll('[data-asset-key]');
+    imgElements.forEach(el => {
         const key = el.dataset.assetKey;
         if (GAME_ASSETS[key]) {
-            // SMART CHECK: Is it an IMG or a DIV?
-            if (el.tagName === 'IMG') {
-                el.src = GAME_ASSETS[key];
-                // Apply "Ghost" protection to static images
-                el.style.pointerEvents = 'none'; 
-            } else {
-                // It's a DIV (The Protected Button)
-                el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
-                el.style.backgroundSize = 'contain';
-                el.style.backgroundRepeat = 'no-repeat';
-                el.style.backgroundPosition = 'center';
-            }
+            el.src = GAME_ASSETS[key];
+        } else {
+            console.warn(`[Loader] <img> asset key not found: ${key}`);
         }
     });
 
-    // Handle background-only elements (Keep existing logic)
+    // Find all elements with [data-asset-bg-key] for backgrounds
     const bgElements = document.querySelectorAll('[data-asset-bg-key]');
     bgElements.forEach(el => {
         const key = el.dataset.assetBgKey;
         if (GAME_ASSETS[key]) {
             el.style.backgroundImage = `url('${GAME_ASSETS[key]}')`;
+        } else {
+            console.warn(`[Loader] Background asset key not found: ${key}`);
         }
     });
 }
 
+// 4. Run the functions
 preloadAssets();
 document.addEventListener('DOMContentLoaded', populateAssets);

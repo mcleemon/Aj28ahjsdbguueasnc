@@ -5173,31 +5173,3 @@ img {
     background: linear-gradient(to bottom, #c0392b, #922b21);
     border-bottom: 3px solid #641e16;
 }
-
-/* --- GHOST & PROTECTION FIXES --- */
-img {
-    pointer-events: none !important;
-    -webkit-user-drag: none !important;
-    user-select: none !important;
-}
-
-.scroll-menu-icon,
-.settings-img-button,
-.chip-button {
-    pointer-events: auto !important;
-    cursor: pointer;
-    background-color: transparent;
-    -webkit-touch-callout: none !important;
-    -webkit-user-select: none !important;
-    user-select: none !important;
-}
-
-.chip-button {
-    height: 60px;
-    width: 60px;
-}
-
-.settings-img-button {
-    height: 60px;
-    width: 190px;
-}

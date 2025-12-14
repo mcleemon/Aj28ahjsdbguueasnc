@@ -100,13 +100,16 @@ function updateWalletButton(isConnected, address) {
     if (!btn) return;
 
     if (isConnected) {
-        // Visuals: Make it look "Active" (Green border or similar)
-        btn.style.filter = "drop-shadow(0 0 5px #00ff00)";
-        btn.style.border = "2px solid #00ff00";
-        btn.style.borderRadius = "12px";
+        // STYLE: Golden Glow (No Box, No Border)
+        // We use two drop-shadows: one sharp Gold (#FFD700) and one soft Orange (#FFA500) for depth.
+        btn.style.filter = "drop-shadow(0 0 5px #FFD700) drop-shadow(0 0 15px #FFA500)";
+        btn.style.border = "none"; // Ensure no box border
+        btn.style.transform = "scale(1.05)"; // Slight pulse to show it's active
+        btn.style.transition = "filter 0.3s ease, transform 0.3s ease";
     } else {
-        // Visuals: Reset to normal
+        // Reset to normal
         btn.style.filter = "none";
         btn.style.border = "none";
+        btn.style.transform = "scale(1)";
     }
 }

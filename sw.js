@@ -2,7 +2,7 @@
 // Version: 1.0.4 (Force Cache Update)
 // Strategy: Cache-First for Assets (GitHub), Stale-While-Revalidate for Core
 
-const CACHE_NAME = 'reel-rpg-v1.0.4'; // <--- BUMPED VERSION
+const CACHE_NAME = 'reel-rpg-v1.0.5'; // <--- BUMPED VERSION
 
 // 1. CORE ASSETS (Local files)
 const CORE_ASSETS = [

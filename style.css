@@ -5182,23 +5182,23 @@ img {
     left: 0;
     right: 0;
     bottom: 0;
-    
+
     /* VISUALS */
     background-color: #1a1a1a;
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
     /* LAYERING: Higher than any modal (200) or overlay (9999) */
-    z-index: 2147483647; 
-    
+    z-index: 2147483647;
+
     /* PREVENT CLIPPING/SCROLLING */
     width: 100%;
     height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
     touch-action: none;
-    
+
     /* ANIMATION */
     transition: opacity 0.5s ease-out;
 }
@@ -5210,29 +5210,29 @@ img {
     width: 80%;
     max-width: 300px;
     /* Ensure content sits on top of the black background */
-    position: relative; 
+    position: relative;
     z-index: 2147483648;
 }
 
 .loading-logo {
     font-family: 'Lilita One', cursive;
     font-size: 42px;
-    
+
     /* GRADIENT TEXT */
     background: linear-gradient(to bottom, #ffd700, #ff8c00);
-    
+
     /* 1. FIX WARNING: Add standard property */
-    background-clip: text; 
+    background-clip: text;
     -webkit-background-clip: text;
-    
+
     /* Make text transparent so background shows through */
-    -webkit-text-fill-color: transparent; 
-    color: transparent; 
-    
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+
     margin-bottom: 20px;
     text-align: center;
     text-transform: uppercase;
-    
+
     /* 2. FIX BOXY GLOW: Use filter animation instead of box-shadow */
     animation: text-glow-pulse 2s infinite ease-in-out;
 }
@@ -5243,11 +5243,13 @@ img {
         filter: drop-shadow(2px 2px 0 #000) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
         transform: scale(1);
     }
+
     50% {
         /* Sharp black shadow + Strong Gold Glow */
         filter: drop-shadow(2px 2px 0 #000) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
         transform: scale(1.05);
     }
+
     100% {
         /* Back to start */
         filter: drop-shadow(2px 2px 0 #000) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
@@ -5272,7 +5274,7 @@ img {
     border-radius: 5px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #loading-bar-fill {
@@ -5295,4 +5297,112 @@ img {
 #loading-screen.fade-out {
     opacity: 0;
     pointer-events: none;
+}
+
+/* --- COMRADES / REFERRAL MODAL (Pure CSS) --- */
+
+.comrades-panel {
+    /* Pure CSS Box Design */
+    width: 95%;
+    max-width: 400px;
+    height: auto;
+    min-height: 500px;
+    max-height: 80vh;
+    background: linear-gradient(180deg, #2a2a2e 0%, #151515 100%);
+    /* Dark Metal Gradient */
+    border: 3px solid #ffd700;
+    /* Gold Border */
+    border-radius: 15px;
+    box-shadow:
+        0 0 0 3px #000,
+        /* Outer black outline */
+        0 0 30px rgba(255, 215, 0, 0.2),
+        /* Gold Glow */
+        inset 0 0 50px rgba(0, 0, 0, 0.8);
+    /* Inner shadow */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    animation: fadeInScaleUp 0.3s ease-out forwards;
+}
+
+.comrades-header {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    width: 100%;
+    border-bottom: 1px solid #444;
+    padding-bottom: 15px;
+}
+
+.comrades-header h2 {
+    font-family: 'Lilita One', cursive;
+    font-size: 32px;
+    color: #FFD700;
+    margin: 0;
+    text-shadow: 2px 2px 0 #000;
+    letter-spacing: 1px;
+}
+
+/* FIX: Ensure Close Button is visible and clickable */
+#close-comrades-button {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    width: 36px;
+    height: 36px;
+    background-color: #333;
+    /* Dark background to make it pop */
+    border: 2px solid #555;
+    border-radius: 50%;
+    background-size: 60%;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+#close-comrades-button:active {
+    transform: scale(0.9);
+    background-color: #555;
+}
+
+.comrades-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.invite-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+
+.invite-desc {
+    color: #ccc;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 1px #000;
+}
+
+.comrades-section-title {
+    font-family: 'Graduate', serif;
+    color: #888;
+    font-size: 14px;
+    text-align: left;
+    margin-top: 10px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }

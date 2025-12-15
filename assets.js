@@ -33,6 +33,7 @@ export const GAME_ASSETS = {
     buttonNav: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons5.png?raw=true',
     buttonForceFeed: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/buttons2-5.png?raw=true',
     buttonBag: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/bag.png?raw=true',
+    buttonComrade: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/comrades.png?raw=true',
 
     // --- Icons ---
     iconCrystalDust: 'https://github.com/mcleemon/Aj28ahjsdbguueasnc/blob/main/images/crystaldust.png?raw=true',

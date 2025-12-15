@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Graduate&family=Lilita+One&family=Nunito:wght@400;700&family=Oswald:wght@400;700&family=Rye&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.14.1">
+    <link rel="stylesheet" href="style.css?v=2.14.2">
     <link rel="stylesheet" href="blackjack.css?v=1.1.0">
     <link rel="stylesheet" href="reel-game.css?v=1.1.0">
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
@@ -39,6 +39,8 @@
                         </div>
                     </div>
                     <div class="header-right-buttons">
+                        <button id="comrades-button" data-asset-bg-key="buttonComrade"
+                            style="width:32px; height:32px; background-size: contain; background-repeat: no-repeat; border: none; background-color: transparent;"></button>
                         <button id="header-bag-button" data-asset-bg-key="buttonBag"></button>
                         <button id="header-calendar-button" data-asset-bg-key="iconCalendar"></button>
                         <button id="settings-button" data-asset-bg-key="settingButton"></button>
@@ -1144,9 +1146,44 @@
             </div>
         </div>
     </div>
+    <div id="comrades-modal" class="modal hidden" style="z-index: 200;">
+        <div class="comrades-panel">
+
+            <div class="comrades-header">
+                <h2>COMRADES</h2>
+                <button id="close-comrades-button" data-asset-bg-key="closeButton"></button>
+            </div>
+
+            <div class="comrades-content">
+                <div class="invite-card">
+                    <h3 style="color: #fff; margin: 0 0 10px 0; font-family: 'Lilita One', cursive;">RECRUITMENT</h3>
+
+                    <p class="invite-desc">
+                        Earn <span style="color: #00ffff; font-weight: bold;">+20,000 Crystal Dust</span> for each
+                        Comrade that you invite and play the game for
+                        <span style="color: #ffd700; font-weight: bold;">1 Hour playtime + Reach Level 10</span>.
+                    </p>
+
+                    <button id="invite-friend-btn" class="smithy-action-btn" style="width: 100%; margin: 0;">
+                        INVITE FRIEND
+                    </button>
+                </div>
+
+                <div>
+                    <div class="comrades-section-title">Your Comrades</div>
+
+                    <div id="comrades-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                        <div style="color: #666; font-style: italic; text-align: center; margin-top: 20px;">Loading
+                            data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="scene-transition"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=2.14.1" type="module"></script>
+    <script src="api.js?v=1.0.1"></script>
+    <script src="script.js?v=2.14.2" type="module"></script>
     <script src="assets.js?v=1.1.0" type="module"></script>
     <script src="loader.js?v=1.1.1" type="module"></script>
     <script src="scaler.js?v=1.1.0" type="module"></script>

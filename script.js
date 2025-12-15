@@ -22,6 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
         tg.ready();
     }
     try {
+        const user = tg.initDataUnsafe?.user;
+        const startParam = tg.initDataUnsafe?.start_param; // Gets the "ref_123" value
+
+        if (user && startParam && startParam.startsWith('ref_')) {
+            const referrerId = startParam.split('_')[1];
+            const myId = user.id.toString();
+
+            // Prevent self-referral (can't invite yourself)
+            if (referrerId && referrerId !== myId) {
+                console.log(`[Referral] Detected invite from: ${referrerId}`);
+
+                // Wait for API to load, then register
+                setTimeout(() => {
+                    if (window.api && window.api.registerReferral) {
+                        window.api.registerReferral(referrerId, myId);
+                    }
+                }, 1000);
+            }
+        }
+    } catch (e) {
+        console.error("Referral check failed:", e);
+    }
+    try {
         const gameBackgroundColor = '#1a1a1a';
         if (tg.setHeaderColor) {
             tg.setHeaderColor(gameBackgroundColor);
@@ -226,7 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
             mimicStage: 1,
             mimicFeedProgress: 0,
             mimicFeedsToday: 0,
-            mimicLastFeedDate: null
+            mimicLastFeedDate: null,
+
+            // --- REFERRAL SYSTEM ---
+            totalPlayTime: 0,       // Tracks minutes played
+            referralQualified: false, // Has this player met the Lvl 10 requirement?
         };
     }
 
@@ -2485,6 +2512,149 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateUI();
                     break;
             }
+        });
+    }
+
+    // --- COMRADES / REFERRAL SYSTEM LOGIC ---
+
+    // 1. Playtime Tracker (Runs every 60 seconds)
+    // This tracks how long the player has actually played the game.
+    setInterval(() => {
+        if (typeof gameState.totalPlayTime === 'undefined') gameState.totalPlayTime = 0;
+        gameState.totalPlayTime++; // Add 1 minute
+
+        // Save every 5 minutes just to be safe
+        if (gameState.totalPlayTime % 5 === 0) window.isGameDirty = true;
+
+        // Check if they now qualify for the reward
+        checkQualification();
+    }, 60000);
+
+    // 2. Qualification Checker
+    // Checks: Is Level >= 10? AND Played >= 60 Minutes?
+    function checkQualification() {
+        if (gameState.referralQualified) return; // Already qualified, stop checking.
+
+        const isLevelHighEnough = gameState.globalLevel >= 10;
+        const isPlayedLongEnough = (gameState.totalPlayTime || 0) >= 60; // 60 Minutes
+
+        if (isLevelHighEnough && isPlayedLongEnough) {
+            console.log("[System] Player Qualified! Sending signal to server...");
+
+            // Get Telegram User ID
+            const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            if (user && window.api) {
+                // Send the signal to Cloudflare
+                window.api.qualifyPlayer(user.id);
+
+                // Mark as done so we don't spam the server
+                gameState.referralQualified = true;
+                saveGame();
+            }
+        }
+    }
+
+    // 3. UI: Button & Modal Logic
+    const btnComrades = document.getElementById('comrades-button');
+    const comradesModal = document.getElementById('comrades-modal');
+    const btnCloseComrades = document.getElementById('close-comrades-button');
+    const btnInviteFriend = document.getElementById('invite-friend-btn');
+    const comradesList = document.getElementById('comrades-list');
+
+    if (btnComrades) {
+        btnComrades.addEventListener('click', () => {
+            openModal('comrades-modal'); // Uses your existing modal system
+            loadComradesList();
+        });
+    }
+
+    if (btnCloseComrades) {
+        btnCloseComrades.addEventListener('click', () => {
+            closeModal('comrades-modal');
+        });
+    }
+
+    // 4. "Invite Friend" Button Logic
+    if (btnInviteFriend) {
+        btnInviteFriend.addEventListener('click', () => {
+            const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            const myId = user ? user.id : "12345"; // Fallback if testing outside Telegram
+
+            // The link players will share
+            const shareUrl = `https://t.me/ForgeHeroBot/app?startapp=ref_${myId}`;
+            const shareText = `Join me in Forge Hero! Get +20,000 Crystal Dust Each Friend instantly! ⚔️`;
+
+            // Use Telegram's native share screen
+            const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+
+            if (window.Telegram?.WebApp?.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(fullUrl);
+            } else {
+                window.open(fullUrl, '_blank');
+            }
+        });
+    }
+
+    // 5. Load & Render the Friend List
+    async function loadComradesList() {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+        if (!user || !window.api) {
+            comradesList.innerHTML = '<div style="color:#aaa; font-style:italic;">Connect via Telegram to see recruits.</div>';
+            return;
+        }
+
+        comradesList.innerHTML = '<div style="color:#aaa;">Loading data...</div>';
+
+        // Fetch from Cloudflare
+        const data = await window.api.getFriendList(user.id);
+
+        if (!data || !data.friends || data.friends.length === 0) {
+            comradesList.innerHTML = '<div style="color:#666; font-style: italic; margin-top: 20px;">No recruits yet... invite a friend!</div>';
+            return;
+        }
+
+        // Clear loading text
+        comradesList.innerHTML = "";
+
+        // Build the list
+        data.friends.forEach(friend => {
+            const isQualified = friend.status === 'qualified';
+
+            // Design the Row
+            const div = document.createElement('div');
+            div.style.cssText = `
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;
+                background: linear-gradient(90deg, #222 0%, #1a1a1a 100%);
+                padding: 10px; 
+                border-radius: 8px; 
+                border: 1px solid ${isQualified ? '#ffd700' : '#444'};
+                margin-bottom: 8px;
+            `;
+
+            const statusIcon = isQualified ? '✅' : '⏳';
+            const nameColor = isQualified ? '#fff' : '#888';
+            const statusText = isQualified ? 'COMRADE' : 'PENDING';
+            const rewardText = isQualified ? '<span style="color:#00ffff;">+20,000 DUST</span>' : 'Training...';
+
+            // Mask the ID (Player 1234...89)
+            const shortId = friend.new_user_id.toString().slice(-4);
+
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="font-size:20px;">${statusIcon}</div>
+                    <div style="text-align:left;">
+                        <div style="font-weight:bold; color:${nameColor}; font-size:14px;">Player ...${shortId}</div>
+                        <div style="font-size:10px; color:#aaa; font-weight:bold;">${statusText}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px; font-weight:bold; text-align:right;">
+                    ${rewardText}
+                </div>
+            `;
+            comradesList.appendChild(div);
         });
     }
     // --- INITIALIZE GAME ---

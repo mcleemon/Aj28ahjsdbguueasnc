@@ -5406,3 +5406,8 @@ img {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+@keyframes slideInComrade {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}

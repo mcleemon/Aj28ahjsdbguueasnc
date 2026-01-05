@@ -2578,13 +2578,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnInviteFriend) {
         btnInviteFriend.addEventListener('click', () => {
             const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            const myId = user ? user.id : "12345"; // Fallback if testing outside Telegram
 
-            // The link players will share
-            const shareUrl = `https://t.me/ForgeHeroBot/app?startapp=ref_${myId}`;
-            const shareText = `Join me in Forge Hero! Get +20,000 Crystal Dust Each Friend instantly! ⚔️`;
+            // USE REAL ID inside Telegram, OR "12345" if testing on computer
+            const myId = user ? user.id : "12345";
 
-            // Use Telegram's native share screen
+            // YOUR NEW BOT NAME (No @ symbol)
+            const botUsername = "ForgeHeroBot";
+
+            // Generate the link: t.me/ForgeHeroBot/app?startapp=ref_12345
+            const shareUrl = `https://t.me/${botUsername}/app?startapp=ref_${myId}`;
+            const shareText = `Play Forge Hero with me! 🛡️ Get 10,000 Dust + 10 GEMS FREE! 💎⚔️`;
+
+            // Open the Telegram Share Screen
             const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
 
             if (window.Telegram?.WebApp?.openTelegramLink) {
@@ -2595,7 +2600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Load & Render the Friend List
+    // 5. Load & Render the Friend List (UPDATED WITH CLAIM BUTTONS)
     async function loadComradesList() {
         const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
 
@@ -2618,45 +2623,119 @@ document.addEventListener('DOMContentLoaded', () => {
         comradesList.innerHTML = "";
 
         // Build the list
-        data.friends.forEach(friend => {
-            const isQualified = friend.status === 'qualified';
+        data.friends.forEach((friend, index) => {
+            const status = friend.status; // 'pending', 'qualified', or 'claimed'
+            const shortId = friend.new_user_id.toString().slice(-4);
+            const friendId = friend.new_user_id.toString();
 
-            // Design the Row
+            // Create the row container
             const div = document.createElement('div');
+
+            // Stagger Animation (Juicy Entry)
+            div.style.animation = `slideInComrade 0.3s ease-out forwards ${index * 0.1}s`;
+            div.style.opacity = '0'; // Start invisible for animation
+
+            // Base Style
             div.style.cssText = `
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center;
+                display: flex; justify-content: space-between; align-items: center;
                 background: linear-gradient(90deg, #222 0%, #1a1a1a 100%);
-                padding: 10px; 
-                border-radius: 8px; 
-                border: 1px solid ${isQualified ? '#ffd700' : '#444'};
-                margin-bottom: 8px;
+                padding: 12px; border-radius: 8px; border: 1px solid #444;
+                margin-bottom: 8px; position: relative; transform: translateX(-20px);
             `;
 
-            const statusIcon = isQualified ? '✅' : '⏳';
-            const nameColor = isQualified ? '#fff' : '#888';
-            const statusText = isQualified ? 'COMRADE' : 'PENDING';
-            const rewardText = isQualified ? '<span style="color:#00ffff;">+20,000 DUST</span>' : 'Training...';
+            // --- DYNAMIC BUTTON LOGIC ---
+            let buttonHTML = '';
 
-            // Mask the ID (Player 1234...89)
-            const shortId = friend.new_user_id.toString().slice(-4);
+            if (status === 'claimed') {
+                // STATE 3: Already Claimed
+                div.style.borderColor = '#3e8e41'; // Green Border
+                buttonHTML = `
+                    <button disabled style="
+                        background: transparent; border: 1px solid #3e8e41; color: #3e8e41;
+                        padding: 5px 10px; border-radius: 6px; font-weight: bold; font-size: 10px;
+                        cursor: default; opacity: 0.7;">
+                        CLAIMED ✅
+                    </button>
+                `;
+            }
+            else if (status === 'qualified') {
+                // STATE 2: Ready to Claim (Golden Button)
+                div.style.borderColor = '#ffd700'; // Gold Border
+                div.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.1)';
+                buttonHTML = `
+                    <button class="claim-btn-${friendId}" style="
+                        background: linear-gradient(to bottom, #f1c40f, #d35400);
+                        border: 1px solid #f39c12; color: #fff; text-shadow: 1px 1px 0 #000;
+                        padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 11px;
+                        cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
+                        CLAIM REWARD 🎁
+                    </button>
+                `;
+            }
+            else {
+                // STATE 1: Training (Pending)
+                buttonHTML = `
+                    <div style="text-align:right;">
+                        <div style="font-size:10px; color:#666; font-style:italic;">Training...</div>
+                        <div style="font-size:9px; color:#444;">Lvl 10 Required</div>
+                    </div>
+                `;
+            }
 
+            // Fill the row HTML
             div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="font-size:20px;">${statusIcon}</div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="font-size:24px;">${status === 'qualified' ? '✅' : (status === 'claimed' ? '💰' : '⏳')}</div>
                     <div style="text-align:left;">
-                        <div style="font-weight:bold; color:${nameColor}; font-size:14px;">Player ...${shortId}</div>
-                        <div style="font-size:10px; color:#aaa; font-weight:bold;">${statusText}</div>
+                        <div style="font-weight:bold; color:#fff; font-size:14px; font-family:'Nunito', sans-serif;">Player ...${shortId}</div>
                     </div>
                 </div>
-                <div style="font-size:12px; font-weight:bold; text-align:right;">
-                    ${rewardText}
-                </div>
+                <div>${buttonHTML}</div>
             `;
+
             comradesList.appendChild(div);
+
+            // --- ATTACH CLICK LISTENER FOR CLAIM BUTTON ---
+            if (status === 'qualified') {
+                const btn = div.querySelector(`.claim-btn-${friendId}`);
+                if (btn) {
+                    btn.onclick = async () => {
+                        // 1. Disable button immediately to prevent double-clicks
+                        btn.disabled = true;
+                        btn.innerText = "CLAIMING...";
+
+                        // 2. Call API
+                        const success = await window.api.claimReferralReward(user.id, friendId);
+
+                        if (success) {
+                            // 3. Give Rewards (10k Dust + 10 Gems)
+                            gameState.dust += 10000;
+                            gameState.gemShards += 10;
+
+                            // 4. Visual Feedback
+                            spawnFloatingText("+10,000 Dust!", "#00ffff", 50, 50);
+                            setTimeout(() => spawnFloatingText("+10 Gems!", "#ffd700", 40, 50), 200);
+
+                            if (window.Telegram) tg.HapticFeedback.notificationOccurred('success');
+
+                            // 5. Update UI & Save
+                            updateUI();
+                            saveGame();
+
+                            // 6. Refresh List to show "Claimed" state
+                            loadComradesList();
+                        } else {
+                            // Reset if failed
+                            btn.disabled = false;
+                            btn.innerText = "TRY AGAIN";
+                            if (window.Telegram) tg.HapticFeedback.notificationOccurred('error');
+                        }
+                    };
+                }
+            }
         });
     }
+    
     // --- INITIALIZE GAME ---
 
     loadGame((isNewPlayer) => {

@@ -1,11 +1,30 @@
 // api.js v3.0
 // Handles communication between the Game and the Cloudflare Backend
 
-(function() {
+(function () {
     // KEEP YOUR EXISTING URL HERE!
-    const API_BASE_URL = "https://forge-hero-backend.forge-hero-dev.workers.dev"; 
+    const API_BASE_URL = "https://forge-hero-backend.forge-hero-dev.workers.dev";
 
     window.api = {
+
+        /**
+         * Claim the reward for a specific friend
+         */
+        async claimReferralReward(referrerId, friendId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/claim`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrerId, friendId })
+                });
+                const data = await response.json();
+                return data.status === 'success';
+            } catch (error) {
+                console.error("[API] Claim Error:", error);
+                return false;
+            }
+        },
+        
         /**
          * Register a new referral (Friend Joins)
          */
